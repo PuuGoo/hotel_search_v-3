@@ -1,6 +1,11 @@
 import { useMemo } from "react";
 import { HiChat } from "react-icons/hi";
-import { HiArrowLeftOnRectangle, HiUsers } from "react-icons/hi2";
+import {
+  HiArrowLeftOnRectangle,
+  HiMagnifyingGlass,
+  HiUsers,
+} from "react-icons/hi2";
+import { FiGrid } from "react-icons/fi";
 
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -18,6 +23,18 @@ const useRoutes = () => {
         href: "/conversations",
         icon: HiChat,
         active: pathname === "/conversations" || !!conversationId,
+      },
+      {
+        label: "Tìm kiếm",
+        href: "/hotels",
+        icon: HiMagnifyingGlass,
+        active: pathname === "/hotels",
+      },
+      {
+        label: "Dashboard",
+        href: "/dashboard",
+        icon: FiGrid,
+        active: pathname === "/dashboard",
       },
       {
         label: "Users",

@@ -17,6 +17,7 @@ model User {
   emailVerified   DateTime?
   image           String?
   hashedPassword  String?
+  role            String? @default("user") // admin, user
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -28,6 +29,10 @@ model User {
 
   accounts Account[]
   messages Message[]
+  bookmarks Bookmark[]
+  searchHistory SearchHistory[]
+  priceAlerts PriceAlert[]
+  searches Search[]
 }
 
 model Account {
@@ -77,4 +82,97 @@ model Message {
   
   senderId String @db.ObjectId
   sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+// Hotel Search Models
+
+model Hotel {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  address String?
+  city String?
+  country String?
+  url String? @unique
+  imageUrl String?
+  rating Float?
+  priceRange String?
+  description String?
+  source String? // tavily, google, ddg, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookmarks Bookmark[]
+  searchResults SearchResult[]
+}
+
+model Search {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  query String
+  engine String // tavily, google, ddg, xng, case12
+  resultCount Int @default(0)
+  duration Int? // milliseconds
+  createdAt DateTime @default(now())
+
+  userId String? @db.ObjectId
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  results SearchResult[]
+}
+
+model SearchResult {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  title String?
+  url String?
+  snippet String?
+  position Int?
+  score Float?
+  createdAt DateTime @default(now())
+
+  searchId String @db.ObjectId
+  search Search @relation(fields: [searchId], references: [id], onDelete: Cascade)
+
+  hotelId String? @db.ObjectId
+  hotel Hotel? @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+}
+
+model Bookmark {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  title String?
+  url String?
+  notes String?
+  folder String? @default("default")
+  tags String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  hotelId String? @db.ObjectId
+  hotel Hotel? @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+}
+
+model SearchHistory {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  query String
+  engine String?
+  resultCount Int?
+  createdAt DateTime @default(now())
+
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PriceAlert {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  hotelName String
+  targetPrice Float
+  currentPrice Float?
+  isActive Boolean @default(true)
+  lastChecked DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

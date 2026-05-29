@@ -1,182 +1,164 @@
-# NextJs-Messenger-Clone
+# Hotel Search NextJS
 
-<a href="https://hitscounter.dev/"><img src="https://hitscounter.dev/api/hit?url=https%3A%2F%2Fgithub.com%2FTasin5541%2FNextJs-Messenger-Clone&label=visitors&icon=github&color=%23198754"/></a>
-
-A fully responsive real-time chat app made with NextJs 13 (app router), MongoDB, Tailwind CSS, Pusher, Next-Auth and Cloudinary.
-
-<p align="center"> 
-    <img src="public/images/guides/messenger.gif" align="center"></img>
-</p>
-
-- **[NextJs](https://nextjs.org/)** (13.4.x)
-- **[React](https://facebook.github.io/react/)** (18.x)
-- **[MongoDB](https://www.mongodb.com/atlas/database)** (6.x)
-- **[Tailwind CSS](https://tailwindcss.com/)** (3.x)
-- **[Pusher](https://pusher.com/)** (5.x)
-- **[Next-Auth](https://next-auth.js.org/)** (4.x)
-- **[Typescript](https://www.typescriptlang.org/)** (5.x)
-- Production build script
-
-## Live Demo
-
-See a [live demo](https://nextjs-messenger-clone-tasin5541.vercel.app/) on Vercel
+A comprehensive hotel search and management platform built with Next.js 13 (App Router), MongoDB, Tailwind CSS, Pusher, Next-Auth, and Cloudinary.
 
 ## Features
 
-<p align="center"> 
-    <img src="public/images/guides/messenger-chat.gif" align="center"></img>
-</p>
-
+### Chat System (from Messenger Clone)
 - Real-time chat update with Pusher
-- Group chat
+- Group chat support
+- Direct messaging (DM)
 - Delete chat history
 - Image hosting with Cloudinary
 - Dynamic Theme support (Light and Dark mode)
 - Support for both Desktop and Mobile screens
 
-## Installation
+### Hotel Search
+- Multi-engine search (Tavily, Google, DuckDuckGo)
+- Search history tracking
+- Bookmark management with folders and tags
+- Search statistics and analytics
+- Dashboard with usage metrics
 
-### Setup MongoDB
+### User Management
+- User registration and login
+- OAuth support (GitHub, Google)
+- Profile editing
+- Role-based access control (admin/user)
 
-1. Navigate to https://www.mongodb.com/atlas/database and register
+## Tech Stack
 
-2. Find and Select `Build a Database` <br>
-   Select the Free tier and press on `Create` at the bottom <br>
-   <img src="public/images/guides/mongo2.webp" style="width: 800px;">
+- **Framework:** Next.js 13 (App Router)
+- **Database:** MongoDB with Prisma ORM
+- **Real-time:** Pusher
+- **Authentication:** Next-Auth
+- **Styling:** Tailwind CSS
+- **Image Hosting:** Cloudinary
+- **State Management:** Zustand
+- **Forms:** React Hook Form
+- **Notifications:** React Hot Toast
 
-3. Create a user (note down the password) <br>
-   Scroll down to `Add entries to your IP Access List` <br>
-   Enter `0.0.0.0/0` and press `Add Entry` <br>
-   <img src="public/images/guides/mongo3.webp" style="width: 800px;">
+## Getting Started
 
-4. Press `Go to Databases` <br>
-   <img src="public/images/guides/mongo4.jpeg" style="width: 800px;">
+### Prerequisites
 
-5. Click on `Connect` and select `MongoDB for VSCode` <br>
-   Copy the connection string and save it in a notepad <br>
-   Replace `<password>` with your password set on step 3 <br>
-   Add `test` at the end of the connection string (ex. `connectionstring/test`) <br>
-   <img src="public/images/guides/mongo5.webp" style="width: 800px;">
+1. Node.js 16+ installed
+2. MongoDB database (Atlas or local)
+3. Pusher account
+4. Cloudinary account (optional, for image uploads)
 
-### Setup GitHub Authentication
+### Installation
 
-1. Navigate to https://github.com/ <br>
-   Click on your profile dropdown on the top right <br>
-   Click `Settings` <br>
-   <img src="public/images/guides/git1.webp" style="width: 800px;">
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd hotel-search-nextjs
+```
 
-2. Click `Developer settings` <br>
-   Click `OAuth Apps` <br>
-   Click `New OAuth App` <br>
-   <img src="public/images/guides/git2.webp" style="width: 800px;">
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
 
-3. Give a name to your app <br>
-   Type `http://localhost:3020/` in the `Homepage URL` and `Authorization callback URL` fields. <br>
-   Click "Register application" <br>
-   <img src="public/images/guides/git3.webp" style="width: 800px;">
+3. Set up environment variables:
+```bash
+cp env.example .env.local
+```
 
-4. Copy the `Client Id` and note it down <br>
-   Click on `Generate a new client secret`, copy and note it down <br>
-   <img src="public/images/guides/git4.webp" style="width: 800px;">
+Edit `.env.local` with your credentials:
+- `DATABASE_URL` - MongoDB connection string
+- `NEXTAUTH_SECRET` - Random string for NextAuth
+- `NEXT_PUBLIC_PUSHER_APP_KEY` - Pusher app key
+- `PUSHER_APP_ID` - Pusher app ID
+- `PUSHER_SECRET` - Pusher secret
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` - Cloudinary cloud name
+- `NEXT_PUBLIC_CLOUDINARY_PRESET_NAME` - Cloudinary upload preset
 
-### Setup Google Authentication
+4. Initialize the database:
+```bash
+npx prisma db push
+npx prisma generate
+```
 
-1. Navigate to https://console.cloud.google.com and create a new project <br>
-   <img src="public/images/guides/google1.webp" style="width: 800px;">
+5. Run the development server:
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-2. Navigate to the newly created project and search for `API & Services` <br>
-   <img src="public/images/guides/google2.webp" style="width: 800px;">
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-3. Go to `OAuth consent screen` <br>
-   Click the `External` field <br>
-   Click `CREATE` <br>
-   <img src="public/images/guides/google3.webp" style="width: 800px;">
+## Project Structure
 
-4. Click the `App name` field and give it a name <br>
-   On User Mail field, select your email <br>
-   Scroll down to `Developer contact information` and type your email <br>
-   Click `SAVE AND CONTINUE` until you're on the `Summary` step <br>
-   <img src="public/images/guides/google4.webp" style="width: 800px;">
+```
+src/
+├── app/
+│   ├── (site)/           # Login page
+│   ├── actions/          # Server actions
+│   ├── api/              # API routes
+│   │   ├── auth/         # NextAuth routes
+│   │   ├── bookmarks/    # Bookmark API
+│   │   ├── conversations/# Chat API
+│   │   ├── hotels/       # Hotel API
+│   │   ├── messages/     # Message API
+│   │   ├── register/     # Registration API
+│   │   ├── search/       # Search API
+│   │   └── settings/     # Settings API
+│   ├── components/       # Shared components
+│   ├── conversations/    # Chat pages
+│   ├── dashboard/        # Dashboard page
+│   ├── hooks/            # Custom hooks
+│   ├── hotels/           # Hotel search page
+│   ├── libs/             # Utility libraries
+│   ├── types/            # TypeScript types
+│   └── users/            # Users page
+├── middleware.ts          # Route protection
+└── pages/                # Pages router (Pusher auth)
+```
 
-5. Go to `Credentials` <br>
-   Click `CREATE CREDENTIALS` <br>
-   Select `OAuth client ID` <br>
-   <img src="public/images/guides/google5.webp" style="width: 800px;">
+## API Endpoints
 
-6. Select `Web application` as Application Type <br>
-   Scroll down to `Authorized redirect URIs` and add `http://localhost:3020/api/auth/callback/google` <br>
-   Click `CREATE` <br>
-   Copy the `CLient ID` and `Client Secret` and note it down <br>
-   <img src="public/images/guides/google6.webp" style="width: 800px;">
+### Search
+- `POST /api/search` - Perform a search
+- `GET /api/search` - Get search history
 
-### Setup Cloudinary
+### Bookmarks
+- `POST /api/bookmarks` - Create bookmark
+- `GET /api/bookmarks` - Get bookmarks
+- `PATCH /api/bookmarks` - Update bookmark
+- `DELETE /api/bookmarks` - Delete bookmark
 
-1. Navigate to https://console.cloudinary.com and login <br>
-   Go to `Dashboard` and note down the `Cloud name` <br>
-   <img src="public/images/guides/cloud1.jpeg" style="width: 800px;">
+### Conversations
+- `POST /api/conversations` - Create conversation
+- `DELETE /api/conversations/[id]` - Delete conversation
+- `POST /api/conversations/[id]/seen` - Mark as seen
 
-2. Go to settings <br>
-   Then go to `Upload` <br>
-   <img src="public/images/guides/cloud2.webp" style="width: 800px;">
+### Messages
+- `POST /api/messages` - Send message
 
-3. Click `Add upload preset` <br>
-   Change `Signing Mode` to `Unsigned` <br>
-   Click `Save`
-   Copy the newly added preset name and note it down <br>
-   <img src="public/images/guides/cloud3.webp" style="width: 800px;">
+### Auth
+- `POST /api/register` - Register user
+- `POST /api/settings` - Update profile
 
-### Setup Pusher
+## Contributing
 
-1. Navigate to https://dashboard.pusher.com/channels <br>
-   Click `Create app` (or `Get Started`) <br>
-   Give the app a name <br>
-   Select `React` for Frontend and `Node.js` for Backend <br>
-   Create the app <br>
-   <img src="public/images/guides/pusher1.webp" style="width: 800px;">
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-2. Go to `App Keys` <br>
-   Note down values <br>
-   <img src="public/images/guides/pusher2.webp" style="width: 800px;">
+## License
 
-### Setup Project
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-1. Clone/download repo
-2. Create a file called .env.local in the root directory of your project, type the following in cmd/powershell
-   ```
-   cp env.example .env.local
-   ```
-3. Inside the `.env.local` file, add the MongoDB, Pusher, Cloudinary, GitHub and Google keys from the previous steps
-4. `yarn install` to install the dependencies (run `npm install yarn` if you don't have yarn installed)
-5. `yarn prisma db push` to create the DB collections
-6. `prisma generate` to create the prisma client
+## Acknowledgments
 
-## Usage
-
-**Development**
-
-`yarn dev`
-
-- Build app continuously (HMR enabled)
-
-**Production**
-
-`yarn build`
-`yarn start`
-
-- Build app once (HMR disabled) to `/.next/`
-
----
-
-**All commands**
-
-| Command      | Description                                |
-| ------------ | ------------------------------------------ |
-| `yarn dev`   | Build app continuously (HMR enabled)       |
-| `yarn build` | Build app once (HMR disabled) to `/.next/` |
-| `yarn start` | Run production build                       |
-
-## See also
-
-- Some Design ideas were taken from [Facebook Messenger](https://www.facebook.com/messenger/)
-- Some Implementation Ideas for this project are taken from [Josh](https://www.youtube.com/@joshtriedcoding) and [Antonio](https://www.youtube.com/@codewithantonio)
-- Project was bootstrapped with [create-next-app](https://nextjs.org/docs/api-reference/create-next-app)
+- [NextJs-Messenger-Clone](https://github.com/Tasin5541/NextJs-Messenger-Clone) - Base chat system
+- [Next.js](https://nextjs.org/) - React framework
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [Pusher](https://pusher.com/) - Real-time messaging
+- [Prisma](https://www.prisma.io/) - Database ORM
