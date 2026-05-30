@@ -96,10 +96,15 @@ const useRoutes = (
 
     base.push({
       label: "Logout",
-      // Redirect to the login page after clearing the session so the user is
-      // not left on a now-unauthenticated page (which would bounce through
-      // middleware). callbackUrl is the post-signout destination.
-      onClick: () => signOut({ callbackUrl: "/" }),
+      // Await the signout (cookie cleared) BEFORE navigating, then force a full
+      // document load to "/" rather than letting NextAuth/Router soft-navigate.
+      // A hard reload guarantees the login page fetches a fresh (unauthenticated)
+      // session, so its "authenticated -> /conversations" effect can't fire on a
+      // stale client cache and bounce the user back in (the "logout twice" bug).
+      onClick: async () => {
+        await signOut({ redirect: false });
+        window.location.href = "/";
+      },
       href: "#",
       icon: HiArrowLeftOnRectangle,
     });
