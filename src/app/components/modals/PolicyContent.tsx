@@ -27,7 +27,7 @@ export const privacyPolicyContent = (
     </h4>
     <p className="text-sm text-gray-600 dark:text-gray-400">
       For questions or to exercise any data rights (e.g., account deletion), please contact us at:
-      tasinmiftaulmannan@gmail.com
+      Hotel Search By PuuGoo
     </p>
   </>
 );
@@ -66,7 +66,7 @@ export const termsOfServiceContent = (
       4. Contact Information
     </h4>
     <p className="text-sm text-gray-600 dark:text-gray-400">
-      For questions about these Terms, please contact: tasinmiftaulmannan@gmail.com
+      For questions about these Terms, please contact: Hotel Search By PuuGoo
     </p>
   </>
 );

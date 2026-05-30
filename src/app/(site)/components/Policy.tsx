@@ -42,7 +42,7 @@ const Policy = () => {
             Terms of Service
           </button>
         </div>
-        <div>contact: tasinmiftaulmannan@gmail.com</div>
+        <div>Hotel Search By PuuGoo</div>
       </div>
       {/* Render the PolicyModal when modalContent is set */}
       {modalContent && (
