@@ -96,7 +96,10 @@ const useRoutes = (
 
     base.push({
       label: "Logout",
-      onClick: () => signOut(),
+      // Redirect to the login page after clearing the session so the user is
+      // not left on a now-unauthenticated page (which would bounce through
+      // middleware). callbackUrl is the post-signout destination.
+      onClick: () => signOut({ callbackUrl: "/" }),
       href: "#",
       icon: HiArrowLeftOnRectangle,
     });

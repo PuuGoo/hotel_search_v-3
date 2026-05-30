@@ -18,10 +18,30 @@ export const authOptions: AuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_ID as string,
       clientSecret: process.env.GITHUB_SECRET as string,
+      // GitHub's OAuth (unlike Google) has no parameter to force an account
+      // chooser or re-login. While the user is signed in at github.com it will
+      // silently re-authorize. We still send prompt=consent so GitHub at least
+      // re-shows the authorization screen; the reliable cross-provider fix is
+      // the hard-redirect signOut (clears this app's session) plus, for a true
+      // account switch, signing out of github.com.
+      authorization: {
+        params: {
+          prompt: "consent",
+        },
+      },
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      // Force Google's account chooser on every sign-in. signOut() only clears
+      // this app's session, not the Google session in the browser, so without
+      // this Google silently re-selects the still-logged-in account and the
+      // user is logged straight back into the previous account.
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
     }),
     CredentialsProvider({
       name: "credentials",
