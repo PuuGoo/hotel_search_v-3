@@ -16,7 +16,6 @@ interface Search {
   resultCount: number;
   duration: number | null;
   createdAt: Date;
-  results: any[];
 }
 
 interface Stats {

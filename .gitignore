@@ -34,3 +34,27 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# logs
+*.log
+server-out.log
+server-err*.log
+server-error.log
+cli_test*.log
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# hotel-finder runtime artifacts (uploads may contain user data)
+/uploads/
+/outputs/
+/data/
+
+# generated / test spreadsheets and progress files
+*.progress.json
+*_out.xlsx
+*_out.errors.json
+*_output_*.xlsx

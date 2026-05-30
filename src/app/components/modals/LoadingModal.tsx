@@ -1,14 +1,24 @@
 "use client";
 
-import React, { Fragment } from "react";
+import React, { Fragment, useRef } from "react";
 import { ClipLoader } from "react-spinners";
 
 import { Dialog, Transition } from "@headlessui/react";
 
 const LoadingModal = () => {
+  // The dialog's only content is a spinner (nothing tabbable), so HeadlessUI's
+  // FocusTrap warns it has no element to focus. Point initialFocus at this
+  // non-tabbable wrapper (tabIndex={-1}) to satisfy the trap quietly.
+  const focusRef = useRef<HTMLDivElement>(null);
+
   return (
     <Transition.Root show as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={() => {}}>
+      <Dialog
+        as="div"
+        className="relative z-50"
+        initialFocus={focusRef}
+        onClose={() => {}}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -52,7 +62,9 @@ const LoadingModal = () => {
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <Dialog.Panel>
-                <ClipLoader size={40} color="#0284c7" />
+                <div ref={focusRef} tabIndex={-1} className="outline-none">
+                  <ClipLoader size={40} color="#0284c7" />
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>

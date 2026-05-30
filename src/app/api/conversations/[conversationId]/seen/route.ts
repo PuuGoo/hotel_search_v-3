@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import getCurrentUser from "../../../../actions/getCurrentUser";
 import prisma from "../../../../libs/prismadb";
 import { pusherEvents, pusherServer } from "../../../../libs/pusher";
+import { conversationChannel, userChannel } from "../../../../libs/pusher";
+import { sanitizeUser, sanitizeUsers } from "../../../../libs/sanitizeUser";
 
 interface IParams {
   conversationId?: string;
@@ -17,13 +19,26 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // Find existing conversation
-    const conversation = await prisma.conversation.findUnique({
+    if (!conversationId) {
+      return new NextResponse("Invalid ID", { status: 400 });
+    }
+
+    // Find existing conversation, scoped to the current user. Without the
+    // membership filter any authenticated user could mark messages seen in an
+    // arbitrary conversation and trigger Pusher events to its members.
+    //
+    // Only the newest message is needed (to mark it seen); the previous version
+    // loaded the entire message history with every message's seen array on a
+    // hot path (called on each conversation open and each incoming message).
+    const conversation = await prisma.conversation.findFirst({
       where: {
         id: conversationId,
+        userIds: { has: currentUser.id },
       },
       include: {
         messages: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
           include: {
             seen: true,
           },
@@ -36,11 +51,22 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       return new NextResponse("Invalid ID", { status: 400 });
     }
 
+    // Sanitized view of the conversation for the early-return paths below
+    // (strip hashes from embedded user records).
+    const safeConversation = {
+      ...conversation,
+      users: sanitizeUsers(conversation.users),
+      messages: conversation.messages.map((m) => ({
+        ...m,
+        seen: sanitizeUsers(m.seen),
+      })),
+    };
+
     // Find last message
     const lastMessage = conversation.messages[conversation.messages.length - 1];
 
     if (!lastMessage) {
-      return NextResponse.json(conversation);
+      return NextResponse.json(safeConversation);
     }
 
     // Update seen of last message
@@ -61,23 +87,31 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       },
     });
 
+    // Strip password hashes from embedded user records before broadcasting /
+    // returning (sender + seen are full User records).
+    const safeMessage = {
+      ...updatedMessage,
+      sender: sanitizeUser(updatedMessage.sender),
+      seen: sanitizeUsers(updatedMessage.seen),
+    };
+
     // Update all connections with new seen
-    await pusherServer.trigger(currentUser.email, pusherEvents.UPDATE_CONVERSATION, {
+    await pusherServer.trigger(userChannel(currentUser.email), pusherEvents.UPDATE_CONVERSATION, {
       id: conversationId,
-      messages: [updatedMessage],
+      messages: [safeMessage],
     });
 
     // If user has already seen the message, no need to go further
     if (lastMessage.seenIds.indexOf(currentUser.id) !== -1) {
-      return NextResponse.json(conversation);
+      return NextResponse.json(safeConversation);
     }
 
     // Update last message seen
-    await pusherServer.trigger(conversationId!, pusherEvents.UPDATE_MESSAGE, updatedMessage);
+    await pusherServer.trigger(conversationChannel(conversationId), pusherEvents.UPDATE_MESSAGE, safeMessage);
 
-    return NextResponse.json(updatedMessage);
+    return NextResponse.json(safeMessage);
   } catch (error) {
-    console.log(error, "ERROR_MESSAGES_SEEN");
+    console.error("[MESSAGES_SEEN]", error);
     return new NextResponse("Error", { status: 500 });
   }
 }

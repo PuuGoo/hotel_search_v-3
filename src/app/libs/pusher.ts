@@ -1,13 +1,17 @@
 import PusherServer from "pusher";
 import PusherClient from "pusher-js";
 
-export const pusherEvents = {
-  NEW_MESSAGE: "messages:new",
-  UPDATE_MESSAGE: "message:update",
-  NEW_CONVERSATION: "conversation:new",
-  UPDATE_CONVERSATION: "conversation:update",
-  DELETE_CONVERSATION: "conversation:remove",
-};
+// Re-export the pure channel naming + event constants so existing imports from
+// "./pusher" keep working. The definitions live in pusherChannels.ts (no SDK
+// side-effects) so they can be unit-tested without the Pusher cluster env.
+export {
+  pusherEvents,
+  PRESENCE_CHANNEL,
+  USER_CHANNEL_PREFIX,
+  CONVERSATION_CHANNEL_PREFIX,
+  userChannel,
+  conversationChannel,
+} from "./pusherChannels";
 
 export const pusherServer = new PusherServer({
   appId: process.env.PUSHER_APP_ID!,

@@ -14,7 +14,7 @@ interface MobileFooterProps {
 }
 
 const MobileFooter: React.FC<MobileFooterProps> = ({ currentUser }) => {
-  const routes = useRoutes();
+  const routes = useRoutes(currentUser);
   const { isOpen } = useConversation();
 
   if (isOpen) {

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import useConversation from "@/app/hooks/useConversation";
 import { find } from "lodash";
 
-import { pusherClient, pusherEvents } from "../../../libs/pusher";
+import { pusherClient, pusherEvents, conversationChannel } from "../../../libs/pusher";
 import { FullMessageType } from "../../../types";
 import MessageBox from "./MessageBox";
 
@@ -21,7 +21,10 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
   const { conversationId } = useConversation();
 
   useEffect(() => {
-    axios.post(`/api/conversations/${conversationId}/seen`);
+    // Fire-and-forget: marking the conversation seen is a background side effect,
+    // so swallow failures (e.g. transient network) rather than letting them
+    // become an unhandled promise rejection. No user-facing error is warranted.
+    axios.post(`/api/conversations/${conversationId}/seen`).catch(() => {});
   }, [conversationId]);
 
   useEffect(() => {
@@ -29,11 +32,13 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
   }, [messages]);
 
   useEffect(() => {
-    pusherClient.subscribe(conversationId);
+    pusherClient.subscribe(conversationChannel(conversationId));
     bottomRef?.current?.scrollIntoView();
 
     const messageHandler = (message: FullMessageType) => {
-      axios.post(`/api/conversations/${conversationId}/seen`);
+      // Fire-and-forget background seen-marking; swallow failures to avoid an
+      // unhandled promise rejection (see the mount effect above).
+      axios.post(`/api/conversations/${conversationId}/seen`).catch(() => {});
 
       setMessages((current) => {
         if (find(current, { id: message.id })) {
@@ -61,7 +66,7 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
     pusherClient.bind(pusherEvents.UPDATE_MESSAGE, updateMessageHandler);
 
     return () => {
-      pusherClient.unsubscribe(conversationId);
+      pusherClient.unsubscribe(conversationChannel(conversationId));
       pusherClient.unbind(pusherEvents.NEW_MESSAGE, messageHandler);
       pusherClient.unbind(pusherEvents.UPDATE_MESSAGE, updateMessageHandler);
     };

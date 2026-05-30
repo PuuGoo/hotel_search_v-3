@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 
 import { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 import Avatar from "../../components/Avatar";
 import LoadingModal from "../../components/modals/LoadingModal";
@@ -25,6 +26,10 @@ const UserBox: React.FC<UserBoxProps> = ({ data }) => {
       .then((data) => {
         router.push(`/conversations/${data.data.id}`);
       })
+      // Surface failures instead of silently swallowing them (an unhandled
+      // rejection left the user with no feedback). Matches the toast-on-error
+      // pattern used by the other mutating components.
+      .catch(() => toast.error("Không thể mở cuộc trò chuyện"))
       .finally(() => setIsLoading(false));
   }, [data, router]);
 

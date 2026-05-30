@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MdOutlineGroupAdd } from "react-icons/md";
 
 import { User } from "@prisma/client";
@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 
 import GroupChatModal from "../../components/modals/GroupChatModal";
 import useConversation from "../../hooks/useConversation";
-import { pusherClient, pusherEvents } from "../../libs/pusher";
+import { pusherClient, pusherEvents, userChannel } from "../../libs/pusher";
 import { FullConversationType } from "../../types";
 import ConversationBox from "./ConversationBox";
 
@@ -33,12 +33,24 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems, users
     return session.data?.user?.email;
   }, [session.data?.user?.email]);
 
+  // The Pusher subscription is keyed solely to the user's email, but the
+  // remove handler needs the *current* active conversation id (and router) to
+  // decide whether to redirect. Hold them in refs so the subscription effect
+  // can depend on pusherKey alone and not tear down + re-subscribe on every
+  // conversation switch (the most frequent action in the chat UI).
+  const conversationIdRef = useRef(conversationId);
+  const routerRef = useRef(router);
+  useEffect(() => {
+    conversationIdRef.current = conversationId;
+    routerRef.current = router;
+  }, [conversationId, router]);
+
   useEffect(() => {
     if (!pusherKey) {
       return;
     }
 
-    pusherClient.subscribe(pusherKey);
+    pusherClient.subscribe(userChannel(pusherKey));
 
     const updateHandler = (conversation: FullConversationType) => {
       setItems((current) =>
@@ -71,15 +83,28 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems, users
         return [...current.filter((convo) => convo.id !== conversation.id)];
       });
 
-      if (conversationId == conversation.id) {
-        router.push("/conversations");
+      // Read the latest values via refs so this handler isn't a stale closure
+      // even though the effect no longer re-runs on conversationId changes.
+      if (conversationIdRef.current === conversation.id) {
+        routerRef.current.push("/conversations");
       }
     };
 
     pusherClient.bind(pusherEvents.UPDATE_CONVERSATION, updateHandler);
     pusherClient.bind(pusherEvents.NEW_CONVERSATION, newHandler);
     pusherClient.bind(pusherEvents.DELETE_CONVERSATION, removeHandler);
-  }, [conversationId, pusherKey, router]);
+
+    // Clean up on unmount / pusherKey change. Keying this effect to pusherKey
+    // alone (not conversationId) avoids stacking duplicate handler bindings and
+    // re-subscribing the channel every time the user opens a different
+    // conversation.
+    return () => {
+      pusherClient.unsubscribe(userChannel(pusherKey));
+      pusherClient.unbind(pusherEvents.UPDATE_CONVERSATION, updateHandler);
+      pusherClient.unbind(pusherEvents.NEW_CONVERSATION, newHandler);
+      pusherClient.unbind(pusherEvents.DELETE_CONVERSATION, removeHandler);
+    };
+  }, [pusherKey]);
 
   return (
     <>

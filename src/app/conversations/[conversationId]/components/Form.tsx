@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import { HiPaperAirplane, HiPhoto } from "react-icons/hi2";
 
 import { CldUploadButton } from "next-cloudinary";
@@ -23,19 +24,31 @@ const Form = () => {
     },
   });
 
-  const onSubmit: SubmitHandler<FieldValues> = (data) => {
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    const message = data.message;
+    // Optimistically clear the input, but restore it on failure so the user
+    // doesn't lose their text when a send is rejected (e.g. 403/400/500).
     setValue("message", "", { shouldValidate: true });
-    axios.post("/api/messages", {
-      ...data,
-      conversationId,
-    });
+    try {
+      await axios.post("/api/messages", {
+        ...data,
+        conversationId,
+      });
+    } catch (error) {
+      setValue("message", message);
+      toast.error("Không thể gửi tin nhắn");
+    }
   };
 
-  const handleUpload = (result: any) => {
-    axios.post("/api/messages", {
-      image: result.info.secure_url,
-      conversationId: conversationId,
-    });
+  const handleUpload = async (result: any) => {
+    try {
+      await axios.post("/api/messages", {
+        image: result.info.secure_url,
+        conversationId: conversationId,
+      });
+    } catch (error) {
+      toast.error("Không thể gửi ảnh");
+    }
   };
 
   return (

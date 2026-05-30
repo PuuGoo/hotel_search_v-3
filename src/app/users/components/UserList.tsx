@@ -17,8 +17,11 @@ const UserList: React.FC<UserListProps> = ({ items }) => {
   const filterBySearch = (user: User) => {
     if (searchBy) {
       const lowerCaseSearch = searchBy.toLocaleLowerCase();
-      const email = user.email || "";
-      const name = user.name || "";
+      // Lowercase both sides: the search term was already lowercased but the
+      // email/name were compared raw, so a search for "alice" failed to match a
+      // user named "Alice" (case-insensitive search was effectively broken).
+      const email = (user.email || "").toLocaleLowerCase();
+      const name = (user.name || "").toLocaleLowerCase();
       return email.includes(lowerCaseSearch) || name.includes(lowerCaseSearch);
     }
     return true;

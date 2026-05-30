@@ -18,6 +18,11 @@ model User {
   image           String?
   hashedPassword  String?
   role            String? @default("user") // admin, user
+  // Per-feature allow-list. Empty/missing = no restriction (full access), which
+  // keeps every pre-existing account working. A non-empty list restricts the
+  // user to exactly those feature keys (see src/app/libs/features.ts). Admins
+  // bypass this entirely.
+  permissions     String[] @default([])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -33,6 +38,7 @@ model User {
   searchHistory SearchHistory[]
   priceAlerts PriceAlert[]
   searches Search[]
+  auditLogs AuditLog[] @relation("AuditActor")
 }
 
 model Account {
@@ -66,6 +72,10 @@ model Conversation {
 
   userIds String[] @db.ObjectId
   users User[] @relation(fields: [userIds], references: [id])
+
+  // getConversations filters by membership (userIds) and orders by
+  // lastMessageAt desc; index the sort key so the conversation list stays fast.
+  @@index([lastMessageAt])
 }
 
 model Message {
@@ -82,6 +92,10 @@ model Message {
   
   senderId String @db.ObjectId
   sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  // getMessages filters by conversationId and orders by createdAt; this compound
+  // index serves both without a full collection scan as message volume grows.
+  @@index([conversationId, createdAt])
 }
 
 // Hotel Search Models
@@ -117,6 +131,10 @@ model Search {
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   results SearchResult[]
+
+  // The search-history GET and dashboard both filter by userId and order by
+  // createdAt desc; this compound index avoids a collection scan + in-memory sort.
+  @@index([userId, createdAt])
 }
 
 model SearchResult {
@@ -133,6 +151,9 @@ model SearchResult {
 
   hotelId String? @db.ObjectId
   hotel Hotel? @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+
+  // Results are always looked up by their parent search (relation include).
+  @@index([searchId])
 }
 
 model Bookmark {
@@ -150,6 +171,10 @@ model Bookmark {
 
   hotelId String? @db.ObjectId
   hotel Hotel? @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+
+  // The bookmarks GET filters by userId (optionally folder/tag) and orders by
+  // createdAt desc; this compound index covers the common case.
+  @@index([userId, createdAt])
 }
 
 model SearchHistory {
@@ -161,6 +186,9 @@ model SearchHistory {
 
   userId String @db.ObjectId
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Per-user history is written on every search and read back by user.
+  @@index([userId, createdAt])
 }
 
 model PriceAlert {
@@ -175,4 +203,29 @@ model PriceAlert {
 
   userId String @db.ObjectId
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Price alerts are queried per user.
+  @@index([userId])
+}
+
+// Admin accountability trail. Every privileged mutation (role change, user
+// deletion) writes one immutable row here. The actor relation uses SetNull so
+// deleting an admin never cascades away the history of what they did; the
+// human-readable actorEmail/targetEmail are denormalized so a log entry stays
+// meaningful even after the referenced user is gone.
+model AuditLog {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  action String // e.g. user.role.update, user.delete
+  actorId String? @db.ObjectId
+  actorEmail String?
+  targetType String? // e.g. user
+  targetId String?
+  targetEmail String?
+  metadata Json?
+  createdAt DateTime @default(now())
+
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  // The audit view lists most-recent first.
+  @@index([createdAt])
 }

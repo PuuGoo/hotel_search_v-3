@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import { useEffect, useState } from "react";
 import ReactSelect from "react-select";
 
 interface SelectProps {
@@ -12,6 +13,11 @@ interface SelectProps {
 }
 
 const Select: React.FC<SelectProps> = ({ label, value, onChange, options, disabled }) => {
+  // `document` is undefined during SSR (client components still render on the
+  // server in the App Router). Only set the portal target after mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   return (
     <div className="z-[100]">
       <label
@@ -33,10 +39,10 @@ const Select: React.FC<SelectProps> = ({ label, value, onChange, options, disabl
           onChange={onChange}
           isMulti
           options={options}
-          menuPortalTarget={document.body}
+          menuPortalTarget={mounted ? document.body : undefined}
           styles={{
-            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-            option: (base, { isFocused, isSelected }) => ({
+            menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+            option: (base: any, { isFocused, isSelected }: any) => ({
               ...base,
               backgroundColor: isFocused
                 ? "rgb(107 114 128)"

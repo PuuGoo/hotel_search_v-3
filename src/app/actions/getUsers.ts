@@ -1,5 +1,6 @@
 import prisma from "@/app/libs/prismadb";
 
+import { sanitizeUsers } from "../libs/sanitizeUser";
 import getSession from "./getSession";
 
 const getUsers = async () => {
@@ -21,8 +22,12 @@ const getUsers = async () => {
       },
     });
 
-    return users;
+    // Never expose password hashes to the client.
+    return sanitizeUsers(users);
   } catch (error: any) {
+    // Log so a failed user lookup is diagnosable in production instead of
+    // silently returning an empty list (matches getConversationById).
+    console.error("[GET_USERS]", error);
     return [];
   }
 };

@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+# Least privilege: this workflow only reads the repo. Do not grant the default
+# write-scoped GITHUB_TOKEN.
+permissions:
+  contents: read
+
+# Cancel an in-progress run when a newer commit is pushed to the same ref, so CI
+# minutes aren't spent verifying stale commits and feedback on the latest push
+# arrives sooner.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Type-check, lint & test
+    runs-on: ubuntu-latest
+    # Guard against a hung step (e.g. a stuck test) holding a runner for the
+    # 6-hour GitHub default.
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # `npm ci` triggers the postinstall `prisma generate`, which needs the
+      # schema (already in the repo) but no database connection.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npx tsc --noEmit -p tsconfig.json
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      # Catch build-only breakages (static generation, Server Component issues,
+      # module resolution) that type-check/lint/test do not surface. The build
+      # reads a few env vars at module-eval time; they only need to be present,
+      # not real (no DB/network access happens during `next build`), so dummy
+      # values are sufficient and keep secrets out of CI.
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: mongodb://localhost:27017/ci-dummy
+          NEXTAUTH_SECRET: ci-dummy-secret

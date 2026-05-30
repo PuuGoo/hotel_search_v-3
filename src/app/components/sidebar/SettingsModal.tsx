@@ -54,7 +54,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentU
         router.refresh();
         onClose();
       })
-      .catch(() => toast.error("Something went wrong!"))
+      .catch((error) => {
+        // Surface the specific server-side validation reason (e.g. invalid
+        // name / image) instead of a generic message.
+        const message =
+          typeof error?.response?.data === "string"
+            ? error.response.data
+            : "Something went wrong!";
+        toast.error(message);
+      })
       .finally(() => setIsLoading(false));
   };
 

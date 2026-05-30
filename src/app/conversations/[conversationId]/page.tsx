@@ -10,8 +10,14 @@ interface IParams {
 }
 
 const ConversationId = async ({ params }: { params: IParams }) => {
-  const conversation = await getConversationById(params.conversationId);
-  const messages = await getMessages(params.conversationId);
+  // The conversation lookup and message fetch are independent, so run them in
+  // parallel (one combined round-trip) instead of awaiting sequentially. Both
+  // are ownership-scoped internally, matching the Promise.all pattern used by
+  // the other data-fetching routes in this codebase.
+  const [conversation, messages] = await Promise.all([
+    getConversationById(params.conversationId),
+    getMessages(params.conversationId),
+  ]);
 
   if (!conversation) {
     return (

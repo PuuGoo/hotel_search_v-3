@@ -30,6 +30,7 @@ const Avatar: React.FC<AvatarProps> = ({ user }) => {
         <Image
           className="object-cover"
           fill
+          sizes="44px"
           src={user?.image || "/images/avatar-placeholder.png"}
           alt="Avatar"
         />

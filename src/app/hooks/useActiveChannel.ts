@@ -1,52 +1,47 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { useSession } from "next-auth/react";
-import { Channel, Members } from "pusher-js";
+import { Members } from "pusher-js";
 
-import { pusherClient } from "../libs/pusher";
+import { pusherClient, PRESENCE_CHANNEL } from "../libs/pusher";
 import useActiveList from "./useActiveList";
 
 const useActiveChannel = () => {
   const session = useSession();
 
   const { set, add, remove } = useActiveList();
-  const [activeChannel, setActiveChannel] = useState<Channel | null>(null);
 
   useEffect(() => {
-    let channel = activeChannel;
-
-    // Only subscribe to channel after user logs in so the user's active status gets updated real time
+    // Only subscribe after login so the presence status updates in real time.
     if (session?.status !== "authenticated") {
       return;
     }
 
-    if (!channel) {
-      channel = pusherClient.subscribe("presence-messenger");
-      setActiveChannel(channel);
-    }
+    const channel = pusherClient.subscribe(PRESENCE_CHANNEL);
 
-    channel.bind("pusher:subscription_succeeded", (members: Members) => {
+    const onSucceeded = (members: Members) => {
       const initialMembers: string[] = [];
-
       members.each((member: Record<string, any>) => initialMembers.push(member.id));
       set(initialMembers);
-    });
-
-    channel.bind("pusher:member_added", (member: Record<string, any>) => {
-      add(member.id);
-    });
-
-    channel.bind("pusher:member_removed", (member: Record<string, any>) => {
-      remove(member.id);
-    });
-
-    return () => {
-      if (activeChannel) {
-        pusherClient.unsubscribe("presence-messenger");
-        setActiveChannel(null);
-      }
     };
-  }, [activeChannel, set, add, remove, session?.status]);
+    const onAdded = (member: Record<string, any>) => add(member.id);
+    const onRemoved = (member: Record<string, any>) => remove(member.id);
+
+    channel.bind("pusher:subscription_succeeded", onSucceeded);
+    channel.bind("pusher:member_added", onAdded);
+    channel.bind("pusher:member_removed", onRemoved);
+
+    // Unbind the exact handler references and unsubscribe on cleanup. The
+    // previous version kept `activeChannel` in state, which re-ran this effect
+    // and re-bound new inline handlers on every render (duplicate-listener
+    // leak), and never unbound them at all.
+    return () => {
+      channel.unbind("pusher:subscription_succeeded", onSucceeded);
+      channel.unbind("pusher:member_added", onAdded);
+      channel.unbind("pusher:member_removed", onRemoved);
+      pusherClient.unsubscribe(PRESENCE_CHANNEL);
+    };
+  }, [set, add, remove, session?.status]);
 };
 
 export default useActiveChannel;

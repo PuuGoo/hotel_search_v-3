@@ -55,7 +55,15 @@ const AuthForm = () => {
       axios
         .post("/api/register", data)
         .then(() => signIn("credentials", data))
-        .catch(() => toast.error("Something went wrong!"))
+        .catch((error) => {
+          // Surface the specific server-side reason (e.g. invalid email,
+          // weak password, email already in use) instead of a generic message.
+          const message =
+            typeof error?.response?.data === "string"
+              ? error.response.data
+              : "Something went wrong!";
+          toast.error(message);
+        })
         .finally(() => setIsLoading(false));
     }
 
@@ -101,7 +109,11 @@ const AuthForm = () => {
       {session?.status === "loading" && <LoadingModal />}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className=" bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10 dark:bg-dusk dark:sm:border-2 dark:border-lightgray">
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <form
+            className="space-y-6"
+            method="post"
+            onSubmit={handleSubmit(onSubmit)}
+          >
             {variant === "REGISTER" && (
               <Input
                 disabled={isLoading}
@@ -172,7 +184,7 @@ const AuthForm = () => {
             dark:text-gray-400
           "
           >
-            <div>{variant === "LOGIN" ? "New to Messenger?" : "Already have an account?"}</div>
+            <div>{variant === "LOGIN" ? "New to Hotel Search?" : "Already have an account?"}</div>
             <div onClick={toggleVariant} className="cursor-pointer underline">
               {variant === "LOGIN" ? "Create an account" : "Login"}
             </div>

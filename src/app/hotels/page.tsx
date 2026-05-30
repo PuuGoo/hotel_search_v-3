@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { FiSearch, FiBookmark, FiExternalLink, FiStar } from "react-icons/fi";
+import { FiSearch, FiBookmark, FiExternalLink, FiStar, FiZap } from "react-icons/fi";
 
 interface SearchResult {
   id: string;
@@ -28,6 +28,7 @@ const HotelSearchPage = () => {
   const [engine, setEngine] = useState("tavily");
   const [results, setResults] = useState<Search | null>(null);
   const [loading, setLoading] = useState(false);
+  const [cacheHit, setCacheHit] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,22 +39,43 @@ const HotelSearchPage = () => {
     }
 
     setLoading(true);
+    setCacheHit(false);
     try {
       const response = await axios.post("/api/search", {
         query: query.trim(),
         engine,
       });
       setResults(response.data);
-      toast.success(`Tìm thấy ${response.data.resultCount} kết quả`);
-    } catch (error) {
+
+      // Check if result came from cache
+      const isCache = response.headers["x-cache"] === "HIT";
+      setCacheHit(isCache);
+
+      toast.success(
+        `Tìm thấy ${response.data.resultCount} kết quả${isCache ? " (từ cache)" : ""}`
+      );
+    } catch (error: any) {
       console.error("Search error:", error);
-      toast.error("Có lỗi xảy ra khi tìm kiếm");
+
+      if (error.response?.status === 429) {
+        const retryAfter = error.response.data?.retryAfterMs;
+        const seconds = retryAfter ? Math.ceil(retryAfter / 1000) : 60;
+        toast.error(`Quá nhiều yêu cầu. Vui lòng chờ ${seconds} giây.`);
+      } else if (error.response?.status === 503) {
+        toast.error("Dịch vụ tạm thời không khả dụng. Vui lòng thử lại sau.");
+      } else {
+        toast.error(error.response?.data?.error || "Có lỗi xảy ra khi tìm kiếm");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleBookmark = async (result: SearchResult) => {
+    if (!result.url) {
+      toast.error("Kết quả này không có URL để lưu");
+      return;
+    }
     try {
       await axios.post("/api/bookmarks", {
         title: result.title,
@@ -62,8 +84,8 @@ const HotelSearchPage = () => {
         folder: "hotel-search",
       });
       toast.success("Đã lưu bookmark");
-    } catch (error) {
-      toast.error("Không thể lưu bookmark");
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Không thể lưu bookmark");
     }
   };
 
@@ -92,6 +114,7 @@ const HotelSearchPage = () => {
                 placeholder="Nhập tên khách sạn hoặc địa điểm..."
                 className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                 disabled={loading}
+                maxLength={500}
               />
             </div>
             <select
@@ -142,9 +165,15 @@ const HotelSearchPage = () => {
         {results && (
           <div className="space-y-4">
             <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
-              <span>
+              <span className="flex items-center gap-2">
                 Tìm thấy {results.resultCount} kết quả trong{" "}
                 {results.duration ? `${results.duration}ms` : "..."}
+                {cacheHit && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-900/50 text-green-400 rounded text-xs">
+                    <FiZap className="w-3 h-3" />
+                    Cache
+                  </span>
+                )}
               </span>
               <span>Engine: {results.engine.toUpperCase()}</span>
             </div>
@@ -187,8 +216,9 @@ const HotelSearchPage = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleBookmark(result)}
-                        className="p-2 text-gray-400 hover:text-yellow-400 transition-colors"
-                        title="Lưu bookmark"
+                        disabled={!result.url}
+                        className="p-2 text-gray-400 hover:text-yellow-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-400"
+                        title={result.url ? "Lưu bookmark" : "Không có URL để lưu"}
                       >
                         <FiBookmark />
                       </button>
@@ -205,7 +235,7 @@ const HotelSearchPage = () => {
                       )}
                     </div>
                   </div>
-                  {result.score && (
+                  {typeof result.score === "number" && (
                     <div className="mt-3 flex items-center gap-2">
                       <FiStar className="text-yellow-400" />
                       <span className="text-sm text-gray-400">
@@ -226,6 +256,9 @@ const HotelSearchPage = () => {
             <p className="text-lg">Nhập từ khóa để bắt đầu tìm kiếm</p>
             <p className="text-sm mt-2">
               Hỗ trợ tìm kiếm khách sạn, địa điểm, và nhiều hơn nữa
+            </p>
+            <p className="text-xs mt-4 text-gray-500">
+              Multi-key rotation • Circuit breaker • LRU Cache • Rate limiting
             </p>
           </div>
         )}

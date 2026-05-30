@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import prismadb from "@/app/libs/prismadb";
+import {
+  MAX_TITLE,
+  MAX_NOTES,
+  MAX_FOLDER,
+  isObjectId,
+  normalizeUrl,
+  normalizeTags,
+} from "./bookmarkValidation";
 
 export async function POST(request: Request) {
   try {
@@ -14,25 +22,44 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const { title, url, notes, folder, tags, hotelId } = body;
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+    const { title, url, notes, folder, tags, hotelId } = body ?? {};
 
-    if (!url) {
+    const normalizedUrl = normalizeUrl(url);
+    if (!normalizedUrl) {
       return NextResponse.json(
-        { error: "URL is required" },
+        { error: "A valid http(s) URL is required" },
         { status: 400 }
       );
     }
 
+    if (title != null && (typeof title !== "string" || title.length > MAX_TITLE)) {
+      return NextResponse.json({ error: "Invalid title" }, { status: 400 });
+    }
+    if (notes != null && (typeof notes !== "string" || notes.length > MAX_NOTES)) {
+      return NextResponse.json({ error: "Invalid notes" }, { status: 400 });
+    }
+    if (folder != null && (typeof folder !== "string" || folder.length > MAX_FOLDER)) {
+      return NextResponse.json({ error: "Invalid folder" }, { status: 400 });
+    }
+    if (hotelId != null && !isObjectId(hotelId)) {
+      return NextResponse.json({ error: "Invalid hotelId" }, { status: 400 });
+    }
+
     const bookmark = await prismadb.bookmark.create({
       data: {
-        title,
-        url,
-        notes,
-        folder: folder || "default",
-        tags: tags || [],
+        title: title ?? null,
+        url: normalizedUrl,
+        notes: notes ?? null,
+        folder: (typeof folder === "string" && folder.trim()) || "default",
+        tags: normalizeTags(tags),
         userId: currentUser.id,
-        hotelId,
+        hotelId: hotelId ?? null,
       },
     });
 
@@ -52,8 +79,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const folder = searchParams.get("folder");
     const tag = searchParams.get("tag");
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "50");
+    // Validate pagination: NaN-safe, page >= 1, limit clamped to 1..100 to
+    // avoid negative skips (Prisma errors) and unbounded overfetching.
+    const parsedPage = parseInt(searchParams.get("page") || "1", 10);
+    const parsedLimit = parseInt(searchParams.get("limit") || "50", 10);
+    const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+    const limit = Number.isFinite(parsedLimit)
+      ? Math.min(100, Math.max(1, parsedLimit))
+      : 50;
 
     if (!currentUser) {
       return NextResponse.json(
@@ -74,23 +107,25 @@ export async function GET(request: Request) {
       where.tags = { has: tag };
     }
 
-    const bookmarks = await prismadb.bookmark.findMany({
-      where,
-      orderBy: {
-        createdAt: "desc",
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    const total = await prismadb.bookmark.count({ where });
-
-    // Get unique folders
-    const folders = await prismadb.bookmark.findMany({
-      where: { userId: currentUser.id },
-      select: { folder: true },
-      distinct: ["folder"],
-    });
+    // Run the three independent queries in parallel instead of awaiting each
+    // sequentially, cutting the endpoint latency to roughly one DB round-trip.
+    const [bookmarks, total, folders] = await Promise.all([
+      prismadb.bookmark.findMany({
+        where,
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prismadb.bookmark.count({ where }),
+      // Unique folders for the current user.
+      prismadb.bookmark.findMany({
+        where: { userId: currentUser.id },
+        select: { folder: true },
+        distinct: ["folder"],
+      }),
+    ]);
 
     return NextResponse.json({
       bookmarks,
@@ -129,6 +164,15 @@ export async function DELETE(request: Request) {
       );
     }
 
+    // Guard the @db.ObjectId field: an invalid id makes Prisma throw an opaque
+    // 500. A malformed id can't match anything, so treat it as a clean 404.
+    if (!isObjectId(id)) {
+      return NextResponse.json(
+        { error: "Bookmark not found" },
+        { status: 404 }
+      );
+    }
+
     // Verify ownership
     const bookmark = await prismadb.bookmark.findUnique({
       where: { id },
@@ -158,8 +202,13 @@ export async function DELETE(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const currentUser = await getCurrentUser();
-    const body = await request.json();
-    const { id, title, notes, folder, tags } = body;
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+    const { id, title, notes, folder, tags } = body ?? {};
 
     if (!currentUser) {
       return NextResponse.json(
@@ -175,6 +224,25 @@ export async function PATCH(request: Request) {
       );
     }
 
+    // Guard the @db.ObjectId field: an invalid id makes Prisma throw an opaque
+    // 500. A malformed id can't match anything, so treat it as a clean 404.
+    if (!isObjectId(id)) {
+      return NextResponse.json(
+        { error: "Bookmark not found" },
+        { status: 404 }
+      );
+    }
+
+    if (title != null && (typeof title !== "string" || title.length > MAX_TITLE)) {
+      return NextResponse.json({ error: "Invalid title" }, { status: 400 });
+    }
+    if (notes != null && (typeof notes !== "string" || notes.length > MAX_NOTES)) {
+      return NextResponse.json({ error: "Invalid notes" }, { status: 400 });
+    }
+    if (folder != null && (typeof folder !== "string" || folder.length > MAX_FOLDER)) {
+      return NextResponse.json({ error: "Invalid folder" }, { status: 400 });
+    }
+
     // Verify ownership
     const existing = await prismadb.bookmark.findUnique({
       where: { id },
@@ -187,14 +255,17 @@ export async function PATCH(request: Request) {
       );
     }
 
+    // Only update fields that were actually provided so a partial PATCH does
+    // not blank out existing values.
+    const data: Record<string, unknown> = {};
+    if (title !== undefined) data.title = title;
+    if (notes !== undefined) data.notes = notes;
+    if (folder !== undefined) data.folder = folder;
+    if (tags !== undefined) data.tags = normalizeTags(tags);
+
     const bookmark = await prismadb.bookmark.update({
       where: { id },
-      data: {
-        title,
-        notes,
-        folder,
-        tags,
-      },
+      data,
     });
 
     return NextResponse.json(bookmark);

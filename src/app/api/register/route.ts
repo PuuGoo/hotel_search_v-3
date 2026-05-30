@@ -1,16 +1,25 @@
 import bcrypt from "bcrypt";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import prisma from "../../libs/prismadb";
+import { validateRegistration } from "./registerValidation";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { email, name, password } = body;
-
-    if (!email || !name || !password) {
-      return new NextResponse("Missing Info", { status: 400 });
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      return new NextResponse("Invalid JSON body", { status: 400 });
     }
+
+    const result = validateRegistration(body);
+    if (!result.ok) {
+      // Missing/Invalid Info -> 400. All current validation failures are 400.
+      return new NextResponse(result.error, { status: 400 });
+    }
+    const { email, name, password } = result;
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -22,9 +31,18 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(user);
+    // Never return the password hash to the client.
+    const { hashedPassword: _omit, ...safeUser } = user;
+    return NextResponse.json(safeUser);
   } catch (error: any) {
-    console.log(error, "REGITRATION ERROR");
+    // Unique constraint violation = email already registered.
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return new NextResponse("Email already in use", { status: 409 });
+    }
+    console.error("[REGISTRATION_ERROR]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
