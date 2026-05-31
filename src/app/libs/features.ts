@@ -23,10 +23,16 @@ export const FEATURES = [
 export type Feature = (typeof FEATURES)[number];
 
 // Feature set granted to a newly self-registered user. Profile editing is
-// always available regardless of this list; chat/search/bulk are the baseline
-// tools. Dashboard, URL finder and user management require an admin to grant
-// them explicitly via the admin permissions editor.
-export const DEFAULT_USER_PERMISSIONS: Feature[] = ["chat", "search", "bulk"];
+// always available regardless of this list; chat/search/bulk/dashboard/users
+// are the baseline tools. URL finder requires an admin to grant it explicitly
+// via the admin permissions editor.
+export const DEFAULT_USER_PERMISSIONS: Feature[] = [
+  "chat",
+  "search",
+  "bulk",
+  "dashboard",
+  "users",
+];
 
 // Human-readable labels for the admin UI (Vietnamese, matching the app).
 export const FEATURE_LABELS: Record<Feature, string> = {

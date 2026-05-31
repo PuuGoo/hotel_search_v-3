@@ -29,9 +29,9 @@ export async function POST(request: Request) {
         email,
         name,
         hashedPassword,
-        // New self-registered users get a restricted default feature set
-        // (chat, search, bulk + profile is always available). Dashboard, URL
-        // finder and user management must be granted by an admin.
+        // New self-registered users get a default feature set (chat, search,
+        // bulk, dashboard, users + profile is always available). The URL finder
+        // must be granted by an admin via the permissions editor.
         permissions: DEFAULT_USER_PERMISSIONS,
       },
     });
