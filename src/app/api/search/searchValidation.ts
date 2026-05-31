@@ -21,14 +21,14 @@ export type QueryResult =
 // route can map failures to 400s without duplicating the rules.
 export function sanitizeQuery(raw: unknown): QueryResult {
   if (!raw || typeof raw !== "string") {
-    return { ok: false, error: "Search query is required" };
+    return { ok: false, error: "Vui lòng nhập từ khóa tìm kiếm" };
   }
   const sanitized = raw.replace(/[<>]/g, "").trim();
   if (sanitized.length === 0) {
-    return { ok: false, error: "Invalid search query" };
+    return { ok: false, error: "Từ khóa tìm kiếm không hợp lệ" };
   }
   if (sanitized.length > MAX_QUERY_LEN) {
-    return { ok: false, error: `Query too long (max ${MAX_QUERY_LEN} characters)` };
+    return { ok: false, error: `Từ khóa quá dài (tối đa ${MAX_QUERY_LEN} ký tự)` };
   }
   return { ok: true, value: sanitized };
 }

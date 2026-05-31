@@ -28,7 +28,7 @@ const Policy = () => {
                                 transition duration-150 ease-in-out underline
                             "
           >
-            Privacy Policy
+            Chính sách bảo mật
           </button>
 
           <button
@@ -39,7 +39,7 @@ const Policy = () => {
                                 transition duration-150 ease-in-out underline
                             "
           >
-            Terms of Service
+            Điều khoản dịch vụ
           </button>
         </div>
         <div>Hotel Search By PuuGoo</div>

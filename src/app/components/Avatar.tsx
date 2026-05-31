@@ -32,7 +32,7 @@ const Avatar: React.FC<AvatarProps> = ({ user }) => {
           fill
           sizes="44px"
           src={user?.image || "/images/avatar-placeholder.png"}
-          alt="Avatar"
+          alt="Ảnh đại diện"
         />
       </div>
       {isActive && (

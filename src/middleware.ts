@@ -61,6 +61,7 @@ export const config = {
     "/users/:path*",
     "/conversations/:path*",
     "/hotels/:path*",
+    "/bookmarks/:path*",
     "/dashboard/:path*",
     "/admin/:path*",
   ],

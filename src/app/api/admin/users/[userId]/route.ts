@@ -37,7 +37,7 @@ export async function PATCH(
   // the platform out of all admin access. Role changes to others only.
   if (userId === admin.id) {
     return NextResponse.json(
-      { error: "You cannot change your own role" },
+      { error: "Bạn không thể thay đổi vai trò của chính mình" },
       { status: 400 }
     );
   }
@@ -92,7 +92,7 @@ export async function DELETE(
   // strand the platform without an admin. Block it.
   if (userId === admin.id) {
     return NextResponse.json(
-      { error: "You cannot delete your own account" },
+      { error: "Bạn không thể xóa tài khoản của chính mình" },
       { status: 400 }
     );
   }
@@ -112,7 +112,7 @@ export async function DELETE(
     const adminCount = await prisma.user.count({ where: { role: ADMIN_ROLE } });
     if (adminCount <= 1) {
       return NextResponse.json(
-        { error: "Cannot delete the last admin" },
+        { error: "Không thể xóa admin cuối cùng" },
         { status: 400 }
       );
     }

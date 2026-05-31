@@ -37,10 +37,10 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
   const isActive = members.indexOf(otherUser?.email!) !== -1;
   const statusText = useMemo(() => {
     if (data.isGroup) {
-      return `${data.users.length} members`;
+      return `${data.users.length} thành viên`;
     }
 
-    return isActive ? "Active" : "Offline";
+    return isActive ? "Đang hoạt động" : "Ngoại tuyến";
   }, [data.isGroup, data.users.length, isActive]);
 
   return (
@@ -82,7 +82,7 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
                               className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-dusk"
                               onClick={onClose}
                             >
-                              <span className="sr-only">Close panel</span>
+                              <span className="sr-only">Đóng bảng</span>
                               <IoClose size={24} aria-hidden="true" />
                             </button>
                           </div>
@@ -108,7 +108,7 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
                                 <IoTrash size={20} />
                               </div>
                               <div className="text-sm font-light text-neutral-600 dark:text-gray-200">
-                                Delete
+                                Xóa
                               </div>
                             </div>
                           </div>
@@ -126,7 +126,7 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
                                       dark:text-gray-200
                                     "
                                   >
-                                    Emails
+                                    Danh sách email
                                   </dt>
                                   <dd
                                     className="
@@ -182,7 +182,7 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
                                         dark:text-gray-200
                                       "
                                     >
-                                      Joined
+                                      Đã tham gia
                                     </dt>
                                     <dd
                                       className="

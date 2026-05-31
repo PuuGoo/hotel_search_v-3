@@ -47,10 +47,11 @@ const GroupChatModal: React.FC<GroupChatModalProps> = ({ isOpen, onClose, users 
         isGroup: true,
       })
       .then(() => {
+        toast.success("Đã tạo nhóm trò chuyện");
         router.refresh();
         onClose();
       })
-      .catch(() => toast.error("Something went wrong!"))
+      .catch(() => toast.error("Đã có lỗi xảy ra!"))
       .finally(() => setIsLoading(false));
   };
 
@@ -68,15 +69,15 @@ const GroupChatModal: React.FC<GroupChatModalProps> = ({ isOpen, onClose, users 
                 dark:text-gray-200
               "
             >
-              Create a group chat
+              Tạo nhóm trò chuyện
             </h2>
             <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
-              Create a chat with more than 2 people.
+              Tạo cuộc trò chuyện với hơn 2 người.
             </p>
             <div className="mt-10 flex flex-col gap-y-8">
               <Input
                 disabled={isLoading}
-                label="Group Name"
+                label="Tên nhóm"
                 id="name"
                 errors={errors}
                 required
@@ -84,7 +85,7 @@ const GroupChatModal: React.FC<GroupChatModalProps> = ({ isOpen, onClose, users 
               />
               <Select
                 disabled={isLoading}
-                label="Members"
+                label="Thành viên"
                 options={users.map((user) => ({
                   value: user.id,
                   label: user.name,
@@ -101,10 +102,10 @@ const GroupChatModal: React.FC<GroupChatModalProps> = ({ isOpen, onClose, users 
         </div>
         <div className="mt-6 flex items-center justify-end gap-x-6">
           <Button disabled={isLoading} onClick={onClose} type="button" secondary>
-            Cancel
+            Hủy
           </Button>
           <Button disabled={isLoading} type="submit">
-            Create
+            Tạo
           </Button>
         </div>
       </form>

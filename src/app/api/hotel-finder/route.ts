@@ -47,11 +47,11 @@ export async function POST(request: Request) {
     const template = normalizeTemplate(formData.get("template"));
 
     if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+      return NextResponse.json({ error: "Chưa chọn file" }, { status: 400 });
     }
 
     if (!hasXlsxExtension(file.name)) {
-      return NextResponse.json({ error: "Only .xlsx files accepted" }, { status: 400 });
+      return NextResponse.json({ error: "Chỉ chấp nhận file .xlsx" }, { status: 400 });
     }
 
     // Reject oversized uploads before buffering the whole file into memory.
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     // actual byte length after reading in case it is missing or understated.
     if (typeof file.size === "number" && file.size > MAX_UPLOAD_BYTES) {
       return NextResponse.json(
-        { error: "File too large (max 20MB)" },
+        { error: "File quá lớn (tối đa 20MB)" },
         { status: 413 }
       );
     }
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(await file.arrayBuffer());
     if (buffer.byteLength > MAX_UPLOAD_BYTES) {
       return NextResponse.json(
-        { error: "File too large (max 20MB)" },
+        { error: "File quá lớn (tối đa 20MB)" },
         { status: 413 }
       );
     }

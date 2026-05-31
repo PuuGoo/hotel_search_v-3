@@ -142,9 +142,9 @@ export default function HotelFinderPage() {
         // SSE will auto-reconnect
       };
     } catch (err: any) {
-      setError(err.response?.data?.error || "Upload failed");
+      setError(err.response?.data?.error || "Tải lên thất bại");
       setJobStatus("error");
-      toast.error("Upload thất bại");
+      toast.error("Tải lên thất bại");
     }
   }, [file, workers, template]);
 
@@ -200,7 +200,7 @@ export default function HotelFinderPage() {
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Hotel URL Finder</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Tìm URL khách sạn</h1>
           <p className="text-gray-400">
             Tìm official website URL cho khách sạn bằng Playwright + DuckDuckGo
           </p>
@@ -210,13 +210,13 @@ export default function HotelFinderPage() {
         <div className="bg-gray-800 rounded-lg p-6 mb-6">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <FiZap className="text-sky-400" />
-            Configuration
+            Cấu hình
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {/* File Upload */}
             <div className="md:col-span-1">
-              <label className="block text-sm text-gray-400 mb-1">Excel File (.xlsx)</label>
+              <label className="block text-sm text-gray-400 mb-1">File Excel (.xlsx)</label>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -232,7 +232,7 @@ export default function HotelFinderPage() {
 
             {/* Workers */}
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Workers (1-5)</label>
+              <label className="block text-sm text-gray-400 mb-1">Số luồng (1-5)</label>
               <input
                 type="number"
                 min={1}
@@ -251,17 +251,17 @@ export default function HotelFinderPage() {
 
             {/* Template */}
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Export Template</label>
+              <label className="block text-sm text-gray-400 mb-1">Mẫu xuất file</label>
               <select
                 value={template}
                 onChange={(e) => setTemplate(e.target.value)}
                 disabled={isRunning}
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm disabled:opacity-50"
               >
-                <option value="full">Full (Summary + Notes + Charts)</option>
-                <option value="executive">Executive (Summary only)</option>
-                <option value="quick">Quick (Results only)</option>
-                <option value="analysis">Analysis (Summary + Validation)</option>
+                <option value="full">Đầy đủ (Tổng quan + Ghi chú + Biểu đồ)</option>
+                <option value="executive">Rút gọn (Chỉ tổng quan)</option>
+                <option value="quick">Nhanh (Chỉ kết quả)</option>
+                <option value="analysis">Phân tích (Tổng quan + Kiểm tra)</option>
               </select>
             </div>
           </div>
@@ -354,12 +354,12 @@ export default function HotelFinderPage() {
                     key={w.worker_id}
                     className="bg-gray-700/50 rounded-lg px-3 py-2 text-xs"
                   >
-                    <div className="text-gray-400">Worker {w.worker_id}</div>
+                    <div className="text-gray-400">Luồng {w.worker_id}</div>
                     <div className="text-white truncate">
                       {w.status === "searching" ? (
                         <span className="text-yellow-400">{w.hotel_name?.slice(0, 20)}...</span>
                       ) : w.status === "done" ? (
-                        <span className="text-green-400">Done #{w.no}</span>
+                        <span className="text-green-400">Xong #{w.no}</span>
                       ) : (
                         <span className="text-gray-500">{w.status}</span>
                       )}
@@ -376,23 +376,23 @@ export default function HotelFinderPage() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
             <div className="bg-gray-800 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-white">{rows.length}</div>
-              <div className="text-xs text-gray-400">Processed</div>
+              <div className="text-xs text-gray-400">Đã xử lý</div>
             </div>
             <div className="bg-gray-800 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-green-400">{matched}</div>
-              <div className="text-xs text-gray-400">Matched</div>
+              <div className="text-xs text-gray-400">Khớp</div>
             </div>
             <div className="bg-gray-800 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-yellow-400">{noResult}</div>
-              <div className="text-xs text-gray-400">No Result</div>
+              <div className="text-xs text-gray-400">Không có kết quả</div>
             </div>
             <div className="bg-gray-800 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-red-400">{errors}</div>
-              <div className="text-xs text-gray-400">Errors</div>
+              <div className="text-xs text-gray-400">Lỗi</div>
             </div>
             <div className="bg-gray-800 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-sky-400">{avgScore}%</div>
-              <div className="text-xs text-gray-400">Avg Score</div>
+              <div className="text-xs text-gray-400">Điểm trung bình</div>
             </div>
           </div>
         )}
@@ -400,19 +400,19 @@ export default function HotelFinderPage() {
         {/* Results Table */}
         {rows.length > 0 && (
           <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Results</h2>
+            <h2 className="text-lg font-semibold text-white mb-4">Kết quả</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-700">
                     <th className="px-3 py-2 text-left text-gray-400">#</th>
                     <th className="px-3 py-2 text-left text-gray-400">No</th>
-                    <th className="px-3 py-2 text-left text-gray-400">Score</th>
-                    <th className="px-3 py-2 text-left text-gray-400">Status</th>
-                    <th className="px-3 py-2 text-left text-gray-400">Hotel Name</th>
-                    <th className="px-3 py-2 text-left text-gray-400">Address</th>
+                    <th className="px-3 py-2 text-left text-gray-400">Điểm</th>
+                    <th className="px-3 py-2 text-left text-gray-400">Trạng thái</th>
+                    <th className="px-3 py-2 text-left text-gray-400">Tên khách sạn</th>
+                    <th className="px-3 py-2 text-left text-gray-400">Địa chỉ</th>
                     <th className="px-3 py-2 text-left text-gray-400">URL</th>
-                    <th className="px-3 py-2 text-left text-gray-400">Images</th>
+                    <th className="px-3 py-2 text-left text-gray-400">Hình ảnh</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -445,15 +445,15 @@ export default function HotelFinderPage() {
                       <td className="px-3 py-2">
                         {row.status === "matched" ? (
                           <span className="flex items-center gap-1 text-green-400">
-                            <FiCheckCircle /> Matched
+                            <FiCheckCircle /> Khớp
                           </span>
                         ) : row.status === "error" ? (
                           <span className="flex items-center gap-1 text-red-400">
-                            <FiXCircle /> Error
+                            <FiXCircle /> Lỗi
                           </span>
                         ) : (
                           <span className="flex items-center gap-1 text-yellow-400">
-                            <FiClock /> No Result
+                            <FiClock /> Không có kết quả
                           </span>
                         )}
                       </td>

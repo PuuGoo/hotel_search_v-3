@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import prisma from "../../libs/prismadb";
+import { DEFAULT_USER_PERMISSIONS } from "../../libs/features";
 import { validateRegistration } from "./registerValidation";
 
 export async function POST(request: Request) {
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
     try {
       body = await request.json();
     } catch {
-      return new NextResponse("Invalid JSON body", { status: 400 });
+      return new NextResponse("Body JSON không hợp lệ", { status: 400 });
     }
 
     const result = validateRegistration(body);
@@ -28,6 +29,10 @@ export async function POST(request: Request) {
         email,
         name,
         hashedPassword,
+        // New self-registered users get a restricted default feature set
+        // (chat, search, bulk + profile is always available). Dashboard, URL
+        // finder and user management must be granted by an admin.
+        permissions: DEFAULT_USER_PERMISSIONS,
       },
     });
 
@@ -40,9 +45,9 @@ export async function POST(request: Request) {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      return new NextResponse("Email already in use", { status: 409 });
+      return new NextResponse("Email đã được sử dụng", { status: 409 });
     }
     console.error("[REGISTRATION_ERROR]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse("Lỗi máy chủ", { status: 500 });
   }
 }

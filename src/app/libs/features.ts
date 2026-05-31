@@ -22,6 +22,12 @@ export const FEATURES = [
 
 export type Feature = (typeof FEATURES)[number];
 
+// Feature set granted to a newly self-registered user. Profile editing is
+// always available regardless of this list; chat/search/bulk are the baseline
+// tools. Dashboard, URL finder and user management require an admin to grant
+// them explicitly via the admin permissions editor.
+export const DEFAULT_USER_PERMISSIONS: Feature[] = ["chat", "search", "bulk"];
+
 // Human-readable labels for the admin UI (Vietnamese, matching the app).
 export const FEATURE_LABELS: Record<Feature, string> = {
   chat: "Chat",
@@ -67,6 +73,9 @@ const ROUTE_FEATURE_MAP: { prefix: string; feature: Feature }[] = [
   { prefix: "/hotels/bulk", feature: "bulk" },
   { prefix: "/hotels/finder", feature: "finder" },
   { prefix: "/hotels", feature: "search" },
+  // Bookmarks are created from search results, so they live under the "search"
+  // feature — anyone who can search can manage what they saved.
+  { prefix: "/bookmarks", feature: "search" },
   { prefix: "/conversations", feature: "chat" },
   { prefix: "/dashboard", feature: "dashboard" },
   { prefix: "/users", feature: "users" },

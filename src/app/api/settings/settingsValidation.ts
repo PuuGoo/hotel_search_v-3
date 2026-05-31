@@ -26,11 +26,11 @@ export function validateSettings(body: any): SettingsResult {
   const { name, image } = body ?? {};
 
   if (name != null && (typeof name !== "string" || name.trim().length === 0 || name.length > MAX_NAME_LEN)) {
-    return { ok: false, error: "Invalid name" };
+    return { ok: false, error: "Tên không hợp lệ" };
   }
   if (image != null) {
     if (typeof image !== "string" || !isValidImageUrl(image)) {
-      return { ok: false, error: "Invalid image" };
+      return { ok: false, error: "Ảnh không hợp lệ" };
     }
   }
 

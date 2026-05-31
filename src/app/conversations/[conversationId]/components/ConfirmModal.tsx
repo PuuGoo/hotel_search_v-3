@@ -28,11 +28,12 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, onClose }) => {
     axios
       .delete(`/api/conversations/${conversationId}`)
       .then(() => {
+        toast.success("Đã xóa cuộc trò chuyện");
         onClose();
         router.push("/conversations");
         router.refresh();
       })
-      .catch(() => toast.error("Something went wrong!"))
+      .catch(() => toast.error("Đã có lỗi xảy ra!"))
       .finally(() => setIsLoading(false));
   }, [router, conversationId, onClose]);
 
@@ -70,21 +71,21 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, onClose }) => {
             as="h3"
             className="text-base font-semibold leading-6 text-gray-900 dark:text-gray-200"
           >
-            Delete conversation
+            Xóa cuộc trò chuyện
           </Dialog.Title>
           <div className="mt-2">
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Are you sure you want to delete this conversation? This action cannot be undone.
+              Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác.
             </p>
           </div>
         </div>
       </div>
       <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
         <Button disabled={isLoading} danger onClick={onDelete}>
-          Delete
+          Xóa
         </Button>
         <Button disabled={isLoading} secondary onClick={onClose}>
-          Cancel
+          Hủy
         </Button>
       </div>
     </Modal>

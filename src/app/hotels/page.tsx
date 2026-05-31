@@ -198,10 +198,10 @@ const HotelSearchPage = () => {
                             rel="noopener noreferrer"
                             className="hover:underline"
                           >
-                            {result.title || "Untitled"}
+                            {result.title || "Không có tiêu đề"}
                           </a>
                         ) : (
-                          result.title || "Untitled"
+                          result.title || "Không có tiêu đề"
                         )}
                       </h3>
                       {result.url && (
@@ -210,7 +210,7 @@ const HotelSearchPage = () => {
                         </p>
                       )}
                       <p className="text-gray-300 text-sm line-clamp-2">
-                        {result.snippet || "No description available"}
+                        {result.snippet || "Không có mô tả"}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -239,7 +239,7 @@ const HotelSearchPage = () => {
                     <div className="mt-3 flex items-center gap-2">
                       <FiStar className="text-yellow-400" />
                       <span className="text-sm text-gray-400">
-                        Score: {(result.score * 100).toFixed(1)}%
+                        Điểm: {(result.score * 100).toFixed(1)}%
                       </span>
                     </div>
                   )}

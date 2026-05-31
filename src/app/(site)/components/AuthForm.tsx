@@ -61,7 +61,7 @@ const AuthForm = () => {
           const message =
             typeof error?.response?.data === "string"
               ? error.response.data
-              : "Something went wrong!";
+              : "Đã có lỗi xảy ra!";
           toast.error(message);
         })
         .finally(() => setIsLoading(false));
@@ -74,12 +74,12 @@ const AuthForm = () => {
       })
         .then((callback) => {
           if (callback?.error) {
-            toast.error("Invalid credentials!");
+            toast.error("Thông tin đăng nhập không hợp lệ!");
             return;
           }
 
           if (callback?.ok) {
-            toast.success("logged in");
+            toast.success("Đã đăng nhập");
             router.push("/conversations");
           }
         })
@@ -93,12 +93,12 @@ const AuthForm = () => {
     signIn(action, { redirect: false })
       .then((callback) => {
         if (callback?.error) {
-          toast.error("Invalid credentials!");
+          toast.error("Thông tin đăng nhập không hợp lệ!");
           return;
         }
 
         if (callback?.ok) {
-          toast.success("logged in");
+          toast.success("Đã đăng nhập");
         }
       })
       .finally(() => setIsLoading(false));
@@ -121,7 +121,7 @@ const AuthForm = () => {
                 errors={errors}
                 required
                 id="name"
-                label="Name"
+                label="Tên"
               />
             )}
             <Input
@@ -130,7 +130,7 @@ const AuthForm = () => {
               errors={errors}
               required
               id="email"
-              label="Email address"
+              label="Địa chỉ email"
               type="email"
             />
             <Input
@@ -139,12 +139,22 @@ const AuthForm = () => {
               errors={errors}
               required
               id="password"
-              label="Password"
+              label="Mật khẩu"
               type="password"
             />
+            {variant === "LOGIN" && (
+              <div className="flex justify-end">
+                <a
+                  href="/forgot-password"
+                  className="text-sm text-sky-600 hover:underline dark:text-sky-400"
+                >
+                  Quên mật khẩu?
+                </a>
+              </div>
+            )}
             <div>
               <Button disabled={isLoading} fullWidth type="submit">
-                {variant === "LOGIN" ? "Sign in" : "Register"}
+                {variant === "LOGIN" ? "Đăng nhập" : "Đăng ký"}
               </Button>
             </div>
           </form>
@@ -162,7 +172,7 @@ const AuthForm = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="bg-white px-2 text-gray-500 dark:bg-dusk dark:text-gray-200">
-                  Or continue with
+                  Hoặc tiếp tục với
                 </span>
               </div>
             </div>
@@ -184,9 +194,9 @@ const AuthForm = () => {
             dark:text-gray-400
           "
           >
-            <div>{variant === "LOGIN" ? "New to Hotel Search?" : "Already have an account?"}</div>
+            <div>{variant === "LOGIN" ? "Bạn mới biết đến Hotel Search?" : "Đã có tài khoản?"}</div>
             <div onClick={toggleVariant} className="cursor-pointer underline">
-              {variant === "LOGIN" ? "Create an account" : "Login"}
+              {variant === "LOGIN" ? "Tạo tài khoản" : "Đăng nhập"}
             </div>
           </div>
         </div>

@@ -13,17 +13,17 @@ export function validateMessage(body: any): MessageResult {
   const { message, image, conversationId } = body ?? {};
 
   if (!conversationId || typeof conversationId !== "string") {
-    return { ok: false, error: "Invalid conversationId" };
+    return { ok: false, error: "conversationId không hợp lệ" };
   }
 
   const hasText = typeof message === "string" && message.trim().length > 0;
   const hasImage = typeof image === "string" && image.length > 0;
 
   if (!hasText && !hasImage) {
-    return { ok: false, error: "Empty message" };
+    return { ok: false, error: "Tin nhắn trống" };
   }
   if (hasText && message.length > MAX_MESSAGE_LEN) {
-    return { ok: false, error: "Message too long" };
+    return { ok: false, error: "Tin nhắn quá dài" };
   }
 
   return { ok: true, hasText, hasImage };

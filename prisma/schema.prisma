@@ -39,6 +39,7 @@ model User {
   priceAlerts PriceAlert[]
   searches Search[]
   auditLogs AuditLog[] @relation("AuditActor")
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Account {
@@ -228,4 +229,22 @@ model AuditLog {
 
   // The audit view lists most-recent first.
   @@index([createdAt])
+}
+
+// Password reset tokens. We store only a SHA-256 HASH of the token, never the
+// raw value, so a database leak cannot be used to reset accounts. The raw token
+// is delivered to the user via the reset link and verified by re-hashing. Each
+// row is single-use (deleted on successful reset) and time-limited (expiresAt).
+model PasswordResetToken {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  tokenHash String @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Look-ups are by tokenHash (unique) and we purge by userId when issuing a
+  // fresh token, so index userId for the delete-many.
+  @@index([userId])
 }

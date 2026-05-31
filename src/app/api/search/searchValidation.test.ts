@@ -29,13 +29,13 @@ describe("sanitizeQuery", () => {
   it("rejects a query that is only angle brackets / whitespace", () => {
     const r = sanitizeQuery("  <>  ");
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toBe("Invalid search query");
+    if (!r.ok) expect(r.error).toBe("Từ khóa tìm kiếm không hợp lệ");
   });
 
   it("enforces the max length after sanitization", () => {
     const r = sanitizeQuery("a".repeat(MAX_QUERY_LEN + 1));
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toContain("too long");
+    if (!r.ok) expect(r.error).toContain("quá dài");
   });
 
   it("accepts a query exactly at the max length", () => {

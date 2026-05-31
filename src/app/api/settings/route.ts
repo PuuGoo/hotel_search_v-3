@@ -11,11 +11,11 @@ export async function POST(request: Request) {
     try {
       body = await request.json();
     } catch {
-      return new NextResponse("Invalid JSON body", { status: 400 });
+      return new NextResponse("Body JSON không hợp lệ", { status: 400 });
     }
 
     if (!currentUser?.id) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse("Chưa đăng nhập", { status: 401 });
     }
 
     const result = validateSettings(body);

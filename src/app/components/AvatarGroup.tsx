@@ -36,7 +36,7 @@ const AvatarGroup: React.FC<AvatarGroupProps> = ({ users = [] }) => {
             fill
             sizes="21px"
             src={user?.image || "/images/avatar-placeholder.png"}
-            alt="Avatar"
+            alt="Ảnh đại diện"
           />
         </div>
       ))}

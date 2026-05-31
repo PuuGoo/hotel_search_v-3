@@ -34,14 +34,14 @@ describe("validateRegistration", () => {
   it("rejects non-string fields", () => {
     const r = validateRegistration({ ...valid, email: 123 });
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toBe("Invalid Info");
+    if (!r.ok) expect(r.error).toBe("Thông tin không hợp lệ");
   });
 
   it("rejects malformed emails", () => {
     for (const email of ["no-at", "a@b", "a b@c.com", "@c.com", "a@.com"]) {
       const r = validateRegistration({ ...valid, email });
       expect(r.ok).toBe(false);
-      if (!r.ok) expect(r.error).toBe("Invalid email");
+      if (!r.ok) expect(r.error).toBe("Email không hợp lệ");
     }
   });
 

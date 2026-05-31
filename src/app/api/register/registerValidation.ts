@@ -23,23 +23,23 @@ export function validateRegistration(body: any): RegistrationResult {
   const { email, name, password } = body ?? {};
 
   if (!email || !name || !password) {
-    return { ok: false, error: "Missing Info" };
+    return { ok: false, error: "Thiếu thông tin" };
   }
   if (typeof email !== "string" || typeof name !== "string" || typeof password !== "string") {
-    return { ok: false, error: "Invalid Info" };
+    return { ok: false, error: "Thông tin không hợp lệ" };
   }
 
   const normalizedEmail = email.trim();
   const trimmedName = name.trim();
 
   if (!EMAIL_RE.test(normalizedEmail) || normalizedEmail.length > MAX_EMAIL_LEN) {
-    return { ok: false, error: "Invalid email" };
+    return { ok: false, error: "Email không hợp lệ" };
   }
   if (trimmedName.length === 0 || trimmedName.length > MAX_NAME_LEN) {
-    return { ok: false, error: "Invalid name" };
+    return { ok: false, error: "Tên không hợp lệ" };
   }
   if (password.length < MIN_PASSWORD_LEN || password.length > MAX_PASSWORD_LEN) {
-    return { ok: false, error: `Password must be ${MIN_PASSWORD_LEN}-${MAX_PASSWORD_LEN} characters` };
+    return { ok: false, error: `Mật khẩu phải có ${MIN_PASSWORD_LEN}-${MAX_PASSWORD_LEN} ký tự` };
   }
 
   return { ok: true, email: normalizedEmail, name: trimmedName, password };

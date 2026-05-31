@@ -63,7 +63,7 @@ export default function BulkSearchPage() {
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Bulk Hotel Search</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Tìm kiếm khách sạn hàng loạt</h1>
           <p className="text-gray-400">Upload file Excel và tìm kiếm hàng loạt với Tavily</p>
         </div>
 
@@ -71,7 +71,7 @@ export default function BulkSearchPage() {
         <div className="bg-gray-800 rounded-lg p-6 mb-6">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <FiZap className="text-sky-400" />
-            Upload Excel
+            Tải lên Excel
           </h2>
 
           <FileUpload onFileLoaded={handleFileLoaded} disabled={state.isRunning} />
@@ -86,7 +86,7 @@ export default function BulkSearchPage() {
                 className="flex items-center gap-2 px-6 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FiPlay />
-                {state.results.length > 0 ? "Tìm kiếm mới" : `Bắt đầu (${rows.length} rows)`}
+                {state.results.length > 0 ? "Tìm kiếm mới" : `Bắt đầu (${rows.length} dòng)`}
               </button>
             )}
 
@@ -97,7 +97,7 @@ export default function BulkSearchPage() {
                 className="flex items-center gap-2 px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors"
               >
                 <FiRotateCcw />
-                Tiếp tục từ row {session!.nextIndex}/{session!.totalRows}
+                Tiếp tục từ dòng {session!.nextIndex}/{session!.totalRows}
               </button>
             )}
 
@@ -138,7 +138,7 @@ export default function BulkSearchPage() {
           {/* Session restored notice */}
           {isResumable && !state.isRunning && (
             <div className="mt-4 bg-yellow-900/20 border border-yellow-800 rounded-lg px-4 py-3 text-yellow-300 text-sm">
-              Phiên trước còn dở: {session!.nextIndex}/{session!.totalRows} rows đã xử lý
+              Phiên trước còn dở: {session!.nextIndex}/{session!.totalRows} dòng đã xử lý
               {restoredFileName && ` (${restoredFileName})`}. Nhấn &quot;Tiếp tục&quot; để chạy tiếp.
             </div>
           )}

@@ -51,7 +51,7 @@ export async function PUT(
   // Reject it so the UI/admin isn't misled into thinking it took effect.
   if ((target.role ?? "user") === "admin") {
     return NextResponse.json(
-      { error: "Admins have full access; permissions do not apply" },
+      { error: "Admin có toàn quyền; không áp dụng phân quyền chức năng" },
       { status: 400 }
     );
   }

@@ -5,7 +5,7 @@ import {
   HiMagnifyingGlass,
   HiUsers,
 } from "react-icons/hi2";
-import { FiGrid, FiZap, FiGlobe, FiShield } from "react-icons/fi";
+import { FiGrid, FiZap, FiGlobe, FiShield, FiBookmark } from "react-icons/fi";
 
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -38,7 +38,7 @@ const useRoutes = (
   const routes = useMemo<RouteItem[]>(() => {
     const allFeatureRoutes: RouteItem[] = [
       {
-        label: "Chat",
+        label: "Trò chuyện",
         href: "/conversations",
         icon: HiChat,
         active: pathname === "/conversations" || !!conversationId,
@@ -52,28 +52,35 @@ const useRoutes = (
         feature: "search",
       },
       {
-        label: "Bulk Search",
+        label: "Tìm hàng loạt",
         href: "/hotels/bulk",
         icon: FiZap,
         active: pathname === "/hotels/bulk",
         feature: "bulk",
       },
       {
-        label: "URL Finder",
+        label: "Tìm URL",
         href: "/hotels/finder",
         icon: FiGlobe,
         active: pathname === "/hotels/finder",
         feature: "finder",
       },
       {
-        label: "Dashboard",
+        label: "Đã lưu",
+        href: "/bookmarks",
+        icon: FiBookmark,
+        active: pathname === "/bookmarks" || !!pathname?.startsWith("/bookmarks/"),
+        feature: "search",
+      },
+      {
+        label: "Bảng điều khiển",
         href: "/dashboard",
         icon: FiGrid,
         active: pathname === "/dashboard",
         feature: "dashboard",
       },
       {
-        label: "Users",
+        label: "Người dùng",
         href: "/users",
         icon: HiUsers,
         active: pathname === "/users",
@@ -87,7 +94,7 @@ const useRoutes = (
 
     if (role === ADMIN_ROLE) {
       base.push({
-        label: "Admin",
+        label: "Quản trị",
         href: "/admin",
         icon: FiShield,
         active: pathname === "/admin" || !!pathname?.startsWith("/admin/"),
@@ -95,7 +102,7 @@ const useRoutes = (
     }
 
     base.push({
-      label: "Logout",
+      label: "Đăng xuất",
       // Await the signout (cookie cleared) BEFORE navigating, then force a full
       // document load to "/" rather than letting NextAuth/Router soft-navigate.
       // A hard reload guarantees the login page fetches a fresh (unauthenticated)

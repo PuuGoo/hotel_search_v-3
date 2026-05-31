@@ -6,7 +6,7 @@ import "./globals.css";
 
 export const metadata = {
   title: "Hotel Search",
-  description: "Search, match and manage hotels with bulk search and URL finding.",
+  description: "Tìm kiếm, đối chiếu và quản lý khách sạn với tìm kiếm hàng loạt và tìm URL.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -119,11 +119,11 @@ export default function BulkResults({ results }: BulkResultsProps) {
           Tổng: <span className="text-white font-medium">{results.length}</span>
         </span>
         <span>
-          Matched:{" "}
+          Khớp:{" "}
           <span className="text-green-400 font-medium">{matched}</span>
         </span>
         <span>
-          No match:{" "}
+          Không khớp:{" "}
           <span className="text-red-400 font-medium">{results.length - matched}</span>
         </span>
         <span>
@@ -189,22 +189,22 @@ export default function BulkResults({ results }: BulkResultsProps) {
                 className="px-3 py-2 text-left text-gray-400 cursor-pointer hover:text-white"
                 onClick={() => handleSort("status")}
               >
-                Status<SortIcon field="status" />
+                Trạng thái<SortIcon field="status" />
               </th>
               <th
                 className="px-3 py-2 text-left text-gray-400 cursor-pointer hover:text-white"
                 onClick={() => handleSort("name")}
               >
-                Hotel Name<SortIcon field="name" />
+                Tên khách sạn<SortIcon field="name" />
               </th>
-              <th className="px-3 py-2 text-left text-gray-400">Address</th>
+              <th className="px-3 py-2 text-left text-gray-400">Địa chỉ</th>
               <th
                 className="px-3 py-2 text-left text-gray-400 cursor-pointer hover:text-white"
                 onClick={() => handleSort("links")}
               >
-                Links<SortIcon field="links" />
+                Liên kết<SortIcon field="links" />
               </th>
-              <th className="px-3 py-2 text-left text-gray-400">Matched Links</th>
+              <th className="px-3 py-2 text-left text-gray-400">Liên kết khớp</th>
             </tr>
           </thead>
           <tbody>
@@ -239,7 +239,7 @@ export default function BulkResults({ results }: BulkResultsProps) {
                             : "bg-red-900/50 text-red-400"
                         }`}
                       >
-                        {result.status === "matched" ? "Matched" : "No match"}
+                        {result.status === "matched" ? "Khớp" : "Không khớp"}
                       </span>
                     </td>
                     <td className="px-3 py-2">
@@ -289,7 +289,7 @@ export default function BulkResults({ results }: BulkResultsProps) {
                               }
                               className="text-xs text-gray-500 hover:text-gray-300"
                             >
-                              +{result.matchedLinks.length - 2} more
+                              +{result.matchedLinks.length - 2} thêm
                             </button>
                           )}
                         </div>
@@ -348,14 +348,14 @@ export default function BulkResults({ results }: BulkResultsProps) {
               disabled={page === 0}
               className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded disabled:opacity-50"
             >
-              Prev
+              Trước
             </button>
             <button
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page >= totalPages - 1}
               className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded disabled:opacity-50"
             >
-              Next
+              Sau
             </button>
           </div>
         </div>

@@ -55,7 +55,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast }) => {
           />
           {data.image ? (
             <Image
-              alt="Image"
+              alt="Hình ảnh"
               height="288"
               width="288"
               onClick={() => setImageModalOpen(true)}
@@ -79,7 +79,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast }) => {
             text-gray-500
             "
           >
-            {`Seen by ${seenList}`}
+            {`Đã xem bởi ${seenList}`}
           </div>
         )}
       </div>

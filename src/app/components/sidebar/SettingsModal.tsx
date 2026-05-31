@@ -51,6 +51,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentU
     axios
       .post("/api/settings", data)
       .then(() => {
+        toast.success("Đã cập nhật hồ sơ");
         router.refresh();
         onClose();
       })
@@ -60,7 +61,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentU
         const message =
           typeof error?.response?.data === "string"
             ? error.response.data
-            : "Something went wrong!";
+            : "Đã có lỗi xảy ra!";
         toast.error(message);
       })
       .finally(() => setIsLoading(false));
@@ -80,16 +81,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentU
                 dark:text-gray-200
               "
             >
-              Profile
+              Hồ sơ
             </h2>
             <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
-              Edit your profile information.
+              Chỉnh sửa thông tin hồ sơ của bạn.
             </p>
 
             <div className="mt-10 flex flex-col gap-y-8">
               <Input
                 disabled={isLoading}
-                label="Name"
+                label="Tên"
                 id="name"
                 errors={errors}
                 required
@@ -107,7 +108,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentU
                     dark:text-gray-200
                   "
                 >
-                  Photo
+                  Ảnh đại diện
                 </label>
                 <div className="mt-2 flex items-center gap-x-3">
                   <Image
@@ -115,7 +116,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentU
                     height="48"
                     className="rounded-full"
                     src={image || currentUser?.image || "/images/avatar-placeholder.png"}
-                    alt="Avatar"
+                    alt="Ảnh đại diện"
                   />
                   <CldUploadButton
                     options={{ maxFiles: 1 }}
@@ -123,7 +124,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentU
                     uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_NAME}
                   >
                     <Button disabled={isLoading} secondary type="button">
-                      Change
+                      Thay đổi
                     </Button>
                   </CldUploadButton>
                 </div>
@@ -142,10 +143,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentU
           "
         >
           <Button disabled={isLoading} secondary onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button disabled={isLoading} type="submit">
-            Save
+            Lưu
           </Button>
         </div>
       </form>

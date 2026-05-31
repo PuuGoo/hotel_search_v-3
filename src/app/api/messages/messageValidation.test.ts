@@ -25,7 +25,7 @@ describe("validateMessage", () => {
     expect(validateMessage({ message: "hi", conversationId: 123 }).ok).toBe(false);
     const r = validateMessage({ message: "hi", conversationId: "" });
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toBe("Invalid conversationId");
+    if (!r.ok) expect(r.error).toBe("conversationId không hợp lệ");
   });
 
   it("rejects a null/undefined body without throwing (body ?? {} guard)", () => {
@@ -36,19 +36,19 @@ describe("validateMessage", () => {
   it("rejects an empty payload (no text, no image)", () => {
     const r = validateMessage({ conversationId });
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toBe("Empty message");
+    if (!r.ok) expect(r.error).toBe("Tin nhắn trống");
   });
 
   it("treats whitespace-only text as empty", () => {
     const r = validateMessage({ message: "   ", conversationId });
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toBe("Empty message");
+    if (!r.ok) expect(r.error).toBe("Tin nhắn trống");
   });
 
   it("rejects an over-long message", () => {
     const r = validateMessage({ message: "a".repeat(MAX_MESSAGE_LEN + 1), conversationId });
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toBe("Message too long");
+    if (!r.ok) expect(r.error).toBe("Tin nhắn quá dài");
   });
 
   it("accepts a message exactly at the max length", () => {

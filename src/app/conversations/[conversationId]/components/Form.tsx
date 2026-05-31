@@ -80,7 +80,7 @@ const Form = () => {
           register={register}
           errors={errors}
           required
-          placeholder="Write a message"
+          placeholder="Viết tin nhắn"
         />
         <button
           type="submit"

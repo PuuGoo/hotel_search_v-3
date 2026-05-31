@@ -129,7 +129,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems, users
       >
         <div className="px-5">
           <div className="flex justify-between mb-4 pt-4">
-            <div className="text-2xl font-bold text-neutral-800 dark:text-gray-200">Messages</div>
+            <div className="text-2xl font-bold text-neutral-800 dark:text-gray-200">Tin nhắn</div>
             <div
               onClick={() => setIsModalOpen(true)}
               className="
