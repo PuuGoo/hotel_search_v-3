@@ -74,7 +74,7 @@ const Header: React.FC<HeaderProps> = ({ conversation }) => {
           )}
 
           <div className="flex flex-col dark:text-gray-200">
-            <div>{conversation.name || otherUser.name}</div>
+            <div>{conversation.name || otherUser?.name || "Người dùng đã xóa"}</div>
             <div className="text-sm font-light text-neutral-500 dark:text-gray-400">
               {statusText}
             </div>

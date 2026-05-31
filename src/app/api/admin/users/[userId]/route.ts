@@ -118,6 +118,29 @@ export async function DELETE(
     }
   }
 
+  // Clean up conversation membership before deleting the user. Otherwise the
+  // user's id lingers in each conversation's `userIds`, and the UI's
+  // useOtherUser() resolves to undefined for 1-1 chats (crash). For each
+  // conversation the user belonged to: drop their id; if that leaves a non-group
+  // chat with fewer than 2 members, delete the now-orphaned conversation.
+  const conversations = await prisma.conversation.findMany({
+    where: { userIds: { has: userId } },
+    select: { id: true, isGroup: true, userIds: true },
+  });
+
+  for (const convo of conversations) {
+    const remaining = convo.userIds.filter((id) => id !== userId);
+    if (!convo.isGroup && remaining.length < 2) {
+      // Orphaned 1-1 conversation: remove it (messages cascade on delete).
+      await prisma.conversation.delete({ where: { id: convo.id } });
+    } else {
+      await prisma.conversation.update({
+        where: { id: convo.id },
+        data: { userIds: remaining },
+      });
+    }
+  }
+
   await prisma.user.delete({ where: { id: userId } });
 
   await recordAudit({

@@ -26,12 +26,13 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
   const otherUser = useOtherUser(data);
 
   const joinedDate = useMemo(() => {
+    if (!otherUser?.createdAt) return null;
     return format(new Date(otherUser.createdAt), "PP");
-  }, [otherUser.createdAt]);
+  }, [otherUser?.createdAt]);
 
   const title = useMemo(() => {
-    return data.name || otherUser.name;
-  }, [data.name, otherUser.name]);
+    return data.name || otherUser?.name || "Người dùng đã xóa";
+  }, [data.name, otherUser?.name]);
 
   const { members } = useActiveList();
   const isActive = members.indexOf(otherUser?.email!) !== -1;
@@ -164,11 +165,11 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
                                       dark:text-gray-50
                                     "
                                   >
-                                    {otherUser.email}
+                                    {otherUser?.email ?? "Không có"}
                                   </dd>
                                 </div>
                               )}
-                              {!data.isGroup && (
+                              {!data.isGroup && joinedDate && (
                                 <>
                                   <hr />
                                   <div>
