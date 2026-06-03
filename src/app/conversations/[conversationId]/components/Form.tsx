@@ -212,6 +212,22 @@ const Form: React.FC<FormProps> = ({ replyTo, onClearReply }) => {
 
   const messageInputRef = useRef<HTMLInputElement>(null);
 
+  // Handle clipboard paste: if the user has a file on their system clipboard
+  // (Ctrl+C a file in Explorer) and pastes into the chat input, pick it up as
+  // a pending attachment instead of ignoring it.
+  const handlePasteFile = useCallback((files: FileList) => {
+    const f = files[0];
+    if (!f) return;
+
+    if (f.size > 50 * 1024 * 1024) {
+      toast.error("File quá lớn (tối đa 50MB)");
+      return;
+    }
+
+    setPendingFile({ file: f });
+    toast.success(`Đã đính kèm: ${f.name}`);
+  }, []);
+
   const handleInputFocus = () => {
     if (window.visualViewport) {
       setTimeout(() => {
@@ -333,6 +349,7 @@ const Form: React.FC<FormProps> = ({ replyTo, onClearReply }) => {
             errors={errors}
             required={!pendingFile}
             placeholder={pendingFile ? "Thêm tin nhắn (tùy chọn)" : "Viết tin nhắn"}
+            onPasteFile={handlePasteFile}
           />
           <button
             type="submit"
