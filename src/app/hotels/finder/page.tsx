@@ -96,22 +96,26 @@ export default function HotelFinderPage() {
 
       try {
         const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
-        const fileName = `finder-auto-${timestamp}.json`;
+        const displayName = `finder-auto-${timestamp}.json`;
 
         const blob = new Blob([JSON.stringify(rowsToSave, null, 2)], {
           type: "application/json",
         });
 
         const formData = new FormData();
-        const fileObj = new File([blob], fileName, { type: "application/json" });
+        const fileObj = new File([blob], displayName, { type: "application/json" });
         formData.append("file", fileObj);
 
         const uploadRes = await axios.post("/api/messages/upload", formData);
         const { fileUrl } = uploadRes.data;
 
+        // fileUrl is "/api/drive/file/{uniqueName}". Extract the unique server
+        // name so the drive listing can look up the real file on disk.
+        const serverName = fileUrl.split("/").pop() || displayName;
+
         await axios.post("/api/drive", {
-          fileName,
-          originalName: fileName,
+          fileName: serverName,
+          originalName: displayName,
           filePath: fileUrl,
           fileSize: blob.size,
           mimeType: "application/json",
@@ -266,22 +270,26 @@ export default function HotelFinderPage() {
 
     try {
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
-      const fileName = `finder-results-${timestamp}.json`;
+      const displayName = `finder-results-${timestamp}.json`;
 
       const blob = new Blob([JSON.stringify(rows, null, 2)], {
         type: "application/json",
       });
 
       const formData = new FormData();
-      const fileObj = new File([blob], fileName, { type: "application/json" });
+      const fileObj = new File([blob], displayName, { type: "application/json" });
       formData.append("file", fileObj);
 
       const uploadRes = await axios.post("/api/messages/upload", formData);
       const { fileUrl } = uploadRes.data;
 
+      // Extract the unique server-generated name from the fileUrl.
+      // fileUrl is "/api/drive/file/{uniqueName}".
+      const serverName = fileUrl.split("/").pop() || displayName;
+
       await axios.post("/api/drive", {
-        fileName,
-        originalName: fileName,
+        fileName: serverName,
+        originalName: displayName,
         filePath: fileUrl,
         fileSize: blob.size,
         mimeType: "application/json",
