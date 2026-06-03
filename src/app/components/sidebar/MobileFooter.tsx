@@ -51,6 +51,7 @@ const MobileFooter: React.FC<MobileFooterProps> = memo(({ currentUser }) => {
             active={route.active}
             icon={route.icon}
             onClick={route.onClick}
+            prefetch={!route.onClick}
           />
         ))}
         <MobileItem>

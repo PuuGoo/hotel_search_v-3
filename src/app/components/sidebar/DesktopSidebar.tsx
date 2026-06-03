@@ -57,6 +57,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = memo(({ currentUser }) => 
                 icon={item.icon}
                 active={item.active}
                 onClick={item.onClick}
+                prefetch={!item.onClick}
               />
             ))}
           </ul>
@@ -66,6 +67,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = memo(({ currentUser }) => 
           <NotificationBell />
           <Link
             href="/settings"
+            prefetch={true}
             className="
               flex flex-col items-center gap-1 rounded-md p-2
               text-gray-500 hover:text-gray-900

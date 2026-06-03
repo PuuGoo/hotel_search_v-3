@@ -8,9 +8,10 @@ interface MobileItemProps {
   icon: any;
   active?: boolean;
   onClick?: () => void;
+  prefetch?: boolean;
 }
 
-const MobileLink: React.FC<MobileItemProps> = memo(({ href, icon: Icon, active, onClick }) => {
+const MobileLink: React.FC<MobileItemProps> = memo(({ href, icon: Icon, active, onClick, prefetch = true }) => {
   const handleClick = useCallback(() => {
     if (onClick) {
       return onClick();
@@ -21,19 +22,20 @@ const MobileLink: React.FC<MobileItemProps> = memo(({ href, icon: Icon, active, 
     <Link
       onClick={handleClick}
       href={href}
+      prefetch={prefetch}
       className={clsx(
         `
-        group 
-        flex 
-        gap-x-3 
-        text-sm 
-        leading-6 
-        font-semibold 
-        w-full 
-        justify-center 
-        p-4 
-        text-gray-500 
-        hover:text-black 
+        group
+        flex
+        gap-x-3
+        text-sm
+        leading-6
+        font-semibold
+        w-full
+        justify-center
+        p-4
+        text-gray-500
+        hover:text-black
         hover:bg-gray-100
         dark:hover:bg-lightgray
         dark:hover:text-gray-100

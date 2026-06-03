@@ -26,6 +26,11 @@ const ConversationBox: React.FC<ConversationBoxProps> = memo(({ data, selected }
     router.push(`/conversations/${data.id}`);
   }, [data, router]);
 
+  // Prefetch the conversation page on hover so navigation feels instant.
+  const handleMouseEnter = useCallback(() => {
+    router.prefetch(`/conversations/${data.id}`);
+  }, [data.id, router]);
+
   const lastMessage = useMemo(() => {
     const messages = data.messages || [];
 
@@ -63,6 +68,7 @@ const ConversationBox: React.FC<ConversationBoxProps> = memo(({ data, selected }
   return (
     <div
       onClick={handleClick}
+      onMouseEnter={handleMouseEnter}
       className={clsx(
         `
         w-full 

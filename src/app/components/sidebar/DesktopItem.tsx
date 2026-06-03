@@ -9,9 +9,10 @@ interface DesktopItemProps {
   href: string;
   onClick?: () => void;
   active?: boolean;
+  prefetch?: boolean;
 }
 
-const DesktopItem: React.FC<DesktopItemProps> = memo(({ label, href, icon: Icon, active, onClick }) => {
+const DesktopItem: React.FC<DesktopItemProps> = memo(({ label, href, icon: Icon, active, onClick, prefetch = true }) => {
   const handleClick = useCallback(() => {
     if (onClick) {
       return onClick();
@@ -22,18 +23,19 @@ const DesktopItem: React.FC<DesktopItemProps> = memo(({ label, href, icon: Icon,
     <li onClick={handleClick} key={label}>
       <Link
         href={href}
+        prefetch={prefetch}
         className={clsx(
           `
-            group 
-            flex 
-            gap-x-3 
-            rounded-md 
-            p-3 
-            text-sm 
-            leading-6 
-            font-semibold 
-            text-gray-500 
-            hover:text-black 
+            group
+            flex
+            gap-x-3
+            rounded-md
+            p-3
+            text-sm
+            leading-6
+            font-semibold
+            text-gray-500
+            hover:text-black
             hover:bg-gray-100
             dark:hover:bg-lightgray
             dark:hover:text-gray-100
