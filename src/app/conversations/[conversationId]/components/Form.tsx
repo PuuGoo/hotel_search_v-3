@@ -5,6 +5,7 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react"
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { HiPaperAirplane, HiPhoto, HiPaperClip, HiXMark, HiMicrophone } from "react-icons/hi2";
+import { CldUploadButton } from "next-cloudinary";
 import { useSession } from "next-auth/react";
 
 import useConversation from "../../../hooks/useConversation";
