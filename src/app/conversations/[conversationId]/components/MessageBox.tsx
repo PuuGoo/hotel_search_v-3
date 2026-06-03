@@ -10,12 +10,14 @@ import Image from "next/image";
 import {
   HiArrowDownTray,
   HiArrowUturnLeft,
+  HiClipboard,
   HiDocument,
   HiFaceSmile,
   HiFilm,
   HiMusicalNote,
   HiPaperClip,
 } from "react-icons/hi2";
+import { toast } from "react-hot-toast";
 
 import Avatar from "../../../components/Avatar";
 import { FullMessageType } from "../../../types";
@@ -129,6 +131,41 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // Copy the file/image URL to clipboard (for file attachments).
+  const handleCopyFileUrl = async () => {
+    if (!data.fileUrl) return;
+    try {
+      await navigator.clipboard.writeText(data.fileUrl);
+      toast.success("Đã copy link file");
+    } catch {
+      toast.error("Không thể copy");
+    }
+  };
+
+  // Copy the image itself (as a PNG blob) to clipboard so the user can paste
+  // it directly into another app. Falls back to copying the URL on failure.
+  const handleCopyImage = async (imageUrl: string) => {
+    try {
+      // Some browsers (Firefox) only support text/plain in clipboard.write().
+      // Try the image-blob path first; if it fails, fall back to the URL.
+      const res = await fetch(imageUrl);
+      if (!res.ok) throw new Error("fetch failed");
+      const blob = await res.blob();
+      await navigator.clipboard.write([
+        new ClipboardItem({ [blob.type]: blob }),
+      ]);
+      toast.success("Đã copy ảnh vào clipboard");
+    } catch {
+      // Fallback: copy the URL so the user still gets something useful.
+      try {
+        await navigator.clipboard.writeText(imageUrl);
+        toast.success("Đã copy link ảnh");
+      } catch {
+        toast.error("Không thể copy");
+      }
+    }
   };
 
   const handleReactionToggle = async (emoji: string) => {
@@ -322,6 +359,28 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
                 )}
               >
                 <button
+                  onClick={
+                    data.fileType?.startsWith("image/")
+                      ? () => handleCopyImage(data.fileUrl!)
+                      : handleCopyFileUrl
+                  }
+                  className={clsx(
+                    "flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors",
+                    isOwn
+                      ? "text-sky-200 hover:text-white hover:bg-sky-500/20"
+                      : "text-gray-500 hover:text-sky-500 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  )}
+                >
+                  <HiClipboard size={14} />
+                  {data.fileType?.startsWith("image/") ? "Copy ảnh" : "Copy link"}
+                </button>
+                <div
+                  className={clsx(
+                    "w-px",
+                    isOwn ? "bg-sky-400/30" : "bg-gray-300 dark:bg-gray-600"
+                  )}
+                />
+                <button
                   onClick={handleDownload}
                   className={clsx(
                     "flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors",
@@ -357,7 +416,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
             </div>
           )
         ) : data.image ? (
-          <div className={message}>
+          <div className={clsx(message, "relative group/img")}>
             <Suspense fallback={null}>
               <ImageModal
                 src={data.image}
@@ -372,12 +431,28 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
               onClick={() => setImageModalOpen(true)}
               src={data.image}
               className="
-                object-cover 
-                cursor-pointer 
-                hover:scale-110 
+                object-cover
+                cursor-pointer
+                hover:scale-110
                 transition
               "
             />
+            {/* Copy button overlay — hidden by default, shown on group hover */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCopyImage(data.image!);
+              }}
+              className={clsx(
+                "absolute bottom-1 right-1 p-1.5 rounded-lg text-xs transition-all opacity-0 group-hover/img:opacity-100",
+                isOwn
+                  ? "bg-sky-600/80 text-white hover:bg-sky-600"
+                  : "bg-white/80 text-gray-600 hover:bg-white hover:text-sky-500 shadow-sm"
+              )}
+              title="Copy ảnh"
+            >
+              <HiClipboard size={14} />
+            </button>
           </div>
         ) : (
           <div className={message}>
