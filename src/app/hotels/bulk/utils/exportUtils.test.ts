@@ -37,7 +37,8 @@ describe("buildCSV", () => {
       makeResult({ no: "2", matchedLinks: [] }),
     ]);
     const lines = csv.split("\n");
-    // Header has 2 link columns -> every data row must have the same column count.
+    // Header has 2 links (each with URL + % column = 4 link columns).
+    // Every data row must have the same column count.
     const counts = lines.map((l) => l.split('","').length);
     expect(new Set(counts).size).toBe(1);
   });
@@ -47,7 +48,7 @@ describe("buildCSV", () => {
     expect(csv).toContain('"The ""Best"" Hotel"');
   });
 
-  it("formats link cells as 'url (percentage%)'", () => {
+  it("separates link URL and percentage into distinct columns", () => {
     const csv = buildCSV([
       makeResult({
         matchedLinks: [{ url: "https://x.com", title: "X", percentage: 75 }],
@@ -55,7 +56,11 @@ describe("buildCSV", () => {
         status: "matched",
       }),
     ]);
-    expect(csv).toContain("https://x.com (75%)");
+    // URL is clean in its own cell, percentage is a separate column.
+    expect(csv).toContain('"https://x.com"');
+    expect(csv).toContain('"75%"');
+    // Old combined format should no longer appear.
+    expect(csv).not.toContain("https://x.com (75%)");
   });
 
   it("handles an empty result set with at least one link column", () => {

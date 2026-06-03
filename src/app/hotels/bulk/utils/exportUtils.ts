@@ -23,15 +23,28 @@ export function downloadCSV(results: MatchResult[], filename = "hotel_search_res
 
 // Pure CSV serialization, split out from the download side-effect so it can be
 // unit-tested. Pads each row to the widest matched-link count and escapes
-// embedded quotes per RFC 4180.
+// embedded quotes per RFC 4180. Each matched link gets TWO columns: a clean URL
+// (no percentage suffix) and a separate match-percentage column, so URLs can be
+// copy-pasted without garbage appended.
 export function buildCSV(results: MatchResult[]): string {
   const maxLinks = Math.max(...results.map((r) => r.matchedLinks.length), 1);
-  const linkHeaders = Array.from({ length: maxLinks }, (_, i) => `Matched Link ${i + 1}`);
+  const linkHeaders: string[] = [];
+  for (let i = 0; i < maxLinks; i++) {
+    linkHeaders.push(`Matched Link ${i + 1}`);
+    linkHeaders.push(`Match % ${i + 1}`);
+  }
 
   const header = ["Order", "No", "Percentage", "Status", "Hotel Name", "Hotel Address", ...linkHeaders];
   const rows = results.map((r, i) => {
-    const linkCols = r.matchedLinks.map((l) => `${l.url} (${l.percentage}%)`);
-    while (linkCols.length < maxLinks) linkCols.push("");
+    const linkCols: string[] = [];
+    for (let j = 0; j < maxLinks; j++) {
+      const link = r.matchedLinks[j];
+      if (link) {
+        linkCols.push(link.url, `${link.percentage}%`);
+      } else {
+        linkCols.push("", "");
+      }
+    }
     return [i + 1, r.no, `${r.bestPercentage}%`, r.status, r.hotelName, r.address, ...linkCols];
   });
 
@@ -79,12 +92,23 @@ export async function downloadXLSX(results: MatchResult[], filename = "hotel_sea
 
   // Sheet 1: Results
   const maxLinks = Math.max(...results.map((r) => r.matchedLinks.length), 1);
-  const linkHeaders = Array.from({ length: maxLinks }, (_, i) => `Matched Link ${i + 1}`);
+  const linkHeaders: string[] = [];
+  for (let i = 0; i < maxLinks; i++) {
+    linkHeaders.push(`Matched Link ${i + 1}`);
+    linkHeaders.push(`Match % ${i + 1}`);
+  }
   const headers = ["Order", "No", "Percentage", "Status", "Fuzzy Score", "Hotel Name", "Hotel Address", "Total Links", ...linkHeaders];
 
   const rows = results.map((r, i) => {
-    const linkCols = r.matchedLinks.map((l) => `${l.url} (${l.percentage}%)`);
-    while (linkCols.length < maxLinks) linkCols.push("");
+    const linkCols: (string | number)[] = [];
+    for (let j = 0; j < maxLinks; j++) {
+      const link = r.matchedLinks[j];
+      if (link) {
+        linkCols.push(link.url, `${link.percentage}%`);
+      } else {
+        linkCols.push("", "");
+      }
+    }
     return [
       i + 1,
       sanitizeCell(r.no),
@@ -94,7 +118,7 @@ export async function downloadXLSX(results: MatchResult[], filename = "hotel_sea
       sanitizeCell(r.hotelName),
       sanitizeCell(r.address),
       r.matchedLinks.length,
-      ...linkCols.map(sanitizeCell),
+      ...linkCols,
     ];
   });
 
