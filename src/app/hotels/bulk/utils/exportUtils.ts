@@ -26,12 +26,15 @@ export function downloadCSV(results: MatchResult[], filename = "hotel_search_res
 // embedded quotes per RFC 4180.
 export function buildCSV(results: MatchResult[]): string {
   const maxLinks = Math.max(...results.map((r) => r.matchedLinks.length), 1);
-  const linkHeaders = Array.from({ length: maxLinks }, (_, i) => `Matched Link ${i + 1}`);
+  const linkHeaders = Array.from({ length: maxLinks }, (_, i) => [
+    `Matched Link ${i + 1} URL`,
+    `Matched Link ${i + 1} Percentage`,
+  ]).flat();
 
   const header = ["Order", "No", "Percentage", "Status", "Hotel Name", "Hotel Address", ...linkHeaders];
   const rows = results.map((r, i) => {
-    const linkCols = r.matchedLinks.map((l) => `${l.url} (${l.percentage}%)`);
-    while (linkCols.length < maxLinks) linkCols.push("");
+    const linkCols = r.matchedLinks.map((l) => [l.url, `${l.percentage}%`]).flat();
+    while (linkCols.length < maxLinks * 2) linkCols.push("");
     return [i + 1, r.no, `${r.bestPercentage}%`, r.status, r.hotelName, r.address, ...linkCols];
   });
 
@@ -78,25 +81,7 @@ export async function downloadXLSX(results: MatchResult[], filename = "hotel_sea
   const wb = XLSX.utils.book_new();
 
   // Sheet 1: Results
-  const maxLinks = Math.max(...results.map((r) => r.matchedLinks.length), 1);
-  const linkHeaders = Array.from({ length: maxLinks }, (_, i) => `Matched Link ${i + 1}`);
-  const headers = ["Order", "No", "Percentage", "Status", "Fuzzy Score", "Hotel Name", "Hotel Address", "Total Links", ...linkHeaders];
-
-  const rows = results.map((r, i) => {
-    const linkCols = r.matchedLinks.map((l) => `${l.url} (${l.percentage}%)`);
-    while (linkCols.length < maxLinks) linkCols.push("");
-    return [
-      i + 1,
-      sanitizeCell(r.no),
-      `${r.bestPercentage}%`,
-      r.status,
-      r.fuzzyScore ? `${(r.fuzzyScore * 100).toFixed(1)}%` : "",
-      sanitizeCell(r.hotelName),
-      sanitizeCell(r.address),
-      r.matchedLinks.length,
-      ...linkCols.map(sanitizeCell),
-    ];
-  });
+  const { headers, rows } = buildXLSXResultSheetData(results);
 
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
 
@@ -137,6 +122,33 @@ export async function downloadXLSX(results: MatchResult[], filename = "hotel_sea
   XLSX.utils.book_append_sheet(wb, ws2, "Summary");
 
   XLSX.writeFile(wb, filename);
+}
+
+// Pure XLSX result-sheet shape for unit tests and reuse in downloadXLSX.
+export function buildXLSXResultSheetData(results: MatchResult[]): { headers: string[]; rows: (string | number)[][] } {
+  const maxLinks = Math.max(...results.map((r) => r.matchedLinks.length), 1);
+  const linkHeaders = Array.from({ length: maxLinks }, (_, i) => [
+    `Matched Link ${i + 1} URL`,
+    `Matched Link ${i + 1} Percentage`,
+  ]).flat();
+  const headers = ["Order", "No", "Percentage", "Status", "Fuzzy Score", "Hotel Name", "Hotel Address", "Total Links", ...linkHeaders];
+
+  const rows = results.map((r, i) => {
+    const linkCols = r.matchedLinks.map((l) => [l.url, `${l.percentage}%`]).flat();
+    while (linkCols.length < maxLinks * 2) linkCols.push("");
+    return [
+      i + 1,
+      sanitizeCell(r.no),
+      `${r.bestPercentage}%`,
+      r.status,
+      r.fuzzyScore ? `${(r.fuzzyScore * 100).toFixed(1)}%` : "",
+      sanitizeCell(r.hotelName),
+      sanitizeCell(r.address),
+      r.matchedLinks.length,
+      ...linkCols.map(sanitizeCell),
+    ];
+  });
+  return { headers, rows };
 }
 
 export interface SummaryStats {
