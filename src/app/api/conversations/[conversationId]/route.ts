@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import getCurrentUser from "../../../actions/getCurrentUser";
 import { pusherEvents, pusherServer } from "../../../libs/pusher";
 import { userChannel } from "../../../libs/pusher";
-import { sanitizeUsers } from "../../../libs/sanitizeUser";
+import { publicUserSelect } from "../../../types";
 
 interface IParams {
   conversationId?: string;
@@ -34,7 +34,7 @@ export async function DELETE(request: Request, { params }: { params: IParams }) 
         },
       },
       include: {
-        users: true,
+        users: { select: publicUserSelect },
       },
     });
 
@@ -51,11 +51,9 @@ export async function DELETE(request: Request, { params }: { params: IParams }) 
       },
     });
 
-    // Strip password hashes from embedded user records before broadcasting.
-    const safeConversation = {
-      ...existingConversation,
-      users: sanitizeUsers(existingConversation.users),
-    };
+    // Embedded user records are public-field-only (selected above), so the
+    // conversation can be broadcast directly.
+    const safeConversation = existingConversation;
 
     existingConversation.users.forEach((user) => {
       if (user.email) {

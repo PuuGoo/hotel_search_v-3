@@ -1,43 +1,6 @@
 "use client";
 
-import { CSSProperties, HTMLAttributes, useEffect, useMemo, useState } from "react";
-import { animated, useSpring } from "react-spring";
-
-const defaultProperties = {
-  dark: {
-    circle: {
-      r: 9,
-    },
-    mask: {
-      cx: "50%",
-      cy: "23%",
-    },
-    svg: {
-      transform: "rotate(40deg)",
-    },
-    lines: {
-      opacity: 0,
-    },
-  },
-  light: {
-    circle: {
-      r: 5,
-    },
-    mask: {
-      cx: "100%",
-      cy: "0%",
-    },
-    svg: {
-      transform: "rotate(90deg)",
-    },
-    lines: {
-      opacity: 1,
-    },
-  },
-  springConfig: { mass: 4, tension: 250, friction: 35 },
-};
-
-let REACT_TOGGLE_DARK_MODE_GLOBAL_ID = 0;
+import { CSSProperties, HTMLAttributes } from "react";
 
 type SVGProps = Omit<HTMLAttributes<HTMLOrSVGElement>, "onChange">;
 export interface Props extends SVGProps {
@@ -51,7 +14,6 @@ export interface Props extends SVGProps {
 
 export const DarkModeSwitch: React.FC<Props> = ({
   onChange,
-  children,
   checked = false,
   size = 24,
   moonColor = "rgb(229 231 235)",
@@ -59,33 +21,7 @@ export const DarkModeSwitch: React.FC<Props> = ({
   style,
   ...rest
 }) => {
-  const [id, setId] = useState(0);
-
-  useEffect(() => {
-    REACT_TOGGLE_DARK_MODE_GLOBAL_ID += 1;
-    setId(REACT_TOGGLE_DARK_MODE_GLOBAL_ID);
-  }, [setId]);
-
-  const { circle, svg, lines, mask } = defaultProperties[checked ? "dark" : "light"];
-
-  const svgContainerProps = useSpring({
-    ...svg,
-    config: defaultProperties.springConfig,
-  });
-  const centerCircleProps = useSpring({
-    ...circle,
-    config: defaultProperties.springConfig,
-  });
-  const maskedCircleProps = useSpring({
-    ...mask,
-    config: defaultProperties.springConfig,
-  });
-  const linesProps = useSpring({
-    ...lines,
-    config: defaultProperties.springConfig,
-  });
-
-  const uniqueMaskId = `circle-mask-${id}`;
+  const isDark = checked;
 
   return (
     <div
@@ -103,42 +39,44 @@ export const DarkModeSwitch: React.FC<Props> = ({
         dark:text-gray-200
       "
     >
-      <animated.svg
+      <svg
         xmlns="http://www.w3.org/2000/svg"
         width={size}
         height={size}
         viewBox="0 0 24 24"
-        color={checked ? moonColor : sunColor}
+        color={isDark ? moonColor : sunColor}
         fill="none"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
         stroke="currentColor"
         style={{
-          ...svgContainerProps,
+          transition: "transform 0.4s ease-in-out",
+          transform: isDark ? "rotate(40deg)" : "rotate(90deg)",
           ...style,
         }}
         {...rest}
       >
-        <mask id={uniqueMaskId}>
+        <mask id="circle-mask">
           <rect x="0" y="0" width="100%" height="100%" fill="white" />
-          <animated.circle
-            // @ts-ignore
-            style={maskedCircleProps}
-            r="9"
+          <circle
+            cx={isDark ? "50%" : "100%"}
+            cy={isDark ? "23%" : "0%"}
+            r={isDark ? 9 : 5}
             fill="black"
+            style={{ transition: "cx 0.4s ease-in-out, cy 0.4s ease-in-out, r 0.4s ease-in-out" }}
           />
         </mask>
 
-        <animated.circle
+        <circle
           cx="12"
           cy="12"
-          fill={checked ? moonColor : sunColor}
-          // @ts-ignore
-          style={centerCircleProps}
-          mask={`url(#${uniqueMaskId})`}
+          fill={isDark ? moonColor : sunColor}
+          r={isDark ? 9 : 5}
+          mask="url(#circle-mask)"
+          style={{ transition: "r 0.4s ease-in-out, fill 0.4s ease-in-out" }}
         />
-        <animated.g stroke="currentColor" style={linesProps}>
+        <g stroke="currentColor" style={{ transition: "opacity 0.4s ease-in-out", opacity: isDark ? 0 : 1 }}>
           <line x1="12" y1="1" x2="12" y2="3" />
           <line x1="12" y1="21" x2="12" y2="23" />
           <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
@@ -147,8 +85,8 @@ export const DarkModeSwitch: React.FC<Props> = ({
           <line x1="21" y1="12" x2="23" y2="12" />
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-        </animated.g>
-      </animated.svg>
+        </g>
+      </svg>
     </div>
   );
 };

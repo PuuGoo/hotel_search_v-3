@@ -2,13 +2,15 @@
 
 import { useCallback, useState } from "react";
 import { FiPlay, FiPause, FiSquare, FiRotateCcw, FiTrash2, FiZap } from "react-icons/fi";
+import dynamic from "next/dynamic";
 
-import FileUpload from "./components/FileUpload";
-import ProgressBar from "./components/ProgressBar";
-import ExportButtons from "./components/ExportButtons";
-import BulkResults from "./components/BulkResults";
 import { useBulkSearch } from "./hooks/useBulkSearch";
 import { ExcelRow } from "./utils/excelParser";
+
+const FileUpload = dynamic(() => import("./components/FileUpload"), { ssr: false });
+const ProgressBar = dynamic(() => import("./components/ProgressBar"), { ssr: false });
+const ExportButtons = dynamic(() => import("./components/ExportButtons"), { ssr: false });
+const BulkResults = dynamic(() => import("./components/BulkResults"), { ssr: false });
 
 export default function BulkSearchPage() {
   const {

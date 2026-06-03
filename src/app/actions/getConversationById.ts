@@ -1,5 +1,5 @@
 import prisma from "../libs/prismadb";
-import { sanitizeUsers } from "../libs/sanitizeUser";
+import { publicUserSelect } from "../types";
 import getCurrentUser from "./getCurrentUser";
 
 const getConversationById = async (conversationId: string) => {
@@ -18,7 +18,9 @@ const getConversationById = async (conversationId: string) => {
         userIds: { has: currentUser.id },
       },
       include: {
-        users: true,
+        // Public fields only — never read secrets/large columns for members
+        // we only render as avatar/name.
+        users: { select: publicUserSelect },
       },
     });
 
@@ -26,8 +28,7 @@ const getConversationById = async (conversationId: string) => {
       return null;
     }
 
-    // Strip password hashes from embedded user records.
-    return { ...conversation, users: sanitizeUsers(conversation.users) };
+    return conversation;
   } catch (error: any) {
     console.error("[GET_CONVERSATION_BY_ID]", error);
     return null;

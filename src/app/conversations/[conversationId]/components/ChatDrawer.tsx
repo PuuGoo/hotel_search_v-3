@@ -4,7 +4,8 @@ import { Fragment, useMemo, useState } from "react";
 import { IoClose, IoTrash } from "react-icons/io5";
 
 import { Dialog, Transition } from "@headlessui/react";
-import { Conversation, User } from "@prisma/client";
+import { Conversation } from "@prisma/client";
+import { PublicUser } from "@/app/types";
 import { format } from "date-fns";
 
 import Avatar from "../../../components/Avatar";
@@ -17,7 +18,7 @@ interface ProfileDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   data: Conversation & {
-    users: User[];
+    users: PublicUser[];
   };
 }
 
@@ -34,8 +35,8 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
     return data.name || otherUser?.name || "Người dùng đã xóa";
   }, [data.name, otherUser?.name]);
 
-  const { members } = useActiveList();
-  const isActive = members.indexOf(otherUser?.email!) !== -1;
+  const memberSet = useActiveList((s) => s.memberSet);
+  const isActive = otherUser?.email ? memberSet.has(otherUser.email) : false;
   const statusText = useMemo(() => {
     if (data.isGroup) {
       return `${data.users.length} thành viên`;

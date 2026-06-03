@@ -1,21 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { HiChevronLeft } from "react-icons/hi";
 import { HiEllipsisHorizontal } from "react-icons/hi2";
+import { FiSearch } from "react-icons/fi";
 
 import useOtherUser from "@/app/hooks/useOtherUser";
-import { Conversation, User } from "@prisma/client";
+import { Conversation } from "@prisma/client";
+import { PublicUser } from "@/app/types";
 import Link from "next/link";
 
 import Avatar from "../../../components/Avatar";
 import AvatarGroup from "../../../components/AvatarGroup";
 import useActiveList from "../../../hooks/useActiveList";
-import ChatDrawer from "./ChatDrawer";
+
+const ChatDrawer = lazy(() => import("./ChatDrawer"));
 
 interface HeaderProps {
   conversation: Conversation & {
-    users: User[];
+    users: PublicUser[];
   };
 }
 
@@ -23,8 +26,8 @@ const Header: React.FC<HeaderProps> = ({ conversation }) => {
   const otherUser = useOtherUser(conversation);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const { members } = useActiveList();
-  const isActive = members.indexOf(otherUser?.email!) !== -1;
+  const memberSet = useActiveList((s) => s.memberSet);
+  const isActive = otherUser?.email ? memberSet.has(otherUser.email) : false;
   const statusText = useMemo(() => {
     if (conversation.isGroup) {
       return `${conversation.users.length} thành viên`;
@@ -35,7 +38,9 @@ const Header: React.FC<HeaderProps> = ({ conversation }) => {
 
   return (
     <>
-      <ChatDrawer data={conversation} isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <Suspense fallback={null}>
+        <ChatDrawer data={conversation} isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      </Suspense>
       <div
         className="
         bg-white 
@@ -80,6 +85,17 @@ const Header: React.FC<HeaderProps> = ({ conversation }) => {
             </div>
           </div>
         </div>
+        <button
+          onClick={() => document.dispatchEvent(new CustomEvent("toggle-message-search"))}
+          className="
+          text-sky-500
+          cursor-pointer
+          hover:text-sky-600
+          transition
+        "
+        >
+          <FiSearch size={22} />
+        </button>
         <HiEllipsisHorizontal
           size={32}
           onClick={() => setDrawerOpen(true)}

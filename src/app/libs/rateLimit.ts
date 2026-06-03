@@ -3,8 +3,8 @@ interface RateLimitEntry {
   firstRequest: number;
 }
 
-const SEARCH_RATE_WINDOW = 60 * 1000; // 60 seconds
-const MAX_SEARCH_PER_MINUTE = 30;
+let SEARCH_RATE_WINDOW = 60 * 1000;
+let MAX_SEARCH_PER_MINUTE = 30;
 
 // Pin to globalThis so the limiter state is shared across all route bundles
 // and survives dev hot-reloads. A module-local Map would be re-created per
@@ -98,7 +98,6 @@ export function getRateLimitStatus(userId?: string | null, ip?: string) {
   };
 }
 
-// Cleanup expired entries periodically
 if (typeof setInterval !== "undefined" && !g.__searchRateLimitCleanup) {
   g.__searchRateLimitCleanup = true;
   setInterval(() => {
@@ -110,4 +109,84 @@ if (typeof setInterval !== "undefined" && !g.__searchRateLimitCleanup) {
       }
     }
   }, SEARCH_RATE_WINDOW).unref?.();
+}
+
+export function getRateLimitConfig() {
+  return {
+    windowMs: SEARCH_RATE_WINDOW,
+    max: MAX_SEARCH_PER_MINUTE,
+  };
+}
+
+export function updateRateLimitConfig(config: {
+  windowMs?: number;
+  max?: number;
+}) {
+  if (config.windowMs !== undefined && config.windowMs > 0) {
+    SEARCH_RATE_WINDOW = config.windowMs;
+  }
+  if (config.max !== undefined && config.max > 0) {
+    MAX_SEARCH_PER_MINUTE = config.max;
+  }
+  return getRateLimitConfig();
+}
+
+export function getRateLimitStats() {
+  const now = Date.now();
+  const entries = Array.from(searchRequests.entries());
+  const active: Array<{
+    key: string;
+    used: number;
+    limit: number;
+    resetInMs: number;
+    blocked: boolean;
+  }> = [];
+  let totalBlocked = 0;
+  let blockedLast24h = 0;
+  const blocked24hThreshold = 24 * 60 * 60 * 1000;
+
+  for (const [key, entry] of entries) {
+    const elapsed = now - entry.firstRequest;
+    if (elapsed > SEARCH_RATE_WINDOW) continue;
+
+    const blocked = entry.count >= MAX_SEARCH_PER_MINUTE;
+    if (blocked) {
+      totalBlocked++;
+      if (elapsed < blocked24hThreshold) {
+        blockedLast24h++;
+      }
+    }
+
+    active.push({
+      key,
+      used: entry.count,
+      limit: MAX_SEARCH_PER_MINUTE,
+      resetInMs: Math.max(0, SEARCH_RATE_WINDOW - elapsed),
+      blocked,
+    });
+  }
+
+  const sortedByUsage = [...active].sort((a, b) => b.used - a.used);
+  const mostBlocked = sortedByUsage
+    .filter((e) => e.blocked)
+    .slice(0, 10);
+
+  return {
+    config: getRateLimitConfig(),
+    totalKeys: active.length,
+    totalBlocked,
+    blockedLast24h,
+    active,
+    mostBlocked,
+  };
+}
+
+export function resetRateLimitKey(targetKey: string) {
+  return searchRequests.delete(targetKey);
+}
+
+export function resetAllRateLimits() {
+  const size = searchRequests.size;
+  searchRequests.clear();
+  return size;
 }

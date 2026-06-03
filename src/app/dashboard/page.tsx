@@ -5,6 +5,7 @@ import prismadb from "@/app/libs/prismadb";
 import { sanitizeUser } from "@/app/libs/sanitizeUser";
 
 import DashboardClient from "./components/DashboardClient";
+import FeatureThemeProvider from "../components/theme/FeatureThemeProvider";
 
 export const metadata: Metadata = {
   title: "Dashboard - Hotel Search",
@@ -18,9 +19,7 @@ const DashboardPage = async () => {
     return null;
   }
 
-  // Fetch statistics. engineUsage is independent of the others, so include it
-  // in the same parallel batch rather than awaiting it in a second round-trip.
-  const [totalSearches, totalBookmarks, recentSearches, topQueries, engineUsage] =
+  const [totalSearches, totalBookmarks, recentSearches, topQueries, engineUsage, rawActivities] =
     await Promise.all([
       prismadb.search.count({
         where: { userId: currentUser.id },
@@ -32,11 +31,6 @@ const DashboardPage = async () => {
         where: { userId: currentUser.id },
         orderBy: { createdAt: "desc" },
         take: 10,
-        // Select only the fields the dashboard renders. Previously this used
-        // `include: { results: true }`, joining every SearchResult row for the
-        // 10 most recent searches even though the client never reads them
-        // (it shows query/engine/resultCount/createdAt only). resultCount is a
-        // scalar on Search, so the join was pure overfetch.
         select: {
           id: true,
           query: true,
@@ -58,6 +52,7 @@ const DashboardPage = async () => {
         where: { userId: currentUser.id },
         _count: { engine: true },
       }),
+      fetchActivities(),
     ]);
 
   const stats = {
@@ -74,12 +69,105 @@ const DashboardPage = async () => {
   };
 
   return (
-    <DashboardClient
-      stats={stats}
-      recentSearches={recentSearches}
-      user={sanitizeUser(currentUser)}
-    />
+    <FeatureThemeProvider feature="dashboard">
+      <DashboardClient
+        stats={stats}
+        recentSearches={recentSearches}
+        initialActivities={rawActivities}
+        user={sanitizeUser(currentUser)}
+      />
+    </FeatureThemeProvider>
   );
 };
+
+async function fetchActivities() {
+  try {
+    const [messages, searches, bookmarks, newUsers] = await Promise.all([
+      prismadb.message.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: {
+          sender: { select: { id: true, name: true, email: true, image: true } },
+          conversation: { select: { id: true, name: true } },
+        },
+      }),
+      prismadb.search.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: {
+          user: { select: { id: true, name: true, email: true, image: true } },
+        },
+      }),
+      prismadb.bookmark.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: {
+          user: { select: { id: true, name: true, email: true, image: true } },
+        },
+      }),
+      prismadb.user.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        select: { id: true, name: true, email: true, image: true, createdAt: true },
+      }),
+    ]);
+
+    const activities: {
+      id: string;
+      type: "message" | "search" | "bookmark" | "user";
+      description: string;
+      user: { id: string; name: string | null; email: string | null; image: string | null } | null;
+      timestamp: Date;
+    }[] = [];
+
+    for (const msg of messages) {
+      activities.push({
+        id: `msg-${msg.id}`,
+        type: "message",
+        description: `Gửi tin nhắn trong cuộc trò chuyện${msg.conversation?.name ? ` "${msg.conversation.name}"` : ""}`,
+        user: msg.sender,
+        timestamp: msg.createdAt,
+      });
+    }
+
+    for (const search of searches) {
+      activities.push({
+        id: `search-${search.id}`,
+        type: "search",
+        description: `Tìm kiếm "${search.query}" qua ${search.engine.toUpperCase()}`,
+        user: search.user,
+        timestamp: search.createdAt,
+      });
+    }
+
+    for (const bookmark of bookmarks) {
+      activities.push({
+        id: `bookmark-${bookmark.id}`,
+        type: "bookmark",
+        description: `Lưu bookmark "${bookmark.title || bookmark.url || "không tiêu đề"}"`,
+        user: bookmark.user,
+        timestamp: bookmark.createdAt,
+      });
+    }
+
+    for (const user of newUsers) {
+      activities.push({
+        id: `user-${user.id}`,
+        type: "user",
+        description: "Đăng ký tài khoản mới",
+        user: { id: user.id, name: user.name, email: user.email, image: user.image },
+        timestamp: user.createdAt,
+      });
+    }
+
+    activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return activities.slice(0, 50).map((a) => ({
+      ...a,
+      timestamp: a.timestamp.toISOString(),
+    }));
+  } catch {
+    return [];
+  }
+}
 
 export default DashboardPage;

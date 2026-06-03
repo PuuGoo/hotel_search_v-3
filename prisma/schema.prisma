@@ -11,50 +11,93 @@ datasource db {
 }
 
 model User {
-  id              String @id @default(auto()) @map("_id") @db.ObjectId
-  name            String?
-  email           String?   @unique
-  emailVerified   DateTime?
-  image           String?
-  hashedPassword  String?
-  role            String? @default("user") // admin, user
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  image          String?
+  hashedPassword String?
+  role           String?   @default("user") // admin, user
   // Per-feature allow-list. Empty/missing = no restriction (full access), which
   // keeps every pre-existing account working. A non-empty list restricts the
   // user to exactly those feature keys (see src/app/libs/features.ts). Admins
   // bypass this entirely.
-  permissions     String[] @default([])
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  permissions    String[]  @default([])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  conversationIds String[] @db.ObjectId
-  conversations Conversation[] @relation(fields: [conversationIds], references: [id])
-  
-  seenMessageIds String[] @db.ObjectId
-  seenMessages Message[] @relation("Seen", fields: [seenMessageIds], references: [id])
+  conversationIds String[]       @db.ObjectId
+  conversations   Conversation[] @relation(fields: [conversationIds], references: [id])
 
-  accounts Account[]
-  messages Message[]
-  bookmarks Bookmark[]
-  searchHistory SearchHistory[]
-  priceAlerts PriceAlert[]
-  searches Search[]
-  auditLogs AuditLog[] @relation("AuditActor")
+  seenMessageIds String[]  @db.ObjectId
+  seenMessages   Message[] @relation("Seen", fields: [seenMessageIds], references: [id])
+
+  accounts            Account[]
+  messages            Message[]
+  bookmarks           Bookmark[]
+  searchHistory       SearchHistory[]
+  priceAlerts         PriceAlert[]
+  searches            Search[]
+  auditLogs           AuditLog[]           @relation("AuditActor")
   passwordResetTokens PasswordResetToken[]
+  driveFiles          DriveFile[]
+  fileVersions        FileVersion[]
+  shareLinks          ShareLink[]
+  notifications       Notification[]
+  finderTemplates     FinderTemplate[]
+  apiKeys             ApiKey[]
+  scheduledJobs       ScheduledJob[]
+  twoFactorSecret     String?
+  twoFactorEnabled    Boolean              @default(false)
+  storageUsed         BigInt               @default(0)
+  storageLimit        BigInt               @default(104857600)
+  notificationPrefs   Json                 @default("{}")
+  emailLogs           EmailLog[]
+}
+
+model EmailLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  to        String
+  subject   String
+  body      String
+  type      String
+  status    String   @default("sent")
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  message   String?
+  type      String
+  link      String?
+  isRead    Boolean  @default(false)
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead, createdAt])
 }
 
 model Account {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String   @db.ObjectId
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.String
-  access_token       String?  @db.String
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.String
-  session_state      String?
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -62,151 +105,211 @@ model Account {
 }
 
 model Conversation {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt       DateTime @default(now())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime @default(now())
   lastMessageAt DateTime @default(now())
-  name String?
-  isGroup Boolean?
-  
-  messagesIds String[] @db.ObjectId
-  messages Message[]
+  name          String?
+  isGroup       Boolean?
+
+  messagesIds String[]  @db.ObjectId
+  messages    Message[]
 
   userIds String[] @db.ObjectId
-  users User[] @relation(fields: [userIds], references: [id])
+  users   User[]   @relation(fields: [userIds], references: [id])
 
   // getConversations filters by membership (userIds) and orders by
   // lastMessageAt desc; index the sort key so the conversation list stays fast.
   @@index([lastMessageAt])
+  @@index([userIds])
 }
 
 model Message {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  body String?
-  image String?
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  body      String?
+  image     String?
+  fileUrl   String?
+  fileName  String?
+  fileSize  Int?
+  fileType  String?
+  replyToId String?  @db.ObjectId
+  reactions Json     @default("{}")
   createdAt DateTime @default(now())
 
   seenIds String[] @db.ObjectId
-  seen User[] @relation("Seen", fields: [seenIds], references: [id])
+  seen    User[]   @relation("Seen", fields: [seenIds], references: [id])
 
-  conversationId String @db.ObjectId
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  
+  conversationId String       @db.ObjectId
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
   senderId String @db.ObjectId
-  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
-  // getMessages filters by conversationId and orders by createdAt; this compound
-  // index serves both without a full collection scan as message volume grows.
   @@index([conversationId, createdAt])
+  @@index([senderId])
+}
+
+model DriveFile {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  fileName     String
+  originalName String
+  filePath     String
+  fileSize     Int
+  mimeType     String?
+  folder       String?       @default("chat")
+  version      Int           @default(1)
+  uploadedById String        @db.ObjectId
+  uploadedBy   User          @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  versions     FileVersion[]
+  shareLinks   ShareLink[]
+  createdAt    DateTime      @default(now())
+
+  @@index([uploadedById, folder, createdAt])
+}
+
+model FileVersion {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  driveFileId  String    @db.ObjectId
+  driveFile    DriveFile @relation(fields: [driveFileId], references: [id], onDelete: Cascade)
+  version      Int
+  filePath     String
+  fileSize     Int
+  uploadedById String    @db.ObjectId
+  uploadedBy   User      @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+
+  @@index([driveFileId, version])
+}
+
+model ShareLink {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  token         String    @unique
+  driveFileId   String    @db.ObjectId
+  driveFile     DriveFile @relation(fields: [driveFileId], references: [id], onDelete: Cascade)
+  createdById   String    @db.ObjectId
+  createdBy     User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  expiresAt     DateTime?
+  maxDownloads  Int?
+  downloadCount Int       @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+
+  @@index([driveFileId])
 }
 
 // Hotel Search Models
 
 model Hotel {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  address String?
-  city String?
-  country String?
-  url String? @unique
-  imageUrl String?
-  rating Float?
-  priceRange String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  address     String?
+  city        String?
+  country     String?
+  url         String?  @unique
+  imageUrl    String?
+  rating      Float?
+  priceRange  String?
   description String?
-  source String? // tavily, google, ddg, etc.
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  source      String? // tavily, google, ddg, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  bookmarks Bookmark[]
+  bookmarks     Bookmark[]
   searchResults SearchResult[]
+
+  @@index([city, country])
+  @@index([name])
 }
 
 model Search {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  query String
-  engine String // tavily, google, ddg, xng, case12
-  resultCount Int @default(0)
-  duration Int? // milliseconds
-  createdAt DateTime @default(now())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  query       String
+  engine      String // tavily, google, ddg, xng, case12
+  resultCount Int      @default(0)
+  duration    Int? // milliseconds
+  createdAt   DateTime @default(now())
 
   userId String? @db.ObjectId
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   results SearchResult[]
 
   // The search-history GET and dashboard both filter by userId and order by
   // createdAt desc; this compound index avoids a collection scan + in-memory sort.
   @@index([userId, createdAt])
+  @@index([query])
 }
 
 model SearchResult {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  title String?
-  url String?
-  snippet String?
-  position Int?
-  score Float?
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String?
+  url       String?
+  snippet   String?
+  position  Int?
+  score     Float?
   createdAt DateTime @default(now())
 
   searchId String @db.ObjectId
-  search Search @relation(fields: [searchId], references: [id], onDelete: Cascade)
+  search   Search @relation(fields: [searchId], references: [id], onDelete: Cascade)
 
   hotelId String? @db.ObjectId
-  hotel Hotel? @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+  hotel   Hotel?  @relation(fields: [hotelId], references: [id], onDelete: SetNull)
 
   // Results are always looked up by their parent search (relation include).
   @@index([searchId])
 }
 
 model Bookmark {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  title String?
-  url String?
-  notes String?
-  folder String? @default("default")
-  tags String[] @default([])
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String?
+  url       String?
+  notes     String?
+  folder    String?  @default("default")
+  tags      String[] @default([])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   userId String @db.ObjectId
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   hotelId String? @db.ObjectId
-  hotel Hotel? @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+  hotel   Hotel?  @relation(fields: [hotelId], references: [id], onDelete: SetNull)
 
   // The bookmarks GET filters by userId (optionally folder/tag) and orders by
   // createdAt desc; this compound index covers the common case.
   @@index([userId, createdAt])
+  @@index([userId, folder])
 }
 
 model SearchHistory {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  query String
-  engine String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  query       String
+  engine      String?
   resultCount Int?
-  createdAt DateTime @default(now())
+  createdAt   DateTime @default(now())
 
   userId String @db.ObjectId
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Per-user history is written on every search and read back by user.
   @@index([userId, createdAt])
 }
 
 model PriceAlert {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  hotelName String
-  targetPrice Float
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  hotelName    String
+  targetPrice  Float
   currentPrice Float?
-  isActive Boolean @default(true)
-  lastChecked DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isActive     Boolean   @default(true)
+  lastChecked  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   userId String @db.ObjectId
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Price alerts are queried per user.
   @@index([userId])
+  @@index([userId, isActive])
 }
 
 // Admin accountability trail. Every privileged mutation (role change, user
@@ -215,15 +318,15 @@ model PriceAlert {
 // human-readable actorEmail/targetEmail are denormalized so a log entry stays
 // meaningful even after the referenced user is gone.
 model AuditLog {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  action String // e.g. user.role.update, user.delete
-  actorId String? @db.ObjectId
-  actorEmail String?
-  targetType String? // e.g. user
-  targetId String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  action      String // e.g. user.role.update, user.delete
+  actorId     String?  @db.ObjectId
+  actorEmail  String?
+  targetType  String? // e.g. user
+  targetId    String?
   targetEmail String?
-  metadata Json?
-  createdAt DateTime @default(now())
+  metadata    Json?
+  createdAt   DateTime @default(now())
 
   actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
 
@@ -236,9 +339,9 @@ model AuditLog {
 // is delivered to the user via the reset link and verified by re-hashing. Each
 // row is single-use (deleted on successful reset) and time-limited (expiresAt).
 model PasswordResetToken {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String @db.ObjectId
-  tokenHash String @unique
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  tokenHash String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
 
@@ -247,4 +350,55 @@ model PasswordResetToken {
   // Look-ups are by tokenHash (unique) and we purge by userId when issuing a
   // fresh token, so index userId for the delete-many.
   @@index([userId])
+}
+
+model FinderTemplate {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  workers         Int      @default(3)
+  template        String   @default("full")
+  autoSaveEnabled Boolean  @default(false)
+  autoSaveLines   Int      @default(10)
+  autoSaveFolder  String   @default("finder")
+  isDefault       Boolean  @default(false)
+  createdById     String   @db.ObjectId
+  createdBy       User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  scheduledJobs   ScheduledJob[]
+
+  @@index([createdById])
+}
+
+model ApiKey {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  key           String   @unique
+  permissions   String[]
+  isActive      Boolean  @default(true)
+  lastUsedAt    DateTime?
+  expiresAt     DateTime?
+  createdById   String   @db.ObjectId
+  createdBy     User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+
+  @@index([createdById])
+}
+
+model ScheduledJob {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  templateId     String?   @db.ObjectId
+  template       FinderTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  cronExpression String
+  isActive       Boolean   @default(true)
+  lastRunAt      DateTime?
+  nextRunAt      DateTime?
+  createdById    String    @db.ObjectId
+  createdBy      User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([createdById])
+  @@index([isActive, nextRunAt])
 }

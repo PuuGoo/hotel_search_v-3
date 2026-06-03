@@ -9,6 +9,10 @@ export const pusherEvents = {
   NEW_CONVERSATION: "conversation:new",
   UPDATE_CONVERSATION: "conversation:update",
   DELETE_CONVERSATION: "conversation:remove",
+  TYPING_START: "typing:start",
+  TYPING_STOP: "typing:stop",
+  REACTION_UPDATE: "message:reaction",
+  DASHBOARD_ACTIVITY: "dashboard:activity",
 };
 
 // Channel naming. All real-time channels are private/presence so the
@@ -21,6 +25,7 @@ export const pusherEvents = {
 export const PRESENCE_CHANNEL = "presence-messenger";
 export const USER_CHANNEL_PREFIX = "private-user-";
 export const CONVERSATION_CHANNEL_PREFIX = "private-conversation-";
+export const DASHBOARD_CHANNEL = "private-dashboard";
 
 // Pusher only permits a-z A-Z 0-9 _ - = @ , . ; in channel names. An email
 // can contain other characters (notably "+"), which would make Pusher reject

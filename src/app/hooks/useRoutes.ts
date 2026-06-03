@@ -3,7 +3,13 @@ import { HiChat } from "react-icons/hi";
 import {
   HiArrowLeftOnRectangle,
   HiMagnifyingGlass,
+  HiBell,
+  HiBellAlert,
   HiUsers,
+  HiCog,
+  HiDocumentChartBar,
+  HiArrowPath,
+  HiFolderOpen,
 } from "react-icons/hi2";
 import { FiGrid, FiZap, FiGlobe, FiShield, FiBookmark } from "react-icons/fi";
 
@@ -34,6 +40,7 @@ const useRoutes = (
   const { conversationId } = useConversation();
 
   const role = user?.role;
+  const permissionsKey = user?.permissions?.join(",") ?? "";
 
   const routes = useMemo<RouteItem[]>(() => {
     const allFeatureRoutes: RouteItem[] = [
@@ -66,11 +73,32 @@ const useRoutes = (
         feature: "finder",
       },
       {
+        label: "So sánh",
+        href: "/hotels/compare",
+        icon: HiArrowPath,
+        active: pathname?.includes("/hotels/compare") ?? false,
+        feature: "search",
+      },
+      {
         label: "Đã lưu",
         href: "/bookmarks",
         icon: FiBookmark,
         active: pathname === "/bookmarks" || !!pathname?.startsWith("/bookmarks/"),
         feature: "search",
+      },
+      {
+        label: "Cảnh báo giá",
+        href: "/price-alerts",
+        icon: HiBellAlert,
+        active: pathname === "/price-alerts",
+        feature: "search",
+      },
+      {
+        label: "Drive",
+        href: "/drive",
+        icon: HiFolderOpen,
+        active: pathname === "/drive",
+        feature: "drive",
       },
       {
         label: "Bảng điều khiển",
@@ -85,6 +113,18 @@ const useRoutes = (
         icon: HiUsers,
         active: pathname === "/users",
         feature: "users",
+      },
+      {
+        label: "Thông báo",
+        href: "/notifications",
+        icon: HiBell,
+        active: pathname === "/notifications",
+      },
+      {
+        label: "Báo cáo",
+        href: "/reports",
+        icon: HiDocumentChartBar,
+        active: pathname === "/reports",
       },
     ];
 
@@ -102,6 +142,13 @@ const useRoutes = (
     }
 
     base.push({
+      label: "Cài đặt",
+      href: "/settings",
+      icon: HiCog,
+      active: pathname === "/settings",
+    });
+
+    base.push({
       label: "Đăng xuất",
       // Await the signout (cookie cleared) BEFORE navigating, then force a full
       // document load to "/" rather than letting NextAuth/Router soft-navigate.
@@ -117,7 +164,7 @@ const useRoutes = (
     });
 
     return base;
-  }, [pathname, conversationId, role, user]);
+  }, [pathname, conversationId, role, permissionsKey]);
 
   return routes;
 };

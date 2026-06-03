@@ -19,7 +19,7 @@ export default async function BookmarksLayout({
   return (
     // @ts-expect-error Async Server Component: Promise<Element> return type is
     // valid in Next.js 13 but not yet recognized by the React 18 JSX types.
-    <Sidebar>
+    <Sidebar currentUser={currentUser}>
       <div className="h-full">{children}</div>
     </Sidebar>
   );

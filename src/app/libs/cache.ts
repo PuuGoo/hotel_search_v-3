@@ -39,7 +39,6 @@ export class SearchCache<T = any> {
       return null;
     }
 
-    // Move to end (most recently used)
     this.cache.delete(key);
     this.cache.set(key, entry);
     entry.hits++;
@@ -54,7 +53,6 @@ export class SearchCache<T = any> {
       this.cache.delete(key);
     }
 
-    // Evict LRU entries until we have room
     while (this.cache.size >= this.maxSize) {
       const lruKey = this.cache.keys().next().value;
       if (lruKey) this.cache.delete(lruKey);
@@ -120,9 +118,127 @@ export class SearchCache<T = any> {
   }
 }
 
-// Pin the cache to globalThis so a single instance is shared across all route
-// bundles AND survives Next.js dev hot-reloads (which re-evaluate module
-// files). Without this, separate bundles/reloads each get their own empty
-// cache, fragmenting hit rates and defeating the point of caching.
 const g = globalThis as unknown as { __searchCache?: SearchCache };
 export const searchCache = g.__searchCache ?? (g.__searchCache = new SearchCache());
+
+const cacheNamespaces = ["search", "finder", "user", "api"] as const;
+type CacheNamespace = (typeof cacheNamespaces)[number];
+
+interface GenericCacheEntry {
+  data: any;
+  expiresAt: number;
+  hits: number;
+  createdAt: number;
+}
+
+const g2 = globalThis as unknown as {
+  __genericCache?: Map<string, GenericCacheEntry>;
+  __globalHits?: number;
+  __globalMisses?: number;
+};
+
+const genericCache: Map<string, GenericCacheEntry> =
+  g2.__genericCache ?? (g2.__genericCache = new Map());
+let globalHits: number = g2.__globalHits ?? (g2.__globalHits = 0);
+let globalMisses: number = g2.__globalMisses ?? (g2.__globalMisses = 0);
+
+function makeNamespacedKey(namespace: CacheNamespace, key: string): string {
+  return `${namespace}:${key}`;
+}
+
+export async function cacheWithTTL<T>(
+  key: string,
+  ttlMs: number,
+  fetcher: () => Promise<T>
+): Promise<T> {
+  const entry = genericCache.get(key);
+
+  if (entry && Date.now() <= entry.expiresAt) {
+    genericCache.delete(key);
+    genericCache.set(key, entry);
+    entry.hits++;
+    globalHits++;
+    return entry.data as T;
+  }
+
+  if (entry) {
+    genericCache.delete(key);
+  }
+
+  globalMisses++;
+  const data = await fetcher();
+
+  genericCache.set(key, {
+    data,
+    expiresAt: Date.now() + ttlMs,
+    hits: 0,
+    createdAt: Date.now(),
+  });
+
+  return data;
+}
+
+export function invalidateCache(pattern: string): number {
+  let count = 0;
+  for (const [key] of genericCache) {
+    if (key.startsWith(pattern)) {
+      genericCache.delete(key);
+      count++;
+    }
+  }
+  return count;
+}
+
+export function getCacheStats(): {
+  size: number;
+  hitRate: string;
+  keys: string[];
+  totalHits: number;
+  totalMisses: number;
+  memoryEstimate: string;
+} {
+  const now = Date.now();
+  for (const [key, entry] of genericCache) {
+    if (now > entry.expiresAt) {
+      genericCache.delete(key);
+    }
+  }
+
+  const keys = Array.from(genericCache.keys());
+  const totalRequests = globalHits + globalMisses;
+  const hitRate =
+    totalRequests > 0
+      ? ((globalHits / totalRequests) * 100).toFixed(1) + "%"
+      : "0%";
+
+  const estimatedBytes = keys.reduce((acc, key) => {
+    const entry = genericCache.get(key);
+    if (!entry) return acc;
+    const dataStr = JSON.stringify(entry.data);
+    return acc + key.length * 2 + (dataStr ? dataStr.length * 2 : 0) + 64;
+  }, 0);
+
+  let memoryEstimate: string;
+  if (estimatedBytes < 1024) {
+    memoryEstimate = `${estimatedBytes} B`;
+  } else if (estimatedBytes < 1024 * 1024) {
+    memoryEstimate = `${(estimatedBytes / 1024).toFixed(1)} KB`;
+  } else {
+    memoryEstimate = `${(estimatedBytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  return {
+    size: keys.length,
+    hitRate,
+    keys,
+    totalHits: globalHits,
+    totalMisses: globalMisses,
+    memoryEstimate,
+  };
+}
+
+export function getSearchCacheStats() {
+  return searchCache.stats();
+}
+
+export { cacheNamespaces, type CacheNamespace, genericCache };

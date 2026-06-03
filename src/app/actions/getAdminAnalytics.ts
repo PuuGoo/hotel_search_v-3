@@ -1,6 +1,11 @@
 import getCurrentUser from "./getCurrentUser";
 import prisma from "../libs/prismadb";
 import { isAdmin } from "../libs/authz";
+import { cacheWithTTL } from "../libs/cache";
+
+// Search analytics are heavy (6 aggregates + groupBy + findMany) and
+// recomputed on every analytics page load. Cache for 60 seconds.
+const ANALYTICS_CACHE_TTL = 60_000; // 60s
 
 export interface AdminAnalytics {
   totalSearches: number;
@@ -28,60 +33,62 @@ const getAdminAnalytics = async (): Promise<AdminAnalytics | null> => {
     return null;
   }
 
-  const [totalSearches, searches7d, durationAgg, engineUsage, topQueries, recent] =
-    await Promise.all([
-      prisma.search.count(),
-      prisma.search.count({ where: { createdAt: { gte: daysAgo(7) } } }),
-      prisma.search.aggregate({ _avg: { duration: true } }),
-      prisma.search.groupBy({
-        by: ["engine"],
-        _count: { engine: true },
-      }),
-      prisma.search.groupBy({
-        by: ["query"],
-        _count: { query: true },
-        orderBy: { _count: { query: "desc" } },
-        take: 10,
-      }),
-      prisma.search.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 15,
-        select: {
-          id: true,
-          query: true,
-          engine: true,
-          resultCount: true,
-          duration: true,
-          createdAt: true,
-          user: { select: { email: true } },
-        },
-      }),
-    ]);
+  return cacheWithTTL("admin:analytics", ANALYTICS_CACHE_TTL, async () => {
+    const [totalSearches, searches7d, durationAgg, engineUsage, topQueries, recent] =
+      await Promise.all([
+        prisma.search.count(),
+        prisma.search.count({ where: { createdAt: { gte: daysAgo(7) } } }),
+        prisma.search.aggregate({ _avg: { duration: true } }),
+        prisma.search.groupBy({
+          by: ["engine"],
+          _count: { engine: true },
+        }),
+        prisma.search.groupBy({
+          by: ["query"],
+          _count: { query: true },
+          orderBy: { _count: { query: "desc" } },
+          take: 10,
+        }),
+        prisma.search.findMany({
+          orderBy: { createdAt: "desc" },
+          take: 15,
+          select: {
+            id: true,
+            query: true,
+            engine: true,
+            resultCount: true,
+            duration: true,
+            createdAt: true,
+            user: { select: { email: true } },
+          },
+        }),
+      ]);
 
-  return {
-    totalSearches,
-    searches7d,
-    avgDurationMs:
-      durationAgg._avg.duration != null
-        ? Math.round(durationAgg._avg.duration)
-        : null,
-    engineUsage: engineUsage
-      .map((e) => ({ engine: e.engine, count: e._count.engine }))
-      .sort((a, b) => b.count - a.count),
-    topQueries: topQueries.map((q) => ({
-      query: q.query,
-      count: q._count.query,
-    })),
-    recentSearches: recent.map((s) => ({
-      id: s.id,
-      query: s.query,
-      engine: s.engine,
-      resultCount: s.resultCount,
-      duration: s.duration,
-      createdAt: s.createdAt,
-      userEmail: s.user?.email ?? null,
-    })),
-  };
+    return {
+      totalSearches,
+      searches7d,
+      avgDurationMs:
+        durationAgg._avg.duration != null
+          ? Math.round(durationAgg._avg.duration)
+          : null,
+      engineUsage: engineUsage
+        .map((e) => ({ engine: e.engine, count: e._count.engine }))
+        .sort((a, b) => b.count - a.count),
+      topQueries: topQueries.map((q) => ({
+        query: q.query,
+        count: q._count.query,
+      })),
+      recentSearches: recent.map((s) => ({
+        id: s.id,
+        query: s.query,
+        engine: s.engine,
+        resultCount: s.resultCount,
+        duration: s.duration,
+        createdAt: s.createdAt,
+        userEmail: s.user?.email ?? null,
+      })),
+    };
+  });
 };
 
 function daysAgo(n: number): Date {

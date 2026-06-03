@@ -1,13 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import Link from "next/link";
 import {
-  FiBookmark,
   FiClock,
-  FiSearch,
   FiTrendingUp,
 } from "react-icons/fi";
+
+import StatsGrid from "./StatsGrid";
+import ActivityFeed from "./ActivityFeed";
+import QuickActions from "./QuickActions";
 
 interface Search {
   id: string;
@@ -25,77 +28,75 @@ interface Stats {
   topQueries: { query: string; count: number }[];
 }
 
+interface DashboardStats {
+  totalUsers: number;
+  totalConversations: number;
+  totalMessages: number;
+  totalSearches: number;
+  totalHotels: number;
+  totalBookmarks: number;
+  messagesLast24h: number;
+  searchesLast24h: number;
+  activeUsers: number;
+}
+
+interface ActivityItem {
+  id: string;
+  type: "message" | "search" | "bookmark" | "user";
+  description: string;
+  user: { id: string; name: string | null; email: string | null; image: string | null } | null;
+  timestamp: string;
+}
+
 interface DashboardClientProps {
   stats: Stats;
   recentSearches: Search[];
+  initialActivities: ActivityItem[];
   user: any;
 }
 
 const DashboardClient: React.FC<DashboardClientProps> = ({
   stats,
   recentSearches,
+  initialActivities,
   user,
 }) => {
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/dashboard/stats")
+      .then((res) => res.json())
+      .then((data) => {
+        setDashboardStats(data);
+        setStatsLoading(false);
+      })
+      .catch(() => setStatsLoading(false));
+  }, []);
+
   return (
     <div className="h-full bg-gray-900">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">
             Xin chào, {user.name || "User"}!
           </h1>
           <p className="text-gray-400 mt-2">
-            Đây là tổng quan về hoạt động tìm kiếm của bạn
+            Đây là tổng quan về hoạt động hệ thống
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gray-800 rounded-lg p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-sky-500/20 rounded-lg">
-                <FiSearch className="h-6 w-6 text-sky-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Tổng tìm kiếm</p>
-                <p className="text-2xl font-bold text-white">
-                  {stats.totalSearches}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800 rounded-lg p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-yellow-500/20 rounded-lg">
-                <FiBookmark className="h-6 w-6 text-yellow-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Đã lưu</p>
-                <p className="text-2xl font-bold text-white">
-                  {stats.totalBookmarks}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800 rounded-lg p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-500/20 rounded-lg">
-                <FiTrendingUp className="h-6 w-6 text-green-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Engines sử dụng</p>
-                <p className="text-2xl font-bold text-white">
-                  {stats.engineUsage.length}
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="mb-8">
+          <StatsGrid stats={dashboardStats} loading={statsLoading} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Searches */}
+        <div className="mb-8">
+          <QuickActions />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <ActivityFeed initialActivities={initialActivities} />
+
           <div className="bg-gray-800 rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-white flex items-center gap-2">
@@ -115,7 +116,7 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
                 Chưa có tìm kiếm nào
               </p>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
                 {recentSearches.map((search) => (
                   <div
                     key={search.id}
@@ -136,8 +137,9 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
               </div>
             )}
           </div>
+        </div>
 
-          {/* Top Queries */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
               <FiTrendingUp />
@@ -170,8 +172,7 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
             )}
           </div>
 
-          {/* Engine Usage */}
-          <div className="bg-gray-800 rounded-lg p-6 lg:col-span-2">
+          <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-white mb-6">
               Thống kê theo Engine
             </h2>
@@ -181,7 +182,7 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
                 Chưa có dữ liệu
               </p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-4">
                 {stats.engineUsage.map((item) => {
                   const percentage = Math.round(
                     (item.count / stats.totalSearches) * 100

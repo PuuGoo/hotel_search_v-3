@@ -13,3 +13,42 @@ body,
     @apply dark:bg-dusk;
   }
 }
+
+@keyframes highlight-flash {
+  0% { background-color: rgba(56, 189, 248, 0.3); }
+  100% { background-color: transparent; }
+}
+
+.message-highlight {
+  animation: highlight-flash 2s ease-out;
+}
+
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.scroll-snap-x {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-snap-x > * {
+  scroll-snap-align: start;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}

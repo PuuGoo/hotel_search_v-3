@@ -4,7 +4,7 @@ import getCurrentUser from "../../../../actions/getCurrentUser";
 import prisma from "../../../../libs/prismadb";
 import { pusherEvents, pusherServer } from "../../../../libs/pusher";
 import { conversationChannel, userChannel } from "../../../../libs/pusher";
-import { sanitizeUser, sanitizeUsers } from "../../../../libs/sanitizeUser";
+import { publicUserSelect } from "../../../../types";
 
 interface IParams {
   conversationId?: string;
@@ -40,10 +40,10 @@ export async function POST(request: Request, { params }: { params: IParams }) {
           orderBy: { createdAt: "desc" },
           take: 1,
           include: {
-            seen: true,
+            seen: { select: publicUserSelect },
           },
         },
-        users: true,
+        users: { select: publicUserSelect },
       },
     });
 
@@ -51,16 +51,9 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       return new NextResponse("Invalid ID", { status: 400 });
     }
 
-    // Sanitized view of the conversation for the early-return paths below
-    // (strip hashes from embedded user records).
-    const safeConversation = {
-      ...conversation,
-      users: sanitizeUsers(conversation.users),
-      messages: conversation.messages.map((m) => ({
-        ...m,
-        seen: sanitizeUsers(m.seen),
-      })),
-    };
+    // Embedded user records are public-field-only (selected above), so the
+    // conversation can be broadcast/returned directly.
+    const safeConversation = conversation;
 
     // Find last message
     const lastMessage = conversation.messages[conversation.messages.length - 1];
@@ -75,8 +68,8 @@ export async function POST(request: Request, { params }: { params: IParams }) {
         id: lastMessage.id,
       },
       include: {
-        sender: true,
-        seen: true,
+        sender: { select: publicUserSelect },
+        seen: { select: publicUserSelect },
       },
       data: {
         seen: {
@@ -87,13 +80,8 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       },
     });
 
-    // Strip password hashes from embedded user records before broadcasting /
-    // returning (sender + seen are full User records).
-    const safeMessage = {
-      ...updatedMessage,
-      sender: sanitizeUser(updatedMessage.sender),
-      seen: sanitizeUsers(updatedMessage.seen),
-    };
+    // Embedded user records are public-field-only (selected above).
+    const safeMessage = updatedMessage;
 
     // Update all connections with new seen
     await pusherServer.trigger(userChannel(currentUser.email), pusherEvents.UPDATE_CONVERSATION, {

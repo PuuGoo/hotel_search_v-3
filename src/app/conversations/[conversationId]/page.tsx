@@ -1,9 +1,9 @@
 import getConversationById from "../../actions/getConversationById";
 import getMessages from "../../actions/getMessages";
 import EmptyState from "../../components/EmptyState";
-import Body from "./components/Body";
-import Form from "./components/Form";
+import ConversationContent from "./components/ConversationContent";
 import Header from "./components/Header";
+import FeatureThemeProvider from "../../components/theme/FeatureThemeProvider";
 
 interface IParams {
   conversationId: string;
@@ -30,13 +30,14 @@ const ConversationId = async ({ params }: { params: IParams }) => {
   }
 
   return (
-    <div className="lg:pl-80 h-full">
-      <div className="h-full flex flex-col">
-        <Header conversation={conversation} />
-        <Body initialMessages={messages} />
-        <Form />
+    <FeatureThemeProvider feature="chat">
+      <div className="lg:pl-80 h-full">
+        <div className="h-full flex flex-col">
+          <Header conversation={conversation} />
+          <ConversationContent initialMessages={messages} />
+        </div>
       </div>
-    </div>
+    </FeatureThemeProvider>
   );
 };
 

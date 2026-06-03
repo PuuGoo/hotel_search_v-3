@@ -1,17 +1,17 @@
 "use client";
 
-import { User } from "@prisma/client";
+import { PublicUser } from "../types";
 import Image from "next/image";
 
 import useActiveList from "../hooks/useActiveList";
 
 interface AvatarProps {
-  user?: User;
+  user?: PublicUser;
 }
 
 const Avatar: React.FC<AvatarProps> = ({ user }) => {
-  const { members } = useActiveList();
-  const isActive = members.indexOf(user?.email!) !== -1;
+  const memberSet = useActiveList((s) => s.memberSet);
+  const isActive = user?.email ? memberSet.has(user.email) : false;
 
   return (
     <div className="relative h-9 md:h-11">

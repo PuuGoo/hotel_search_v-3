@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import useConversation from "@/app/hooks/useConversation";
 import useRoutes from "@/app/hooks/useRoutes";
 import { User } from "@prisma/client";
@@ -13,8 +14,12 @@ interface MobileFooterProps {
   currentUser: User;
 }
 
-const MobileFooter: React.FC<MobileFooterProps> = ({ currentUser }) => {
-  const routes = useRoutes(currentUser);
+const MobileFooter: React.FC<MobileFooterProps> = memo(({ currentUser }) => {
+  const stableUser = useMemo(
+    () => ({ role: currentUser.role, permissions: currentUser.permissions }),
+    [currentUser.role, currentUser.permissions]
+  );
+  const routes = useRoutes(stableUser);
   const { isOpen } = useConversation();
 
   if (isOpen) {
@@ -57,6 +62,8 @@ const MobileFooter: React.FC<MobileFooterProps> = ({ currentUser }) => {
       </div>
     </>
   );
-};
+});
+
+MobileFooter.displayName = "MobileFooter";
 
 export default MobileFooter;

@@ -3,11 +3,18 @@ import { sanitizeUser } from "../../libs/sanitizeUser";
 import DesktopSidebar from "./DesktopSidebar";
 import MobileFooter from "./MobileFooter";
 
-async function Sidebar({ children }: { children: React.ReactNode }) {
-  const currentUser = await getCurrentUser();
-  // Strip the password hash before the user record is handed to client
-  // components (it would otherwise serialize into the page payload).
-  const safeUser = currentUser ? sanitizeUser(currentUser) : currentUser;
+async function Sidebar({
+  children,
+  currentUser: initialUser,
+}: {
+  children: React.ReactNode;
+  currentUser?: any;
+}) {
+  // If the parent layout already fetched the user, reuse it instead of hitting
+  // the DB again. This eliminates the redundant getCurrentUser call in every
+  // layout that wraps Sidebar.
+  const rawUser = initialUser ?? (await getCurrentUser());
+  const safeUser = rawUser ? sanitizeUser(rawUser) : rawUser;
 
   return (
     <div className="h-full">

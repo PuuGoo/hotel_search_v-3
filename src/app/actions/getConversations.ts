@@ -1,5 +1,5 @@
 import prisma from "../libs/prismadb";
-import { sanitizeUser, sanitizeUsers } from "../libs/sanitizeUser";
+import { publicUserSelect } from "../types";
 import getCurrentUser from "./getCurrentUser";
 
 const getConversations = async () => {
@@ -20,7 +20,10 @@ const getConversations = async () => {
         },
       },
       include: {
-        users: true,
+        // Embedded users are rendered as avatar/name only, so fetch just the
+        // public fields (no hashedPassword/secrets/large JSON) instead of the
+        // full row.
+        users: { select: publicUserSelect },
         // The sidebar (ConversationBox) only renders the last message as a
         // preview; the conversation detail view loads full history separately
         // via getMessages. Fetch just the newest message (with its sender/seen
@@ -32,24 +35,14 @@ const getConversations = async () => {
           },
           take: 1,
           include: {
-            sender: true,
-            seen: true,
+            sender: { select: publicUserSelect },
+            seen: { select: publicUserSelect },
           },
         },
       },
     });
 
-    // Strip password hashes from every embedded user record before this
-    // crosses to the client.
-    return conversations.map((conversation) => ({
-      ...conversation,
-      users: sanitizeUsers(conversation.users),
-      messages: conversation.messages.map((message) => ({
-        ...message,
-        sender: sanitizeUser(message.sender),
-        seen: sanitizeUsers(message.seen),
-      })),
-    }));
+    return conversations;
   } catch (error: any) {
     // Log so a failed conversation fetch is diagnosable in production instead
     // of silently returning an empty list (matches getConversationById).

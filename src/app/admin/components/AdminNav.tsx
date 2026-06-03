@@ -3,13 +3,27 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiActivity, FiBarChart2, FiGrid, FiUsers } from "react-icons/fi";
+import {
+  FiActivity,
+  FiAlertTriangle,
+  FiBarChart2,
+  FiDatabase,
+  FiGlobe,
+  FiGrid,
+  FiHardDrive,
+  FiShield,
+  FiUsers,
+} from "react-icons/fi";
 
 const tabs = [
   { label: "Tổng quan", href: "/admin", icon: FiGrid, exact: true },
   { label: "Người dùng", href: "/admin/users", icon: FiUsers },
   { label: "Phân tích", href: "/admin/analytics", icon: FiBarChart2 },
+  { label: "Cache", href: "/admin/cache", icon: FiHardDrive },
   { label: "Nhật ký", href: "/admin/audit", icon: FiActivity },
+  { label: "Giới hạn", href: "/admin/rate-limits", icon: FiShield },
+  { label: "Cơ sở dữ liệu", href: "/admin/database", icon: FiDatabase },
+  { label: "CDN", href: "/admin/cdn", icon: FiGlobe },
 ];
 
 const AdminNav = () => {

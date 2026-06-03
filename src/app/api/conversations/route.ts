@@ -5,7 +5,7 @@ import prisma from "../../libs/prismadb";
 import { hasFeature } from "../../libs/features";
 import { pusherEvents, pusherServer } from "../../libs/pusher";
 import { userChannel } from "../../libs/pusher";
-import { sanitizeUsers } from "../../libs/sanitizeUser";
+import { publicUserSelect } from "../../types";
 
 export async function POST(request: Request) {
   try {
@@ -58,16 +58,12 @@ export async function POST(request: Request) {
           },
         },
         include: {
-          users: true,
+          users: { select: publicUserSelect },
         },
       });
 
-      // Strip password hashes from embedded user records before broadcasting /
-      // returning.
-      const safeConversation = {
-        ...newConversation,
-        users: sanitizeUsers(newConversation.users),
-      };
+      // Embedded user records are public-field-only (selected above).
+      const safeConversation = newConversation;
 
       // Update all connections with new conversation
       newConversation.users.forEach((user) => {
@@ -116,16 +112,12 @@ export async function POST(request: Request) {
         },
       },
       include: {
-        users: true,
+        users: { select: publicUserSelect },
       },
     });
 
-    // Strip password hashes from embedded user records before broadcasting /
-    // returning.
-    const safeNewConversation = {
-      ...newConversation,
-      users: sanitizeUsers(newConversation.users),
-    };
+    // Embedded user records are public-field-only (selected above).
+    const safeNewConversation = newConversation;
 
     // Update all connections with new conversation
     newConversation.users.map((user) => {

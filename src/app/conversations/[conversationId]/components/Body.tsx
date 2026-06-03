@@ -1,29 +1,42 @@
 "use client";
 
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState, useCallback } from "react";
 
 import useConversation from "@/app/hooks/useConversation";
-import { find } from "lodash";
+import find from "lodash/find";
 
-import { pusherClient, pusherEvents, conversationChannel } from "../../../libs/pusher";
+import { pusherClient, pusherEvents, conversationChannel } from "../../../libs/pusherClient";
 import { FullMessageType } from "../../../types";
 import MessageBox from "./MessageBox";
 
+const MessageSearch = lazy(() => import("./MessageSearch"));
+
 interface BodyProps {
   initialMessages: FullMessageType[];
+  onReply?: (message: FullMessageType) => void;
 }
 
-const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
+const Body: React.FC<BodyProps> = ({ initialMessages = [], onReply }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState(initialMessages);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
 
   const { conversationId } = useConversation();
 
   useEffect(() => {
-    // Fire-and-forget: marking the conversation seen is a background side effect,
-    // so swallow failures (e.g. transient network) rather than letting them
-    // become an unhandled promise rejection. No user-facing error is warranted.
+    const handler = () => setShowSearch((prev) => !prev);
+    document.addEventListener("toggle-message-search", handler);
+    return () => document.removeEventListener("toggle-message-search", handler);
+  }, []);
+
+  const scrollToMessage = useCallback((id: string) => {
+    setHighlightedMessageId(id);
+    setTimeout(() => setHighlightedMessageId(null), 2100);
+  }, []);
+
+  useEffect(() => {
     axios.post(`/api/conversations/${conversationId}/seen`).catch(() => {});
   }, [conversationId]);
 
@@ -36,8 +49,6 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
     bottomRef?.current?.scrollIntoView();
 
     const messageHandler = (message: FullMessageType) => {
-      // Fire-and-forget background seen-marking; swallow failures to avoid an
-      // unhandled promise rejection (see the mount effect above).
       axios.post(`/api/conversations/${conversationId}/seen`).catch(() => {});
 
       setMessages((current) => {
@@ -52,7 +63,6 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
     const updateMessageHandler = (newMessage: FullMessageType) => {
       setMessages((current) =>
         current.map((currentMessage) => {
-          // update the message only if it matches the new message id
           if (currentMessage.id === newMessage.id) {
             return newMessage;
           }
@@ -65,17 +75,45 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
     pusherClient.bind(pusherEvents.NEW_MESSAGE, messageHandler);
     pusherClient.bind(pusherEvents.UPDATE_MESSAGE, updateMessageHandler);
 
+    const reactionHandler = (updatedMessage: FullMessageType) => {
+      setMessages((current) =>
+        current.map((currentMessage) => {
+          if (currentMessage.id === updatedMessage.id) {
+            return { ...currentMessage, reactions: updatedMessage.reactions };
+          }
+          return currentMessage;
+        })
+      );
+    };
+
+    pusherClient.bind(pusherEvents.REACTION_UPDATE, reactionHandler);
+
     return () => {
       pusherClient.unsubscribe(conversationChannel(conversationId));
       pusherClient.unbind(pusherEvents.NEW_MESSAGE, messageHandler);
       pusherClient.unbind(pusherEvents.UPDATE_MESSAGE, updateMessageHandler);
+      pusherClient.unbind(pusherEvents.REACTION_UPDATE, reactionHandler);
     };
   }, [conversationId]);
 
   return (
     <div className="flex-1 overflow-y-auto">
+      {showSearch && (
+        <Suspense fallback={null}>
+          <MessageSearch
+            messages={messages}
+            onSelectMessage={scrollToMessage}
+          />
+        </Suspense>
+      )}
       {messages.map((message, i) => (
-        <MessageBox isLast={i === messages.length - 1} key={message.id} data={message} />
+        <MessageBox
+          isLast={i === messages.length - 1}
+          key={message.id}
+          data={message}
+          onReply={onReply}
+          isHighlighted={highlightedMessageId === message.id}
+        />
       ))}
       <div className="pt-1" ref={bottomRef} />
     </div>

@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useCallback, useState } from "react";
 
-import { User } from "@prisma/client";
+import { PublicUser } from "../../types";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
@@ -11,7 +11,7 @@ import Avatar from "../../components/Avatar";
 import LoadingModal from "../../components/modals/LoadingModal";
 
 interface UserBoxProps {
-  data: User;
+  data: PublicUser;
 }
 
 const UserBox: React.FC<UserBoxProps> = ({ data }) => {

@@ -1,8 +1,6 @@
 "use client";
 
-import Image from "next/image";
-
-import Modal from "../../../components/modals/Modal";
+import Lightbox from "../../../components/Lightbox";
 
 interface ImageModalProps {
   isOpen?: boolean;
@@ -16,11 +14,12 @@ const ImageModal: React.FC<ImageModalProps> = ({ isOpen, onClose, src }) => {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="w-80 h-80">
-        <Image className="object-contain" fill sizes="320px" alt="Hình ảnh" src={src} />
-      </div>
-    </Modal>
+    <Lightbox
+      images={[src]}
+      initialIndex={0}
+      isOpen={!!isOpen}
+      onClose={onClose}
+    />
   );
 };
 

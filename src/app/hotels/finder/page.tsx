@@ -13,9 +13,18 @@ import {
   FiCheckCircle,
   FiXCircle,
   FiClock,
+  FiSave,
+  FiSettings,
+  FiX,
 } from "react-icons/fi";
+import dynamic from "next/dynamic";
 
 import { mergeFinderRow } from "./utils/rowMerge";
+import FeatureThemeProvider from "../../components/theme/FeatureThemeProvider";
+
+const TemplateManager = dynamic(() => import("./components/TemplateManager"), { ssr: false });
+const ScheduleManager = dynamic(() => import("./components/ScheduleManager"), { ssr: false });
+const RunHistory = dynamic(() => import("./components/RunHistory"), { ssr: false });
 
 interface FinderRow {
   no: number;
@@ -36,6 +45,12 @@ interface WorkerStatus {
   no?: number;
 }
 
+interface AutoSaveSettings {
+  enabled: boolean;
+  lineThreshold: number;
+  folder: string;
+}
+
 export default function HotelFinderPage() {
   const [file, setFile] = useState<File | null>(null);
   const [workers, setWorkers] = useState(3);
@@ -48,18 +63,24 @@ export default function HotelFinderPage() {
   const [error, setError] = useState<string | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [autoSaveSettings, setAutoSaveSettings] = useState<AutoSaveSettings>({
+    enabled: false,
+    lineThreshold: 10,
+    folder: "finder",
+  });
+  const [showAutoSaveSettings, setShowAutoSaveSettings] = useState(false);
+  const [autoSaveCount, setAutoSaveCount] = useState(0);
+  const [showSaveTemplatePrompt, setShowSaveTemplatePrompt] = useState(false);
+  const lastAutoSaveRef = useRef(0);
+  const rowsRef = useRef<FinderRow[]>([]);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (f) {
-      // Case-insensitive extension check to match the server's
-      // hasXlsxExtension, so a valid "HOTELS.XLSX" isn't wrongly rejected here.
       if (f.name.split(".").pop()?.toLowerCase() !== "xlsx") {
         toast.error("Chỉ chấp nhận file .xlsx");
         return;
       }
-      // Mirror the server-side 20MB cap so an oversized file is rejected before
-      // the upload starts instead of after the whole body is sent.
       if (f.size > 20 * 1024 * 1024) {
         toast.error("File quá lớn (tối đa 20MB)");
         return;
@@ -68,6 +89,43 @@ export default function HotelFinderPage() {
       setError(null);
     }
   }, []);
+
+  const autoSaveToDrive = useCallback(
+    async (rowsToSave: FinderRow[]) => {
+      if (!autoSaveSettings.enabled || rowsToSave.length === 0) return;
+
+      try {
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
+        const fileName = `finder-auto-${timestamp}.json`;
+
+        const blob = new Blob([JSON.stringify(rowsToSave, null, 2)], {
+          type: "application/json",
+        });
+
+        const formData = new FormData();
+        const fileObj = new File([blob], fileName, { type: "application/json" });
+        formData.append("file", fileObj);
+
+        const uploadRes = await axios.post("/api/messages/upload", formData);
+        const { fileUrl } = uploadRes.data;
+
+        await axios.post("/api/drive", {
+          fileName,
+          originalName: fileName,
+          filePath: fileUrl,
+          fileSize: blob.size,
+          mimeType: "application/json",
+          folder: autoSaveSettings.folder,
+        });
+
+        setAutoSaveCount((prev) => prev + 1);
+        toast.success(`Đã tự động lưu ${rowsToSave.length} dòng vào Drive`);
+      } catch (err) {
+        console.error("Auto-save error:", err);
+      }
+    },
+    [autoSaveSettings]
+  );
 
   const handleUpload = useCallback(async () => {
     if (!file) {
@@ -79,10 +137,9 @@ export default function HotelFinderPage() {
     setError(null);
     setRows([]);
     setWorkerStatus({});
+    setAutoSaveCount(0);
+    lastAutoSaveRef.current = 0;
 
-    // Close any prior stream before starting a new one, otherwise the old
-    // EventSource keeps reconnecting in the background (client leak) and holds
-    // a server-side SSE polling interval alive.
     eventSourceRef.current?.close();
     eventSourceRef.current = null;
 
@@ -98,7 +155,6 @@ export default function HotelFinderPage() {
       setJobId(job_id);
       setJobStatus(status || "running");
 
-      // Connect to SSE
       const es = new EventSource(`/api/hotel-finder/progress?jobId=${job_id}`);
       eventSourceRef.current = es;
 
@@ -107,11 +163,20 @@ export default function HotelFinderPage() {
           const data = JSON.parse(event.data);
 
           if (data.type === "row") {
-            // Dedup by the row's unique absolute Excel row number. On an SSE
-            // reconnect (network blip during a long job) the server restarts the
-            // stream from the beginning and resends every row, so a blind append
-            // would duplicate rows and inflate the stats. See mergeFinderRow.
-            setRows((prev) => mergeFinderRow(prev, data.data as FinderRow));
+            setRows((prev) => {
+              const updated = mergeFinderRow(prev, data.data as FinderRow);
+
+              if (
+                autoSaveSettings.enabled &&
+                updated.length - lastAutoSaveRef.current >= autoSaveSettings.lineThreshold
+              ) {
+                const newRows = updated.slice(lastAutoSaveRef.current);
+                lastAutoSaveRef.current = updated.length;
+                autoSaveToDrive(newRows);
+              }
+
+              return updated;
+            });
           } else if (data.type === "worker_status") {
             setWorkerStatus((prev) => ({
               ...prev,
@@ -123,6 +188,33 @@ export default function HotelFinderPage() {
           } else if (data.type === "complete") {
             setJobStatus("done");
             setTotal(data.total);
+            setShowSaveTemplatePrompt(true);
+
+            const finalRows = rowsRef.current;
+            const matchedCount = finalRows.filter((r) => r.status === "matched").length;
+            const errorCount = finalRows.filter((r) => r.status === "error").length;
+            const runEntry = {
+              id: `run-${Date.now()}`,
+              name: file?.name?.replace(/\.[^.]+$/, "") || `Chạy ${new Date().toLocaleTimeString("vi-VN")}`,
+              date: new Date().toISOString(),
+              rows: finalRows,
+              stats: { matched: matchedCount, errors: errorCount, total: finalRows.length },
+            };
+            const STORAGE_KEY = "finder-run-history";
+            const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+            existing.unshift(runEntry);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(existing.slice(0, 50)));
+
+            if (autoSaveSettings.enabled) {
+              setRows((prev) => {
+                if (prev.length > lastAutoSaveRef.current) {
+                  const remaining = prev.slice(lastAutoSaveRef.current);
+                  autoSaveToDrive(remaining);
+                }
+                return prev;
+              });
+            }
+
             toast.success(`Hoàn thành! ${data.processed}/${data.total} hotels`);
             es.close();
           } else if (data.type === "error") {
@@ -138,15 +230,13 @@ export default function HotelFinderPage() {
         } catch {}
       };
 
-      es.onerror = () => {
-        // SSE will auto-reconnect
-      };
+      es.onerror = () => {};
     } catch (err: any) {
       setError(err.response?.data?.error || "Tải lên thất bại");
       setJobStatus("error");
       toast.error("Tải lên thất bại");
     }
-  }, [file, workers, template]);
+  }, [file, workers, template, autoSaveSettings, autoSaveToDrive]);
 
   const handleCancel = useCallback(async () => {
     if (!jobId) return;
@@ -165,6 +255,39 @@ export default function HotelFinderPage() {
     [jobId]
   );
 
+  const handleSaveToDrive = useCallback(async () => {
+    if (rows.length === 0) return;
+
+    try {
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
+      const fileName = `finder-results-${timestamp}.json`;
+
+      const blob = new Blob([JSON.stringify(rows, null, 2)], {
+        type: "application/json",
+      });
+
+      const formData = new FormData();
+      const fileObj = new File([blob], fileName, { type: "application/json" });
+      formData.append("file", fileObj);
+
+      const uploadRes = await axios.post("/api/messages/upload", formData);
+      const { fileUrl } = uploadRes.data;
+
+      await axios.post("/api/drive", {
+        fileName,
+        originalName: fileName,
+        filePath: fileUrl,
+        fileSize: blob.size,
+        mimeType: "application/json",
+        folder: "finder",
+      });
+
+      toast.success("Đã lưu kết quả vào Drive");
+    } catch {
+      toast.error("Không thể lưu vào Drive");
+    }
+  }, [rows]);
+
   const handleReset = useCallback(() => {
     eventSourceRef.current?.close();
     setFile(null);
@@ -174,14 +297,41 @@ export default function HotelFinderPage() {
     setTotal(0);
     setWorkerStatus({});
     setError(null);
+    setAutoSaveCount(0);
+    setShowSaveTemplatePrompt(false);
+    lastAutoSaveRef.current = 0;
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
+
+  const handleApplyTemplate = useCallback(
+    (tpl: {
+      workers: number;
+      template: string;
+      autoSaveEnabled: boolean;
+      autoSaveLines: number;
+      autoSaveFolder: string;
+    }) => {
+      setWorkers(tpl.workers);
+      setTemplate(tpl.template);
+      setAutoSaveSettings({
+        enabled: tpl.autoSaveEnabled,
+        lineThreshold: tpl.autoSaveLines,
+        folder: tpl.autoSaveFolder,
+      });
+      if (tpl.autoSaveEnabled) setShowAutoSaveSettings(true);
+    },
+    []
+  );
 
   useEffect(() => {
     return () => {
       eventSourceRef.current?.close();
     };
   }, []);
+
+  useEffect(() => {
+    rowsRef.current = rows;
+  }, [rows]);
 
   const isRunning = jobStatus === "running" || jobStatus === "uploading" || jobStatus === "queued";
   const isDone = jobStatus === "done";
@@ -196,7 +346,8 @@ export default function HotelFinderPage() {
   const progress = total > 0 ? Math.round((rows.length / total) * 100) : 0;
 
   return (
-    <div className="h-full bg-gray-900 overflow-y-auto">
+    <FeatureThemeProvider feature="finder">
+      <div className="h-full bg-gray-900 overflow-y-auto">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -208,10 +359,91 @@ export default function HotelFinderPage() {
 
         {/* Upload Section */}
         <div className="bg-gray-800 rounded-lg p-6 mb-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <FiZap className="text-sky-400" />
-            Cấu hình
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <FiZap className="text-sky-400" />
+              Cấu hình
+            </h2>
+            <button
+              onClick={() => setShowAutoSaveSettings(!showAutoSaveSettings)}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+            >
+              <FiSettings size={14} />
+              Auto-save
+              {autoSaveSettings.enabled && (
+                <span className="w-2 h-2 bg-green-400 rounded-full" />
+              )}
+            </button>
+          </div>
+
+          {/* Auto-save Settings Panel */}
+          {showAutoSaveSettings && (
+            <div className="mb-4 p-4 bg-gray-700/50 rounded-lg border border-gray-600">
+              <div className="flex items-center gap-4 flex-wrap">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={autoSaveSettings.enabled}
+                    onChange={(e) =>
+                      setAutoSaveSettings((prev) => ({
+                        ...prev,
+                        enabled: e.target.checked,
+                      }))
+                    }
+                    className="w-4 h-4 rounded bg-gray-600 border-gray-500 text-sky-500 focus:ring-sky-500"
+                  />
+                  <span className="text-sm text-gray-300">Bật tự động lưu</span>
+                </label>
+
+                {autoSaveSettings.enabled && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-gray-400">Số dòng:</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={100}
+                        value={autoSaveSettings.lineThreshold}
+                        onChange={(e) =>
+                          setAutoSaveSettings((prev) => ({
+                            ...prev,
+                            lineThreshold: parseInt(e.target.value) || 10,
+                          }))
+                        }
+                        className="w-20 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-gray-400">Thư mục:</label>
+                      <input
+                        type="text"
+                        value={autoSaveSettings.folder}
+                        onChange={(e) =>
+                          setAutoSaveSettings((prev) => ({
+                            ...prev,
+                            folder: e.target.value || "finder",
+                          }))
+                        }
+                        className="w-32 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {autoSaveSettings.enabled && (
+                <p className="mt-2 text-xs text-gray-400">
+                  Tự động lưu mỗi {autoSaveSettings.lineThreshold} dòng vào thư mục &quot;{autoSaveSettings.folder}&quot;
+                  {autoSaveCount > 0 && (
+                    <span className="text-green-400 ml-2">
+                      Đã lưu {autoSaveCount} lần
+                    </span>
+                  )}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {/* File Upload */}
@@ -239,8 +471,6 @@ export default function HotelFinderPage() {
                 max={5}
                 value={workers}
                 onChange={(e) => {
-                  // Clamp to 1-5 to match the server bound, so the displayed
-                  // value never diverges from what actually runs.
                   const n = parseInt(e.target.value) || 3;
                   setWorkers(Math.min(5, Math.max(1, n)));
                 }}
@@ -264,6 +494,37 @@ export default function HotelFinderPage() {
                 <option value="analysis">Phân tích (Tổng quan + Kiểm tra)</option>
               </select>
             </div>
+          </div>
+
+          {/* Template Manager */}
+          <div className="mb-4">
+            <label className="block text-sm text-gray-400 mb-1">Mẫu cấu hình</label>
+            <TemplateManager
+              workers={workers}
+              template={template}
+              autoSaveEnabled={autoSaveSettings.enabled}
+              autoSaveLines={autoSaveSettings.lineThreshold}
+              autoSaveFolder={autoSaveSettings.folder}
+              isRunning={isRunning}
+              onApply={handleApplyTemplate}
+            />
+          </div>
+
+          {/* Schedule Manager */}
+          <div className="mb-4">
+            <ScheduleManager
+              onRunNow={(job) => {
+                if (job.template) {
+                  handleApplyTemplate({
+                    workers: job.template.workers,
+                    template: job.template.template,
+                    autoSaveEnabled: job.template.autoSaveEnabled,
+                    autoSaveLines: job.template.autoSaveLines,
+                    autoSaveFolder: job.template.autoSaveFolder,
+                  });
+                }
+              }}
+            />
           </div>
 
           {/* Action Buttons */}
@@ -307,6 +568,13 @@ export default function HotelFinderPage() {
                       <FiDownload />
                       JSON
                     </button>
+                    <button
+                      onClick={handleSaveToDrive}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                    >
+                      <FiSave />
+                      Lưu vào Drive
+                    </button>
                   </>
                 )}
                 <button
@@ -345,6 +613,14 @@ export default function HotelFinderPage() {
                 style={{ width: `${progress}%` }}
               />
             </div>
+
+            {/* Auto-save indicator */}
+            {autoSaveSettings.enabled && autoSaveCount > 0 && (
+              <div className="mt-2 flex items-center gap-2 text-xs text-green-400">
+                <FiSave size={12} />
+                Đã tự động lưu {autoSaveCount} lần
+              </div>
+            )}
 
             {/* Worker Status */}
             {Object.keys(workerStatus).length > 0 && (
@@ -501,7 +777,43 @@ export default function HotelFinderPage() {
             </div>
           </div>
         )}
+
+        {/* Run History */}
+        <RunHistory />
+
+        {/* Save as Template Prompt */}
+        {showSaveTemplatePrompt && isDone && (
+          <div className="fixed bottom-6 right-6 z-50 bg-gray-800 border border-gray-700 rounded-xl p-4 shadow-2xl max-w-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-white">Lưu cấu hình này làm mẫu?</span>
+              <button
+                onClick={() => setShowSaveTemplatePrompt(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <FiX size={16} />
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mb-3">
+              {workers} luồng · {template} · Tự động lưu: {autoSaveSettings.enabled ? "Bật" : "Tắt"}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowSaveTemplatePrompt(false)}
+                className="flex-1 px-3 py-1.5 text-sm text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                Để sau
+              </button>
+              <button
+                onClick={() => setShowSaveTemplatePrompt(false)}
+                className="flex-1 px-3 py-1.5 text-sm bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition-colors"
+              >
+                Lưu ngay
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+      </div>
+    </FeatureThemeProvider>
   );
 }

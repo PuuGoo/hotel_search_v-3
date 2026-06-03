@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 
-import { User } from "@prisma/client";
+import { PublicUser } from "@/app/types";
 import { useRouter } from "next/navigation";
 
 import Button from "../Button";
@@ -16,7 +16,7 @@ import Modal from "./Modal";
 interface GroupChatModalProps {
   isOpen?: boolean;
   onClose: () => void;
-  users: User[];
+  users: PublicUser[];
 }
 
 const GroupChatModal: React.FC<GroupChatModalProps> = ({ isOpen, onClose, users = [] }) => {

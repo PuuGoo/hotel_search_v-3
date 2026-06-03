@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import clsx from "clsx";
 
 import Link from "next/link";
@@ -9,12 +10,12 @@ interface MobileItemProps {
   onClick?: () => void;
 }
 
-const MobileLink: React.FC<MobileItemProps> = ({ href, icon: Icon, active, onClick }) => {
-  const handleClick = () => {
+const MobileLink: React.FC<MobileItemProps> = memo(({ href, icon: Icon, active, onClick }) => {
+  const handleClick = useCallback(() => {
     if (onClick) {
       return onClick();
     }
-  };
+  }, [onClick]);
 
   return (
     <Link
@@ -43,6 +44,8 @@ const MobileLink: React.FC<MobileItemProps> = ({ href, icon: Icon, active, onCli
       <Icon className="h-6 w-6" />
     </Link>
   );
-};
+});
+
+MobileLink.displayName = "MobileLink";
 
 export default MobileLink;

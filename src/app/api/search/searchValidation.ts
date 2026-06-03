@@ -4,7 +4,7 @@
 // trims, enforces length); engine validation prevents silently falling back to
 // the wrong provider (which would mislabel saved history records).
 
-export const SUPPORTED_ENGINES = ["tavily", "google", "ddg"] as const;
+export const SUPPORTED_ENGINES = ["tavily", "google", "ddg", "bing", "yahoo"] as const;
 export type SearchEngine = (typeof SUPPORTED_ENGINES)[number];
 
 export const MAX_QUERY_LEN = 500;

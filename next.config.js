@@ -30,17 +30,46 @@ const securityHeaders = [
   { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
 ];
 
+const CDN_BASE_URL = process.env.CDN_BASE_URL || "";
+
+let cdnHostname = "";
+if (CDN_BASE_URL) {
+  try { cdnHostname = new URL(CDN_BASE_URL).hostname; } catch { cdnHostname = ""; }
+}
+
+const cdnHeaders = CDN_BASE_URL
+  ? [
+      { key: "Access-Control-Allow-Origin", value: "*" },
+      { key: "Access-Control-Allow-Methods", value: "GET, OPTIONS" },
+      { key: "Access-Control-Allow-Headers", value: "Range, Content-Type" },
+      { key: "Vary", value: "Accept-Encoding" },
+    ]
+  : [];
+
 const nextConfig = {
   images: {
-    domains: ["res.cloudinary.com", "avatars.githubusercontent.com", "lh3.googleusercontent.com"],
+    formats: ["image/webp", "image/avif"],
+    remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "plus.unsplash.com" },
+      ...(cdnHostname
+        ? [{ protocol: "https", hostname: cdnHostname }]
+        : []),
+    ],
   },
+  assetPrefix: CDN_BASE_URL || undefined,
   async headers() {
     return [
       {
-        // Apply to every route.
         source: "/:path*",
         headers: securityHeaders,
       },
+      ...(CDN_BASE_URL
+        ? [{ source: "/api/drive/file/:path*", headers: cdnHeaders }]
+        : []),
     ];
   },
 };

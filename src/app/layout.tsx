@@ -1,8 +1,14 @@
-import ActiveStatus from "./components/ActiveStatus";
+import dynamic from "next/dynamic";
+import ErrorBoundary from "./components/ErrorBoundary";
+import GlobalError from "./components/GlobalError";
+import ShortcutsProvider from "./components/ShortcutsProvider";
 import { Providers } from "./components/theme/Providers";
 import AuthContext from "./context/AuthContext";
 import ToasterContext from "./context/ToasterContext";
 import "./globals.css";
+
+const ShortcutsDialog = dynamic(() => import("./components/ShortcutsDialog"), { ssr: false });
+const ActiveStatus = dynamic(() => import("./components/ActiveStatus"), { ssr: false });
 
 export const metadata = {
   title: "Hotel Search",
@@ -19,11 +25,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning={true}>
         <AuthContext>
           <Providers>
-            <>
-              <ActiveStatus />
-              <ToasterContext />
-              {children}
-            </>
+            <ShortcutsProvider>
+              <ErrorBoundary>
+                <>
+                  <ActiveStatus />
+                  <ToasterContext />
+                  <GlobalError />
+                  {children}
+                  <ShortcutsDialog />
+                </>
+              </ErrorBoundary>
+            </ShortcutsProvider>
           </Providers>
         </AuthContext>
       </body>

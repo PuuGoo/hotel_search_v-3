@@ -5,7 +5,7 @@ import prisma from "../../libs/prismadb";
 import { hasFeature } from "../../libs/features";
 import { pusherEvents, pusherServer } from "../../libs/pusher";
 import { conversationChannel, userChannel } from "../../libs/pusher";
-import { sanitizeUser, sanitizeUsers } from "../../libs/sanitizeUser";
+import { publicUserSelect } from "../../types";
 import { validateMessage } from "./messageValidation";
 
 export async function POST(request: Request) {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     } catch {
       return new NextResponse("Invalid JSON body", { status: 400 });
     }
-    const { message, image, conversationId } = body ?? {};
+    const { message, image, fileUrl, fileName, fileSize, fileType, conversationId, replyToId } = body ?? {};
 
     const validation = validateMessage(body);
     if (!validation.ok) {
@@ -53,12 +53,17 @@ export async function POST(request: Request) {
 
     const newMessage = await prisma.message.create({
       include: {
-        seen: true,
-        sender: true,
+        seen: { select: publicUserSelect },
+        sender: { select: publicUserSelect },
       },
       data: {
         body: message,
         image: image,
+        fileUrl: fileUrl || null,
+        fileName: fileName || null,
+        fileSize: fileSize || null,
+        fileType: fileType || null,
+        replyToId: replyToId || null,
         conversation: {
           connect: { id: conversationId },
         },
@@ -86,7 +91,7 @@ export async function POST(request: Request) {
         },
       },
       include: {
-        users: true,
+        users: { select: publicUserSelect },
         // Only the newest message is used below (for the UPDATE_CONVERSATION
         // broadcast). Fetch just it rather than re-loading the entire thread
         // (with every message's seen array) on every message send.
@@ -94,27 +99,35 @@ export async function POST(request: Request) {
           orderBy: { createdAt: "desc" },
           take: 1,
           include: {
-            seen: true,
+            seen: { select: publicUserSelect },
           },
         },
       },
     });
 
-    // Strip password hashes from embedded user records before broadcasting
-    // over Pusher (sender + seen are full User records).
+    // Embedded user records are already public-field-only (selected above), so
+    // they can be broadcast/returned directly.
+    let replyToData = null;
+    if (newMessage.replyToId) {
+      const replyMsg = await prisma.message.findUnique({
+        where: { id: newMessage.replyToId },
+        include: { sender: { select: publicUserSelect } },
+      });
+      if (replyMsg) {
+        replyToData = replyMsg;
+      }
+    }
+
     const safeMessage = {
       ...newMessage,
-      sender: sanitizeUser(newMessage.sender),
-      seen: sanitizeUsers(newMessage.seen),
+      replyTo: replyToData,
     };
 
     await pusherServer.trigger(conversationChannel(conversationId), pusherEvents.NEW_MESSAGE, safeMessage);
 
     // messages is ordered newest-first and limited to one, so [0] is the latest.
     const lastMessage = updatedConversation.messages[0];
-    const safeLastMessage = lastMessage
-      ? { ...lastMessage, seen: sanitizeUsers(lastMessage.seen) }
-      : lastMessage;
+    const safeLastMessage = lastMessage ?? null;
 
     updatedConversation.users.map((user) => {
       pusherServer.trigger(userChannel(user.email!), pusherEvents.UPDATE_CONVERSATION, {

@@ -6,7 +6,31 @@ import { checkRateLimit } from "@/app/libs/rateLimit";
 import { runEngineSearch, NormalizedSearchResult } from "@/app/libs/searchEngines";
 import { isServiceUnavailable } from "@/app/libs/serviceErrors";
 import { hasFeature } from "@/app/libs/features";
-import { sanitizeQuery, isSupportedEngine, SUPPORTED_ENGINES } from "./searchValidation";
+import { sanitizeQuery, isSupportedEngine, SUPPORTED_ENGINES, SearchEngine } from "./searchValidation";
+
+// Keyword dictionaries for client-side filter options. Defined once at module
+// scope instead of re-allocated per result inside the filter callback.
+const PRICE_KEYWORDS: Record<string, string[]> = {
+  budget: ["rẻ", "giá rẻ", "budget", "cheap", "affordable", "tiết kiệm", "$"],
+  mid: ["trung bình", "mid-range", "moderate", "$$", "3 sao", "4 sao"],
+  luxury: ["cao cấp", "luxury", "5 sao", "resort", "premium", "$$$", "biệt thự"],
+};
+
+const COUNTRY_KEYWORDS: Record<string, string[]> = {
+  Vietnam: ["việt nam", "vietnam", "vietnamese", "sài gòn", "hà nội", "đà nẵng", "nha trang", "phú quốc", "hội an"],
+  Thailand: ["thái lan", "thailand", "thai", "bangkok", "phuket", "chiang mai", "pattaya"],
+  Japan: ["nhật bản", "japan", "japanese", "tokyo", "osaka", "kyoto", "hokkaido"],
+  "South Korea": ["hàn quốc", "korea", "korean", "seoul", "busan", "jeju"],
+  Singapore: ["singapore", "singaporean"],
+  Malaysia: ["malaysia", "malaysian", "kuala lumpur", "penang"],
+  Indonesia: ["indonesia", "indonesian", "bali", "jakarta"],
+  Philippines: ["philippines", "philippine", "manila", "cebu", "boracay"],
+  Cambodia: ["campuchia", "cambodia", "cambodian", "siem reap", "phnom penh"],
+  France: ["pháp", "france", "french", "paris", "nice", "lyon"],
+  "United States": ["mỹ", "usa", "us", "united states", "american", "new york", "los angeles", "las vegas", "miami", "hawaii"],
+  "United Kingdom": ["anh", "uk", "united kingdom", "british", "london", "manchester", "edinburgh"],
+  Australia: ["úc", "australia", "australian", "sydney", "melbourne"],
+};
 
 // This endpoint backs both the single-search ("search") and bulk-search
 // ("bulk") pages, so an authenticated user passes if they have either feature.
@@ -61,7 +85,11 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    const { query, engine = "tavily" } = body ?? {};
+    const { query, engine, engines, minRating, priceRange, country } = body ?? {};
+
+    const selectedEngines: string[] = Array.isArray(engines) && engines.length > 0
+      ? engines.filter((e: unknown) => isSupportedEngine(e))
+      : [isSupportedEngine(engine) ? engine : "tavily"];
 
     // Validate + sanitize the query (strips angle brackets, trims, length cap).
     const queryResult = sanitizeQuery(query);
@@ -70,9 +98,7 @@ export async function POST(request: Request) {
     }
     const sanitized = queryResult.value;
 
-    // Validate engine against the supported set instead of silently falling
-    // back to Google (which mislabels saved history records).
-    if (!isSupportedEngine(engine)) {
+    if (selectedEngines.length === 0) {
       return NextResponse.json(
         { error: `Unsupported engine. Use one of: ${SUPPORTED_ENGINES.join(", ")}` },
         { status: 400 }
@@ -100,16 +126,105 @@ export async function POST(request: Request) {
       );
     }
 
-    // Call the appropriate search engine via the typed dispatch module. It
-    // handles caching (google/ddg) and delegates to Tavily's own cache +
-    // circuit breaker + key rotation. Results are normalized to a known shape,
-    // so the DB write and response mapping below are no longer `any`.
     const startTime = Date.now();
-    const engineResult = await runEngineSearch(engine, sanitized);
-    const results: NormalizedSearchResult[] = engineResult.results;
-    const cached = engineResult.cached;
 
+    const engineResults = await Promise.allSettled(
+      selectedEngines.map(async (eng) => {
+        const engineStart = Date.now();
+        try {
+          const result = await runEngineSearch(eng as SearchEngine, sanitized);
+          return {
+            engine: eng,
+            results: result.results,
+            cached: result.cached,
+            duration: Date.now() - engineStart,
+            error: null,
+          };
+        } catch (err: any) {
+          return {
+            engine: eng,
+            results: [] as NormalizedSearchResult[],
+            cached: false,
+            duration: Date.now() - engineStart,
+            error: err?.message || "Unknown error",
+          };
+        }
+      })
+    );
+
+    const perEngineStats: {
+      engine: string;
+      resultCount: number;
+      duration: number;
+      cached: boolean;
+      error: string | null;
+    }[] = [];
+
+    const allResults: NormalizedSearchResult[] = [];
+    const seenUrls = new Set<string>();
+
+    for (const settled of engineResults) {
+      const data = settled.status === "fulfilled" ? settled.value : {
+        engine: "unknown",
+        results: [] as NormalizedSearchResult[],
+        cached: false,
+        duration: 0,
+        error: settled.reason?.message || "Unknown error",
+      };
+
+      perEngineStats.push({
+        engine: data.engine,
+        resultCount: data.results.length,
+        duration: data.duration,
+        cached: data.cached,
+        error: data.error,
+      });
+
+      for (const r of data.results) {
+        const key = r.url || `${r.title}::${r.snippet}`;
+        if (!seenUrls.has(key)) {
+          seenUrls.add(key);
+          allResults.push(r);
+        }
+      }
+    }
+
+    const results: NormalizedSearchResult[] = allResults;
     const duration = Date.now() - startTime;
+    const engineLabel = selectedEngines.join(",");
+
+    let filteredResults = results;
+    const hasFilters =
+      (typeof minRating === "number" && minRating > 0) ||
+      (typeof priceRange === "string" && priceRange !== "") ||
+      (typeof country === "string" && country !== "");
+
+    if (hasFilters) {
+      filteredResults = results.filter((r) => {
+        const snippet = (r.snippet || "").toLowerCase();
+        const title = (r.title || "").toLowerCase();
+        const combined = `${title} ${snippet}`;
+
+        if (typeof minRating === "number" && minRating > 0 && typeof r.score === "number") {
+          const mappedRating = Math.min(5, Math.max(1, Math.round(r.score * 5)));
+          if (mappedRating < minRating) return false;
+        }
+
+        if (typeof priceRange === "string" && priceRange !== "") {
+          const keywords = PRICE_KEYWORDS[priceRange] || [];
+          const matchesPrice = keywords.some((kw) => combined.includes(kw.toLowerCase()));
+          if (!matchesPrice) return false;
+        }
+
+        if (typeof country === "string" && country !== "") {
+          const keywords = COUNTRY_KEYWORDS[country] || [];
+          const matchesCountry = keywords.some((kw) => combined.includes(kw.toLowerCase()));
+          if (!matchesCountry) return false;
+        }
+
+        return true;
+      });
+    }
 
     // Persist search in the background. This server runs as a long-lived
     // process (next start / next dev), so a non-blocking save completes after
@@ -120,13 +235,13 @@ export async function POST(request: Request) {
       try {
         if (currentUser) {
           await prismadb.searchHistory.create({
-            data: { query: sanitized, engine, userId: currentUser.id },
+            data: { query: sanitized, engine: engineLabel, userId: currentUser.id },
           });
         }
         await prismadb.search.create({
           data: {
             query: sanitized,
-            engine,
+            engine: engineLabel,
             resultCount: results.length,
             duration,
             userId: currentUser?.id,
@@ -149,10 +264,12 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       id: `temp-${Date.now()}`,
       query: sanitized,
-      engine,
-      resultCount: results.length,
+      engine: engineLabel,
+      engines: selectedEngines,
+      resultCount: filteredResults.length,
       duration,
-      results: results.map((r, i) => ({
+      perEngineStats,
+      results: filteredResults.map((r, i) => ({
         id: `result-${i}`,
         ...r,
         position: i + 1,
@@ -160,7 +277,8 @@ export async function POST(request: Request) {
     });
     response.headers.set("X-RateLimit-Limit", String(rateLimit.limit));
     response.headers.set("X-RateLimit-Remaining", String(rateLimit.remaining));
-    if (cached) {
+    const anyCached = perEngineStats.some((s) => s.cached);
+    if (anyCached) {
       response.headers.set("X-Cache", "HIT");
     }
 

@@ -1,28 +1,28 @@
 "use client";
 
 import clsx from "clsx";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MdOutlineGroupAdd } from "react-icons/md";
 
 import { User } from "@prisma/client";
-import { find } from "lodash";
+import find from "lodash/find";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-import GroupChatModal from "../../components/modals/GroupChatModal";
 import useConversation from "../../hooks/useConversation";
-import { pusherClient, pusherEvents, userChannel } from "../../libs/pusher";
+import { pusherClient, pusherEvents, userChannel } from "../../libs/pusherClient";
 import { FullConversationType } from "../../types";
 import ConversationBox from "./ConversationBox";
 
 interface ConversationListProps {
   initialItems: FullConversationType[];
-  users: User[];
 }
 
-const ConversationList: React.FC<ConversationListProps> = ({ initialItems, users }) => {
+const ConversationList: React.FC<ConversationListProps> = ({ initialItems }) => {
   const [items, setItems] = useState(initialItems);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [usersLoaded, setUsersLoaded] = useState(false);
 
   const router = useRouter();
   const session = useSession();
@@ -33,11 +33,6 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems, users
     return session.data?.user?.email;
   }, [session.data?.user?.email]);
 
-  // The Pusher subscription is keyed solely to the user's email, but the
-  // remove handler needs the *current* active conversation id (and router) to
-  // decide whether to redirect. Hold them in refs so the subscription effect
-  // can depend on pusherKey alone and not tear down + re-subscribe on every
-  // conversation switch (the most frequent action in the chat UI).
   const conversationIdRef = useRef(conversationId);
   const routerRef = useRef(router);
   useEffect(() => {
@@ -69,7 +64,6 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems, users
 
     const newHandler = (conversation: FullConversationType) => {
       setItems((current) => {
-        // skip if the conversation already exists
         if (find(current, { id: conversation.id })) {
           return current;
         }
@@ -83,8 +77,6 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems, users
         return [...current.filter((convo) => convo.id !== conversation.id)];
       });
 
-      // Read the latest values via refs so this handler isn't a stale closure
-      // even though the effect no longer re-runs on conversationId changes.
       if (conversationIdRef.current === conversation.id) {
         routerRef.current.push("/conversations");
       }
@@ -94,10 +86,6 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems, users
     pusherClient.bind(pusherEvents.NEW_CONVERSATION, newHandler);
     pusherClient.bind(pusherEvents.DELETE_CONVERSATION, removeHandler);
 
-    // Clean up on unmount / pusherKey change. Keying this effect to pusherKey
-    // alone (not conversationId) avoids stacking duplicate handler bindings and
-    // re-subscribing the channel every time the user opens a different
-    // conversation.
     return () => {
       pusherClient.unsubscribe(userChannel(pusherKey));
       pusherClient.unbind(pusherEvents.UPDATE_CONVERSATION, updateHandler);
@@ -106,9 +94,39 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems, users
     };
   }, [pusherKey]);
 
+  const handleOpenModal = useCallback(async () => {
+    if (!usersLoaded) {
+      try {
+        const res = await fetch("/api/users");
+        if (res.ok) {
+          const data = await res.json();
+          setUsers(data);
+          setUsersLoaded(true);
+        }
+      } catch {}
+    }
+    setIsModalOpen(true);
+  }, [usersLoaded]);
+
+  // Lazy-load GroupChatModal to avoid bundling its heavy dependencies upfront
+  const [GroupChatModal, setGroupChatModal] = useState<any>(null);
+  const loadModal = useCallback(async () => {
+    if (!GroupChatModal) {
+      const mod = await import("../../components/modals/GroupChatModal");
+      setGroupChatModal(() => mod.default);
+    }
+  }, [GroupChatModal]);
+
+  const handleOpenModalWithLoad = useCallback(async () => {
+    await loadModal();
+    await handleOpenModal();
+  }, [loadModal, handleOpenModal]);
+
   return (
     <>
-      <GroupChatModal users={users} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {GroupChatModal && (
+        <GroupChatModal users={users} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      )}
       <aside
         className={clsx(
           `
@@ -131,7 +149,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems, users
           <div className="flex justify-between mb-4 pt-4">
             <div className="text-2xl font-bold text-neutral-800 dark:text-gray-200">Tin nhắn</div>
             <div
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleOpenModalWithLoad}
               className="
                 rounded-full 
                 p-2 

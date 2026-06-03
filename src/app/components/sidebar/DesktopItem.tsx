@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import clsx from "clsx";
 
 import Link from "next/link";
@@ -10,12 +11,12 @@ interface DesktopItemProps {
   active?: boolean;
 }
 
-const DesktopItem: React.FC<DesktopItemProps> = ({ label, href, icon: Icon, active, onClick }) => {
-  const handleClick = () => {
+const DesktopItem: React.FC<DesktopItemProps> = memo(({ label, href, icon: Icon, active, onClick }) => {
+  const handleClick = useCallback(() => {
     if (onClick) {
       return onClick();
     }
-  };
+  }, [onClick]);
 
   return (
     <li onClick={handleClick} key={label}>
@@ -45,6 +46,8 @@ const DesktopItem: React.FC<DesktopItemProps> = ({ label, href, icon: Icon, acti
       </Link>
     </li>
   );
-};
+});
+
+DesktopItem.displayName = "DesktopItem";
 
 export default DesktopItem;

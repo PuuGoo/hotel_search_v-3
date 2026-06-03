@@ -2,19 +2,18 @@
 
 import { useState } from "react";
 
-import { User } from "@prisma/client";
-
+import { PublicUser } from "../../types";
 import SearchInput from "./SearchInput";
 import UserBox from "./UserBox";
 
 interface UserListProps {
-  items: User[];
+  items: PublicUser[];
 }
 
 const UserList: React.FC<UserListProps> = ({ items }) => {
   const [searchBy, setSearchBy] = useState("");
 
-  const filterBySearch = (user: User) => {
+  const filterBySearch = (user: PublicUser) => {
     if (searchBy) {
       const lowerCaseSearch = searchBy.toLocaleLowerCase();
       // Lowercase both sides: the search term was already lowercased but the

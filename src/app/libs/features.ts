@@ -18,6 +18,7 @@ export const FEATURES = [
   "finder",
   "dashboard",
   "users",
+  "drive",
 ] as const;
 
 export type Feature = (typeof FEATURES)[number];
@@ -32,6 +33,7 @@ export const DEFAULT_USER_PERMISSIONS: Feature[] = [
   "bulk",
   "dashboard",
   "users",
+  "drive",
 ];
 
 // Human-readable labels for the admin UI (Vietnamese, matching the app).
@@ -42,6 +44,7 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   finder: "URL Finder",
   dashboard: "Dashboard",
   users: "Người dùng",
+  drive: "Drive",
 };
 
 export function isFeature(value: unknown): value is Feature {
@@ -82,6 +85,7 @@ const ROUTE_FEATURE_MAP: { prefix: string; feature: Feature }[] = [
   // Bookmarks are created from search results, so they live under the "search"
   // feature — anyone who can search can manage what they saved.
   { prefix: "/bookmarks", feature: "search" },
+  { prefix: "/price-alerts", feature: "search" },
   { prefix: "/conversations", feature: "chat" },
   { prefix: "/dashboard", feature: "dashboard" },
   { prefix: "/users", feature: "users" },
@@ -106,6 +110,7 @@ export const FEATURE_HOME: Record<Feature, string> = {
   finder: "/hotels/finder",
   dashboard: "/dashboard",
   users: "/users",
+  drive: "/drive",
 };
 
 // First feature (in catalog order) the user can access, or null if none.

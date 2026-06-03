@@ -1,22 +1,22 @@
 import prisma from "../libs/prismadb";
-import { sanitizeUser, sanitizeUsers } from "../libs/sanitizeUser";
+import { publicUserSelect } from "../types";
 import getCurrentUser from "./getCurrentUser";
+
+// Upper bound on how many messages we hydrate for the conversation view. The
+// chat UI renders newest-at-bottom, so we take the most recent slice rather
+// than the entire (unbounded) thread history. Older messages stay reachable via
+// search; the common case of opening a long-lived conversation no longer pulls
+// thousands of rows (each with sender + seen users) on every open.
+const MESSAGE_PAGE_SIZE = 50;
 
 const getMessages = async (conversationId: string) => {
   try {
-    // Only members of the conversation may read its messages. Without this
-    // check any authenticated user could fetch another conversation's history
-    // by id.
     const currentUser = await getCurrentUser();
     if (!currentUser?.id) {
       return [];
     }
 
-    // Single query with the membership check folded into the relation filter:
-    // messages are only returned when their conversation includes the current
-    // user. A non-member gets an empty list (same as the prior explicit guard)
-    // without a separate round-trip.
-    const messages = await prisma.message.findMany({
+    const recent = await prisma.message.findMany({
       where: {
         conversationId: conversationId,
         conversation: {
@@ -24,23 +24,38 @@ const getMessages = async (conversationId: string) => {
         },
       },
       include: {
-        sender: true,
-        seen: true,
+        sender: { select: publicUserSelect },
+        seen: { select: publicUserSelect },
       },
+      // Take the newest slice, then reverse to chronological (asc) order for
+      // rendering. Ordering asc + take would grab the *oldest* messages.
       orderBy: {
-        createdAt: "asc",
+        createdAt: "desc",
       },
+      take: MESSAGE_PAGE_SIZE,
     });
+    const messages = recent.reverse();
 
-    // Strip password hashes from embedded user records.
+    const replyToIds = messages
+      .filter((m) => m.replyToId)
+      .map((m) => m.replyToId!);
+
+    let replyToMessages: Record<string, any> = {};
+    if (replyToIds.length > 0) {
+      const replies = await prisma.message.findMany({
+        where: { id: { in: replyToIds } },
+        include: { sender: { select: publicUserSelect } },
+      });
+      for (const r of replies) {
+        replyToMessages[r.id] = r;
+      }
+    }
+
     return messages.map((message) => ({
       ...message,
-      sender: sanitizeUser(message.sender),
-      seen: sanitizeUsers(message.seen),
+      replyTo: message.replyToId ? replyToMessages[message.replyToId] || null : null,
     }));
   } catch (error: any) {
-    // Log so a failed message fetch is diagnosable in production instead of
-    // silently returning an empty list (matches getConversationById).
     console.error("[GET_MESSAGES]", error);
     return [];
   }

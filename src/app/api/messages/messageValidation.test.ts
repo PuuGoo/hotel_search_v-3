@@ -7,17 +7,17 @@ const conversationId = "507f1f77bcf86cd799439011";
 describe("validateMessage", () => {
   it("accepts a text-only message", () => {
     const r = validateMessage({ message: "hello", conversationId });
-    expect(r).toEqual({ ok: true, hasText: true, hasImage: false });
+    expect(r).toEqual({ ok: true, hasText: true, hasImage: false, hasFile: false });
   });
 
   it("accepts an image-only message", () => {
     const r = validateMessage({ image: "https://x.com/a.png", conversationId });
-    expect(r).toEqual({ ok: true, hasText: false, hasImage: true });
+    expect(r).toEqual({ ok: true, hasText: false, hasImage: true, hasFile: false });
   });
 
   it("accepts text + image together", () => {
     const r = validateMessage({ message: "hi", image: "https://x.com/a.png", conversationId });
-    expect(r).toEqual({ ok: true, hasText: true, hasImage: true });
+    expect(r).toEqual({ ok: true, hasText: true, hasImage: true, hasFile: false });
   });
 
   it("rejects a missing or non-string conversationId", () => {
