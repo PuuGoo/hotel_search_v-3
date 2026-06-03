@@ -63,6 +63,10 @@ export function setJob(jobId: string, job: Job) {
   store.jobs.set(jobId, job);
 }
 
+export function deleteJob(jobId: string): boolean {
+  return store.jobs.delete(jobId);
+}
+
 export function canStartJob() {
   return store.activeJobCount < MAX_CONCURRENT_JOBS;
 }

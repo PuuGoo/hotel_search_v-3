@@ -140,8 +140,14 @@ export default function HotelFinderPage() {
     setAutoSaveCount(0);
     lastAutoSaveRef.current = 0;
 
+    // Close any stale SSE connection from a previous run (cancel, error, etc.)
     eventSourceRef.current?.close();
     eventSourceRef.current = null;
+
+    // Reset the file input so re-selecting the same file triggers onChange.
+    // Without this the browser sees the value as unchanged and skips the event,
+    // leaving the old (possibly consumed) File object in state.
+    if (fileInputRef.current) fileInputRef.current.value = "";
 
     try {
       const formData = new FormData();
@@ -550,7 +556,7 @@ export default function HotelFinderPage() {
               </button>
             )}
 
-            {(isDone || isError) && (
+            {(isDone || isError || jobStatus === "cancelled") && (
               <>
                 {isDone && (
                   <>

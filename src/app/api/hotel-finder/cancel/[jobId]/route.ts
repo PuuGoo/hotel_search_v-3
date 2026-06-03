@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
+import { execSync } from "child_process";
+import os from "os";
 
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { getJobForUser, removeFromQueue } from "../../jobStore";
@@ -27,11 +29,30 @@ export async function POST(
 
     const wasQueued = job.status === "queued";
 
+    // Mark cancelled FIRST so the SSE polling loop sees the terminal state and
+    // sends a clean "cancelled" message to the client before closing the stream.
     job.status = "cancelled";
 
     if (job.process) {
       try {
-        job.process.kill("SIGTERM");
+        const pid = job.process.pid;
+        if (pid) {
+          // On Windows, process.kill("SIGTERM") only kills the direct child
+          // (python.exe). Playwright browsers (chromium.exe etc.) spawned by
+          // Python survive as orphaned processes and continue consuming CPU
+          // and holding a concurrency slot. taskkill /T /F kills the entire
+          // process tree including all Playwright-managed browser instances,
+          // ensuring a clean stop and freeing the slot for the next job.
+          if (os.platform() === "win32") {
+            try {
+              execSync(`taskkill /F /T /PID ${pid}`, { timeout: 5000, stdio: "ignore" });
+            } catch {
+              // taskkill returns non-zero if the process already exited; ignore.
+            }
+          } else {
+            job.process.kill("SIGTERM");
+          }
+        }
       } catch {}
       job.process = null;
     }
@@ -47,6 +68,11 @@ export async function POST(
         try { fs.unlinkSync(job.inputFile); } catch {}
       }
     }
+
+    // The job stays in the store with status "cancelled" so the SSE progress
+    // stream can read it and send a clean "cancelled" event. The periodic
+    // cleanup in jobStore.ts deletes cancelled/done/error jobs older than 1
+    // hour, so the entry does not accumulate indefinitely.
 
     return NextResponse.json({ status: "cancelled", job_id: jobId });
   } catch (error) {
