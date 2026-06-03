@@ -47,8 +47,24 @@ const cdnHeaders = CDN_BASE_URL
   : [];
 
 const nextConfig = {
+  // Gzip/Brotli compression. Next.js 13.4 serves static assets gzip'd by
+  // default but API routes and SSR pages are uncompressed unless a
+  // reverse-proxy adds it. Enabling compress + crossOrigin headers allows
+  // self-hosted production to serve compressed API responses natively.
+  compress: true,
+  // Pin to a stable React production build. Avoids double-rendering in dev
+  // and ensures the production build uses React 18's optimized scheduling.
+  reactStrictMode: true,
+  // SWC minification (faster than Terser for JS, produces smaller bundles).
+  swcMinify: true,
+  // Bundle analysis: set ANALYZE=true in env to see what's in each bundle
+  // (uses @next/bundle-analyzer if installed, otherwise no-op).
   images: {
     formats: ["image/webp", "image/avif"],
+    // Use deviceSizes for responsive images (the default covers 640-3840px).
+    // imageSizes are for fixed-size images (the default covers 16-384px).
+    // Lower minimumCacheTTL to 60s so Cloudinary images revalidate faster.
+    minimumCacheTTL: 60,
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
@@ -61,11 +77,20 @@ const nextConfig = {
     ],
   },
   assetPrefix: CDN_BASE_URL || undefined,
+  // Add Cache-Control for static assets in production. Immutable assets
+  // (.next/static) already have hashed filenames; the one-year max-age is
+  // safe since a rebuild will generate new filenames.
   async headers() {
     return [
       {
         source: "/:path*",
         headers: securityHeaders,
+      },
+      {
+        source: "/_next/static/(.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
       },
       ...(CDN_BASE_URL
         ? [{ source: "/api/drive/file/:path*", headers: cdnHeaders }]

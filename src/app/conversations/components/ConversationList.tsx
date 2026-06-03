@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MdOutlineGroupAdd } from "react-icons/md";
 
 import { User } from "@prisma/client";
-import find from "lodash/find";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -48,33 +47,33 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems }) => 
     pusherClient.subscribe(userChannel(pusherKey));
 
     const updateHandler = (conversation: FullConversationType) => {
-      setItems((current) =>
-        current.map((currentConversation) => {
-          if (currentConversation.id === conversation.id) {
-            return {
-              ...currentConversation,
-              messages: conversation.messages,
-            };
-          }
-
-          return currentConversation;
-        })
-      );
+      setItems((current) => {
+        const idx = current.findIndex((c) => c.id === conversation.id);
+        if (idx === -1) return current;
+        const next = [...current];
+        next[idx] = { ...next[idx], messages: conversation.messages };
+        return next;
+      });
     };
 
     const newHandler = (conversation: FullConversationType) => {
       setItems((current) => {
-        if (find(current, { id: conversation.id })) {
+        // O(1) early return for existing conversations (native findIndex vs lodash/find)
+        if (current.findIndex((c) => c.id === conversation.id) !== -1) {
           return current;
         }
-
         return [conversation, ...current];
       });
     };
 
     const removeHandler = (conversation: FullConversationType) => {
       setItems((current) => {
-        return [...current.filter((convo) => convo.id !== conversation.id)];
+        // Only create new array if the conversation actually exists
+        const idx = current.findIndex((c) => c.id === conversation.id);
+        if (idx === -1) return current;
+        const next = [...current];
+        next.splice(idx, 1);
+        return next;
       });
 
       if (conversationIdRef.current === conversation.id) {

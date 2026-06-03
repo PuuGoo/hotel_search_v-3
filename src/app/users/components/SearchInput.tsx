@@ -2,7 +2,27 @@
 
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef } from "react";
 
-import debounce from "lodash/debounce";
+// Lightweight native debounce (~150 bytes) instead of importing lodash/debounce
+// (~1.5 KB gzipped). Already tree-shaken but this eliminates the dependency
+// completely from the bundle.
+function useDebounce(callback: (value: string) => void, delay: number) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
+
+  const debounced = useRef((value: string) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => callbackRef.current(value), delay);
+  }).current;
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  return debounced;
+}
 
 interface SearchInputProps {
   placeholder?: string;
@@ -11,17 +31,7 @@ interface SearchInputProps {
 }
 
 const SearchInput: React.FC<SearchInputProps> = ({ placeholder, id, setSearchBy }) => {
-  const debouncedSearch = useRef(
-    debounce(async (criteria) => {
-      setSearchBy(criteria);
-    }, 300)
-  ).current;
-
-  useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [debouncedSearch]);
+  const debouncedSearch = useDebounce(setSearchBy, 300);
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     debouncedSearch(e.target.value);

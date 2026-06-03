@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 
 import { format } from "date-fns";
 import { useSession } from "next-auth/react";
@@ -17,7 +17,7 @@ interface ConversationBoxProps {
   selected?: boolean;
 }
 
-const ConversationBox: React.FC<ConversationBoxProps> = ({ data, selected }) => {
+const ConversationBox: React.FC<ConversationBoxProps> = memo(({ data, selected }) => {
   const otherUser = useOtherUser(data);
   const session = useSession();
   const router = useRouter();
@@ -118,6 +118,8 @@ const ConversationBox: React.FC<ConversationBoxProps> = ({ data, selected }) => 
       </div>
     </div>
   );
-};
+});
+
+ConversationBox.displayName = "ConversationBox";
 
 export default ConversationBox;
