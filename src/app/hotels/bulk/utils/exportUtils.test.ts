@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { buildCSV, computeSummaryStats, buildJSONExport, sanitizeCell } from "./exportUtils";
+import { buildCSV, buildXLSXResultSheetData, computeSummaryStats, buildJSONExport, sanitizeCell } from "./exportUtils";
 import { MatchResult } from "./resultMatcher";
 
 function makeResult(overrides: Partial<MatchResult> = {}): MatchResult {
@@ -21,7 +21,8 @@ describe("buildCSV", () => {
     const [header] = csv.split("\n");
     expect(header).toContain('"Hotel Name"');
     expect(header).toContain('"Hotel Address"');
-    expect(header).toContain('"Matched Link 1"');
+    expect(header).toContain('"Matched Link 1 URL"');
+    expect(header).toContain('"Matched Link 1 Percentage"');
   });
 
   it("pads link columns to the widest row", () => {
@@ -47,7 +48,7 @@ describe("buildCSV", () => {
     expect(csv).toContain('"The ""Best"" Hotel"');
   });
 
-  it("formats link cells as 'url (percentage%)'", () => {
+  it("splits link URL and percentage into separate columns", () => {
     const csv = buildCSV([
       makeResult({
         matchedLinks: [{ url: "https://x.com", title: "X", percentage: 75 }],
@@ -55,12 +56,14 @@ describe("buildCSV", () => {
         status: "matched",
       }),
     ]);
-    expect(csv).toContain("https://x.com (75%)");
+    expect(csv).toContain('"https://x.com","75%"');
+    expect(csv).not.toContain("https://x.com (75%)");
   });
 
   it("handles an empty result set with at least one link column", () => {
     const csv = buildCSV([]);
-    expect(csv).toContain('"Matched Link 1"');
+    expect(csv).toContain('"Matched Link 1 URL"');
+    expect(csv).toContain('"Matched Link 1 Percentage"');
     expect(csv.split("\n").length).toBe(1); // header only
   });
 
@@ -104,6 +107,27 @@ describe("computeSummaryStats", () => {
     matchedLinks: [],
     bestPercentage,
     status,
+  });
+
+  describe("buildXLSXResultSheetData", () => {
+    it("emits URL/percentage link headers", () => {
+      const { headers } = buildXLSXResultSheetData([makeResult()]);
+      expect(headers).toContain("Matched Link 1 URL");
+      expect(headers).toContain("Matched Link 1 Percentage");
+    });
+
+    it("splits matched link URL and percentage into separate cells", () => {
+      const { rows } = buildXLSXResultSheetData([
+        makeResult({
+          matchedLinks: [{ url: "https://x.com", title: "X", percentage: 75 }],
+          bestPercentage: 75,
+          status: "matched",
+        }),
+      ]);
+      expect(rows[0]).toContain("https://x.com");
+      expect(rows[0]).toContain("75%");
+      expect(rows[0]).not.toContain("https://x.com (75%)");
+    });
   });
 
   it("returns zeros for an empty set (no NaN)", () => {
