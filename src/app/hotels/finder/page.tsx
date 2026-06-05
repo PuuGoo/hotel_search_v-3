@@ -564,17 +564,18 @@ export default function HotelFinderPage() {
               </button>
             )}
 
-            {(isDone || isError || jobStatus === "cancelled") && (
+            {/* Download XLSX - always visible when there are rows */}
+            {rows.length > 0 && jobId && (
               <>
-                {isDone && (
+                <button
+                  onClick={() => handleDownload("xlsx")}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                >
+                  <FiDownload />
+                  XLSX ({rows.length})
+                </button>
+                {!isRunning && (
                   <>
-                    <button
-                      onClick={() => handleDownload("xlsx")}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-                    >
-                      <FiDownload />
-                      XLSX
-                    </button>
                     <button
                       onClick={() => handleDownload("json")}
                       className="flex items-center gap-2 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-colors"
@@ -591,14 +592,33 @@ export default function HotelFinderPage() {
                     </button>
                   </>
                 )}
-                <button
-                  onClick={handleReset}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
-                >
-                  <FiRefreshCw />
-                  Mới
-                </button>
               </>
+            )}
+
+            {/* Reset Job - xóa progress và chạy lại từ đầu */}
+            {(isDone || isError || jobStatus === "cancelled") && (
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors"
+              >
+                <FiRefreshCw />
+                Reset
+              </button>
+            )}
+
+            {/* New - xóa tất cả và bắt đầu mới */}
+            {(isDone || isError || jobStatus === "cancelled") && (
+              <button
+                onClick={() => {
+                  handleReset();
+                  setFile(null);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
+              >
+                <FiRefreshCw />
+                Mới
+              </button>
             )}
           </div>
 
