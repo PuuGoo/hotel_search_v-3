@@ -91,45 +91,80 @@ export default function HotelFinderPage() {
     }
   }, []);
 
+  const autoSaveRef = useRef<{ fileId?: string; fileName?: string }>({});
+
   const autoSaveToDrive = useCallback(
     async (rowsToSave: FinderRow[]) => {
       if (!autoSaveSettings.enabled || rowsToSave.length === 0) return;
 
       try {
-        const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
-        const displayName = `finder-auto-${timestamp}.json`;
+        // Dynamic import xlsx
+        const XLSX = await import("xlsx");
+        
+        // Use fixed filename for overwrite
+        const displayName = `finder-auto-results.xlsx`;
 
-        const blob = new Blob([JSON.stringify(rowsToSave, null, 2)], {
-          type: "application/json",
+        // Convert ALL current rows to XLSX (not just new ones)
+        const wsData = rows.map((r, idx) => ({
+          "#": idx + 1,
+          "No": r.no,
+          "Hotel Name": r.hotel_name,
+          "Address": r.hotel_address,
+          "Status": r.status,
+          "URL": r.url || "",
+          "Score": r.score || 0,
+          "Images": r.img_count || 0,
+          "Explanation": r.explanation || "",
+        }));
+        
+        const ws = XLSX.utils.json_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Results");
+        
+        const xlsxBuffer = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+        const blob = new Blob([xlsxBuffer], { 
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
         });
 
         const formData = new FormData();
-        const fileObj = new File([blob], displayName, { type: "application/json" });
+        const fileObj = new File([blob], displayName, { 
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+        });
         formData.append("file", fileObj);
 
         const uploadRes = await axios.post("/api/messages/upload", formData);
         const { fileUrl } = uploadRes.data;
 
-        // fileUrl is "/api/drive/file/{uniqueName}". Extract the unique server
-        // name so the drive listing can look up the real file on disk.
         const serverName = fileUrl.split("/").pop() || displayName;
 
-        await axios.post("/api/drive", {
+        // If we have a previous file, delete it first (overwrite)
+        if (autoSaveRef.current.fileId) {
+          try {
+            await axios.delete(`/api/drive/${autoSaveRef.current.fileId}`);
+          } catch {}
+        }
+
+        const driveRes = await axios.post("/api/drive", {
           fileName: serverName,
           originalName: displayName,
           filePath: fileUrl,
           fileSize: blob.size,
-          mimeType: "application/json",
+          mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
           folder: autoSaveSettings.folder,
         });
 
+        // Save the file ID for next overwrite
+        if (driveRes.data?.id) {
+          autoSaveRef.current = { fileId: driveRes.data.id, fileName: displayName };
+        }
+
         setAutoSaveCount((prev) => prev + 1);
-        toast.success(`Đã tự động lưu ${rowsToSave.length} dòng vào Drive`);
+        toast.success(`Đã tự động lưu ${rows.length} dòng vào Drive (XLSX)`);
       } catch (err) {
         console.error("Auto-save error:", err);
       }
     },
-    [autoSaveSettings]
+    [autoSaveSettings, rows]
   );
 
   const handleUpload = useCallback(async () => {
@@ -279,22 +314,43 @@ export default function HotelFinderPage() {
     if (rows.length === 0) return;
 
     try {
+      // Dynamic import xlsx
+      const XLSX = await import("xlsx");
+      
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
-      const displayName = `finder-results-${timestamp}.json`;
+      const displayName = `finder-results-${timestamp}.xlsx`;
 
-      const blob = new Blob([JSON.stringify(rows, null, 2)], {
-        type: "application/json",
+      // Convert rows to XLSX
+      const wsData = rows.map((r, idx) => ({
+        "#": idx + 1,
+        "No": r.no,
+        "Hotel Name": r.hotel_name,
+        "Address": r.hotel_address,
+        "Status": r.status,
+        "URL": r.url || "",
+        "Score": r.score || 0,
+        "Images": r.img_count || 0,
+        "Explanation": r.explanation || "",
+      }));
+      
+      const ws = XLSX.utils.json_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Results");
+      
+      const xlsxBuffer = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+      const blob = new Blob([xlsxBuffer], { 
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
       });
 
       const formData = new FormData();
-      const fileObj = new File([blob], displayName, { type: "application/json" });
+      const fileObj = new File([blob], displayName, { 
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+      });
       formData.append("file", fileObj);
 
       const uploadRes = await axios.post("/api/messages/upload", formData);
       const { fileUrl } = uploadRes.data;
 
-      // Extract the unique server-generated name from the fileUrl.
-      // fileUrl is "/api/drive/file/{uniqueName}".
       const serverName = fileUrl.split("/").pop() || displayName;
 
       await axios.post("/api/drive", {
@@ -302,11 +358,11 @@ export default function HotelFinderPage() {
         originalName: displayName,
         filePath: fileUrl,
         fileSize: blob.size,
-        mimeType: "application/json",
+        mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         folder: "finder",
       });
 
-      toast.success("Đã lưu kết quả vào Drive");
+      toast.success("Đã lưu kết quả XLSX vào Drive");
     } catch {
       toast.error("Không thể lưu vào Drive");
     }
@@ -324,6 +380,7 @@ export default function HotelFinderPage() {
     setAutoSaveCount(0);
     setShowSaveTemplatePrompt(false);
     lastAutoSaveRef.current = 0;
+    autoSaveRef.current = {};
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
 
