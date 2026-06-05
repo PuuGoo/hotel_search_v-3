@@ -14,12 +14,21 @@ async function Sidebar({
   // the DB again. This eliminates the redundant getCurrentUser call in every
   // layout that wraps Sidebar.
   const rawUser = initialUser ?? (await getCurrentUser());
-  const safeUser = rawUser ? sanitizeUser(rawUser) : rawUser;
+  const safeUser = rawUser ? sanitizeUser(rawUser) : null;
+
+  // During prerendering or when user is not authenticated, skip sidebar
+  if (!safeUser) {
+    return (
+      <div className="h-full">
+        <main className="h-full">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full">
-      <DesktopSidebar currentUser={safeUser!} />
-      <MobileFooter currentUser={safeUser!} />
+      <DesktopSidebar currentUser={safeUser} />
+      <MobileFooter currentUser={safeUser} />
       <main className="lg:pl-20 h-full">{children}</main>
     </div>
   );
