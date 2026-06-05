@@ -595,10 +595,19 @@ export default function HotelFinderPage() {
               </>
             )}
 
-            {/* Reset Job - xóa progress và chạy lại từ đầu */}
-            {(isDone || isError || jobStatus === "cancelled") && (
+            {/* Reset Job - luôn hiện khi có kết quả (kể cả đang chạy) */}
+            {rows.length > 0 && (
               <button
-                onClick={handleReset}
+                onClick={async () => {
+                  // Nếu đang chạy thì hủy trước
+                  if (isRunning && jobId) {
+                    try {
+                      await axios.post(`/api/hotel-finder/cancel/${jobId}`);
+                      eventSourceRef.current?.close();
+                    } catch {}
+                  }
+                  handleReset();
+                }}
                 className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors"
               >
                 <FiRefreshCw />

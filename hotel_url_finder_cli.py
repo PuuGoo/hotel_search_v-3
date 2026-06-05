@@ -145,7 +145,7 @@ def save_workbook(workbook, output_path: str):
                     pass
 
 
-async def worker_task(browser, row, no_val, hotel_name, hotel_address, worker_id, max_retries=2, json_mode=False, perf_tracker=None, error_logger=None):
+async def worker_task(browser, row, no_val, hotel_name, hotel_address, worker_id, max_retries=2, json_mode=False, perf_tracker=None, error_logger=None, no_cache=False):
     """Each worker creates its own context (with a unique stealth identity) and one page.
     Checks cache first, retries up to max_retries times on transient errors."""
 
@@ -161,23 +161,24 @@ async def worker_task(browser, row, no_val, hotel_name, hotel_address, worker_id
             "no": no_val,
         }, True)
 
-    # Check cache first
-    cached = get_cached(hotel_name, hotel_address)
-    if cached:
-        duration = time.time() - hotel_start
-        log(f"[W{worker_id}] [No.{no_val}] CACHE HIT → {cached['url'][:60] or 'no url'} ({duration:.1f}s)")
-        if perf_tracker:
-            perf_tracker.record_hotel(hotel_name, duration, cached["status"], worker_id)
-        if json_mode:
-            emit_progress({
-                "type": "worker_status",
-                "worker_id": worker_id,
-                "status": "cache_hit",
-                "hotel_name": hotel_name,
-                "no": no_val,
-                "duration": round(duration, 1),
-            }, True)
-        return row, no_val, hotel_name, hotel_address, cached["url"], cached["engine"], cached["score"], cached["img_count"], cached["status"]
+    # Check cache first (skip if --no-cache)
+    if not no_cache:
+        cached = get_cached(hotel_name, hotel_address)
+        if cached:
+            duration = time.time() - hotel_start
+            log(f"[W{worker_id}] [No.{no_val}] CACHE HIT → {cached['url'][:60] or 'no url'} ({duration:.1f}s)")
+            if perf_tracker:
+                perf_tracker.record_hotel(hotel_name, duration, cached["status"], worker_id)
+            if json_mode:
+                emit_progress({
+                    "type": "worker_status",
+                    "worker_id": worker_id,
+                    "status": "cache_hit",
+                    "hotel_name": hotel_name,
+                    "no": no_val,
+                    "duration": round(duration, 1),
+                }, True)
+            return row, no_val, hotel_name, hotel_address, cached["url"], cached["engine"], cached["score"], cached["img_count"], cached["status"]
 
     identity = pick_identity(worker_id)
 
@@ -267,7 +268,7 @@ async def worker_task(browser, row, no_val, hotel_name, hotel_address, worker_id
 async def process_excel(input_path: str, output_path: str | None = None, json_mode: bool = False,
                         save_every: int = 10, resume: bool = False, workers: int = 1,
                         progress_file: str | None = None, clean_output: bool = False,
-                        compact_output: bool = False) -> str:
+                        compact_output: bool = False, no_cache: bool = False) -> str:
     # Initialize progress tracker
     if progress_file is None:
         progress_file = str(Path(input_path).with_suffix(".progress.json"))
@@ -407,7 +408,7 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
                 no_val = sheet.cell(row=row, column=1).value
                 hotel_name = (sheet.cell(row=row, column=name_idx).value or "").strip()
                 hotel_address = (sheet.cell(row=row, column=addr_idx).value or "").strip()
-                tasks.append(worker_task(browser, row, no_val, hotel_name, hotel_address, i + 1, json_mode=json_mode, perf_tracker=perf, error_logger=error_logger))
+                tasks.append(worker_task(browser, row, no_val, hotel_name, hotel_address, i + 1, json_mode=json_mode, perf_tracker=perf, error_logger=error_logger, no_cache=no_cache))
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -1613,6 +1614,7 @@ def main():
     parser.add_argument("--streaming", action="store_true", help="Enable streaming export for large datasets")
     parser.add_argument("--compression-level", type=int, default=6, choices=range(0, 10), help="ZIP compression level (0-9)")
     parser.add_argument("--compact-output", action="store_true", help="Tạo file output chỉ chứa các dòng đã xử lý (không chứa toàn bộ file input)")
+    parser.add_argument("--no-cache", action="store_true", help="Bỏ qua cache, tìm kiếm lại từ đầu")
     
     args = parser.parse_args()
 
@@ -1650,7 +1652,7 @@ def main():
     output = asyncio.run(process_excel(args.input, output_path, args.json, args.save_every,
                                        resume=bool(args.resume), workers=args.workers,
                                        progress_file=args.progress, clean_output=args.clean_output,
-                                       compact_output=args.compact_output))
+                                       compact_output=args.compact_output, no_cache=args.no_cache))
     if not args.json:
         print(output)
 

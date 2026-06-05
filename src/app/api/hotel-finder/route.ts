@@ -120,6 +120,7 @@ export async function POST(request: Request) {
           "--json",
           "--workers", String(workers),
           "--template", template,
+          "--no-cache",
         ],
         {
           cwd: PROJECT_ROOT,
