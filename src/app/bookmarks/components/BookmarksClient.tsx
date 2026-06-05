@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useConfirm } from "../../components/ConfirmDialog";
 import {
   FiBookmark,
   FiChevronLeft,
@@ -35,6 +36,7 @@ interface BookmarksResponse {
 }
 
 const BookmarksClient = () => {
+  const { confirm, DialogElement } = useConfirm();
   const [data, setData] = useState<BookmarksResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -62,7 +64,7 @@ const BookmarksClient = () => {
 
   const remove = useCallback(
     async (bookmark: Bookmark) => {
-      if (!window.confirm("Xóa mục đã lưu này?")) return;
+      if (!(await confirm({ message: "Xóa mục đã lưu này?", title: "Xóa mục đã lưu", confirmLabel: "Xóa", variant: "danger" }))) return;
       setBusyId(bookmark.id);
       try {
         await axios.delete(`/api/bookmarks?id=${bookmark.id}`);
@@ -79,7 +81,7 @@ const BookmarksClient = () => {
         setBusyId(null);
       }
     },
-    [data, page, load]
+    [data, page, load, confirm]
   );
 
   // Client-side text filter over the current page (title/url/notes). Server
@@ -96,6 +98,7 @@ const BookmarksClient = () => {
 
   return (
     <div className="h-full overflow-y-auto bg-gray-900">
+      {DialogElement}
       <div className="max-w-5xl mx-auto px-4 py-8">
         <header className="mb-6 flex items-center gap-3">
           <div className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400">

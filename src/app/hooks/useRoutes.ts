@@ -15,6 +15,7 @@ import { FiGrid, FiZap, FiGlobe, FiShield, FiBookmark } from "react-icons/fi";
 
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
+import type { IconType } from "react-icons";
 
 import { ADMIN_ROLE } from "../libs/authz";
 import { hasFeature, type Feature } from "../libs/features";
@@ -23,10 +24,11 @@ import useConversation from "./useConversation";
 interface RouteItem {
   label: string;
   href: string;
-  icon: any;
+  icon: IconType;
   active?: boolean;
   onClick?: () => void;
   feature?: Feature;
+  group: 'search' | 'social' | 'management' | 'system';
 }
 
 // Accepts the current user's role + permissions. The Admin link only shows for
@@ -50,6 +52,7 @@ const useRoutes = (
         icon: HiChat,
         active: pathname === "/conversations" || !!conversationId,
         feature: "chat",
+        group: "search",
       },
       {
         label: "Tìm kiếm",
@@ -57,6 +60,7 @@ const useRoutes = (
         icon: HiMagnifyingGlass,
         active: pathname === "/hotels",
         feature: "search",
+        group: "search",
       },
       {
         label: "Tìm hàng loạt",
@@ -64,6 +68,7 @@ const useRoutes = (
         icon: FiZap,
         active: pathname === "/hotels/bulk",
         feature: "bulk",
+        group: "search",
       },
       {
         label: "Tìm URL",
@@ -71,6 +76,7 @@ const useRoutes = (
         icon: FiGlobe,
         active: pathname === "/hotels/finder",
         feature: "finder",
+        group: "search",
       },
       {
         label: "So sánh",
@@ -78,6 +84,7 @@ const useRoutes = (
         icon: HiArrowPath,
         active: pathname?.includes("/hotels/compare") ?? false,
         feature: "search",
+        group: "search",
       },
       {
         label: "Đã lưu",
@@ -85,6 +92,7 @@ const useRoutes = (
         icon: FiBookmark,
         active: pathname === "/bookmarks" || !!pathname?.startsWith("/bookmarks/"),
         feature: "search",
+        group: "search",
       },
       {
         label: "Cảnh báo giá",
@@ -92,6 +100,7 @@ const useRoutes = (
         icon: HiBellAlert,
         active: pathname === "/price-alerts",
         feature: "search",
+        group: "search",
       },
       {
         label: "Drive",
@@ -99,6 +108,7 @@ const useRoutes = (
         icon: HiFolderOpen,
         active: pathname === "/drive",
         feature: "drive",
+        group: "management",
       },
       {
         label: "Bảng điều khiển",
@@ -106,6 +116,7 @@ const useRoutes = (
         icon: FiGrid,
         active: pathname === "/dashboard",
         feature: "dashboard",
+        group: "management",
       },
       {
         label: "Người dùng",
@@ -113,18 +124,21 @@ const useRoutes = (
         icon: HiUsers,
         active: pathname === "/users",
         feature: "users",
+        group: "social",
       },
       {
         label: "Thông báo",
         href: "/notifications",
         icon: HiBell,
         active: pathname === "/notifications",
+        group: "social",
       },
       {
         label: "Báo cáo",
         href: "/reports",
         icon: HiDocumentChartBar,
         active: pathname === "/reports",
+        group: "management",
       },
     ];
 
@@ -138,6 +152,7 @@ const useRoutes = (
         href: "/admin",
         icon: FiShield,
         active: pathname === "/admin" || !!pathname?.startsWith("/admin/"),
+        group: "system",
       });
     }
 
@@ -146,21 +161,18 @@ const useRoutes = (
       href: "/settings",
       icon: HiCog,
       active: pathname === "/settings",
+      group: "system",
     });
 
     base.push({
       label: "Đăng xuất",
-      // Await the signout (cookie cleared) BEFORE navigating, then force a full
-      // document load to "/" rather than letting NextAuth/Router soft-navigate.
-      // A hard reload guarantees the login page fetches a fresh (unauthenticated)
-      // session, so its "authenticated -> /conversations" effect can't fire on a
-      // stale client cache and bounce the user back in (the "logout twice" bug).
       onClick: async () => {
         await signOut({ redirect: false });
         window.location.href = "/";
       },
       href: "#",
       icon: HiArrowLeftOnRectangle,
+      group: "system",
     });
 
     return base;

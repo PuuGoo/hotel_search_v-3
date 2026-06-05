@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { FiX, FiDownload, FiCheckCircle, FiXCircle, FiClock } from "react-icons/fi";
+import { safeHref } from "../../../libs/safeUrl";
 
 export interface FinderRun {
   id: string;
   name: string;
   date: string;
-  rows: FinderRow[];
+  rows?: FinderRow[];
   stats: { matched: number; errors: number; total: number };
 }
 
@@ -92,7 +93,7 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
   const runB = runs.find((r) => r.id === selectedB);
 
   const diffs = useMemo(() => {
-    if (!runA || !runB) return [];
+    if (!runA || !runB || !runA.rows || !runB.rows) return [];
     return computeDiff(runA.rows, runB.rows);
   }, [runA, runB]);
 
@@ -220,11 +221,12 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
             <p className="text-gray-500 text-center py-12">Không có khác biệt</p>
           ) : (
             <div className="space-y-2">
-              <div className="flex gap-2 mb-3">
+              <div className="flex gap-2 mb-3" role="group" aria-label="Lọc theo loại khác biệt">
                 {(["all", "new", "removed", "changed", "same"] as const).map((t) => (
                   <button
                     key={t}
                     onClick={() => setShowType(t)}
+                    aria-pressed={showType === t}
                     className={`px-3 py-1 text-xs rounded-lg transition-colors ${
                       showType === t
                         ? t === "new"
@@ -283,38 +285,50 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
                         <div className="mt-2 flex flex-col gap-1">
                           <div className="text-xs">
                             <span className="text-gray-500">A: </span>
-                            <a
-                              href={d.runA?.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-red-400 hover:underline"
-                            >
-                              {d.runA?.url?.replace(/^https?:\/\//, "").slice(0, 50)}
-                            </a>
+                            {safeHref(d.runA?.url) ? (
+                              <a
+                                href={safeHref(d.runA?.url)!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-red-400 hover:underline"
+                              >
+                                {d.runA?.url?.replace(/^https?:\/\//, "").slice(0, 50)}
+                              </a>
+                            ) : (
+                              <span className="text-gray-500">-</span>
+                            )}
                           </div>
                           <div className="text-xs">
                             <span className="text-gray-500">B: </span>
-                            <a
-                              href={d.runB?.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-green-400 hover:underline"
-                            >
-                              {d.runB?.url?.replace(/^https?:\/\//, "").slice(0, 50)}
-                            </a>
+                            {safeHref(d.runB?.url) ? (
+                              <a
+                                href={safeHref(d.runB?.url)!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-green-400 hover:underline"
+                              >
+                                {d.runB?.url?.replace(/^https?:\/\//, "").slice(0, 50)}
+                              </a>
+                            ) : (
+                              <span className="text-gray-500">-</span>
+                            )}
                           </div>
                         </div>
                       )}
                       {d.type !== "changed" && (
                         <div className="mt-1 text-xs">
-                          <a
-                            href={d.runA?.url || d.runB?.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sky-400 hover:underline"
-                          >
-                            {(d.runA?.url || d.runB?.url)?.replace(/^https?:\/\//, "").slice(0, 50)}
-                          </a>
+                          {safeHref(d.runA?.url || d.runB?.url) ? (
+                            <a
+                              href={safeHref(d.runA?.url || d.runB?.url)!}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sky-400 hover:underline"
+                            >
+                              {(d.runA?.url || d.runB?.url)?.replace(/^https?:\/\//, "").slice(0, 50)}
+                            </a>
+                          ) : (
+                            <span className="text-gray-500">-</span>
+                          )}
                         </div>
                       )}
                     </div>

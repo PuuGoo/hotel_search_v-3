@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useConfirm } from "../components/ConfirmDialog";
 import {
   FiBell,
   FiBellOff,
@@ -24,6 +25,7 @@ interface PriceAlert {
 }
 
 const PriceAlertsPage = () => {
+  const { confirm, DialogElement } = useConfirm();
   const [alerts, setAlerts] = useState<PriceAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -69,7 +71,7 @@ const PriceAlertsPage = () => {
 
   const remove = useCallback(
     async (alert: PriceAlert) => {
-      if (!window.confirm("Xóa cảnh báo giá này?")) return;
+      if (!(await confirm({ message: "Xóa cảnh báo giá này?", title: "Xóa cảnh báo", confirmLabel: "Xóa", variant: "danger" }))) return;
       setBusyId(alert.id);
       try {
         await axios.delete(`/api/price-alerts?id=${alert.id}`);
@@ -81,7 +83,7 @@ const PriceAlertsPage = () => {
         setBusyId(null);
       }
     },
-    []
+    [confirm]
   );
 
   const getStatusBadge = (alert: PriceAlert) => {
@@ -114,6 +116,7 @@ const PriceAlertsPage = () => {
 
   return (
     <div className="h-full overflow-y-auto bg-gray-900">
+      {DialogElement}
       <div className="max-w-5xl mx-auto px-4 py-8">
         <header className="mb-6 flex items-center gap-3">
           <div className="p-2 rounded-lg bg-sky-500/20 text-sky-400">

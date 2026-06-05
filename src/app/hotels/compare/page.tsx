@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 import dynamic from "next/dynamic";
 
+import FeatureThemeProvider from "../../components/theme/FeatureThemeProvider";
+import { useConfirm } from "../../components/ConfirmDialog";
+
 const CompareTable = dynamic(() => import("./components/CompareTable"), { ssr: false });
 const AddHotelModal = dynamic(() => import("./components/AddHotelModal"), { ssr: false });
+const CompareExportButtons = dynamic(() => import("./components/CompareExportButtons"), { ssr: false });
 
 interface HotelData {
   id: string;
@@ -19,10 +23,67 @@ interface HotelData {
 }
 
 const MAX_HOTELS = 4;
+const LS_KEY = "compared-hotels";
+
+function loadFromStorage(): HotelData[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    // Validate shape: all required fields must be present and correctly typed
+    return parsed.filter(
+      (h: any) =>
+        h &&
+        typeof h.id === "string" && h.id.length > 0 &&
+        typeof h.name === "string" && h.name.length > 0 &&
+        typeof h.url === "string" &&
+        typeof h.description === "string" &&
+        typeof h.rating === "number" && h.rating >= 0 && h.rating <= 5
+    );
+  } catch {
+    return [];
+  }
+}
+
+function saveToStorage(hotels: HotelData[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(hotels));
+  } catch {
+    // Storage full or unavailable - silently ignore
+  }
+}
 
 const ComparePage = () => {
-  const [hotels, setHotels] = useState<HotelData[]>([]);
+  const [hotels, setHotels] = useState<HotelData[]>(() => loadFromStorage());
   const [modalOpen, setModalOpen] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+  const { confirm, DialogElement } = useConfirm();
+
+  // Mark as hydrated after mount (data already loaded via lazy initializer)
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  // Save to localStorage on every change (after hydration)
+  useEffect(() => {
+    if (hydrated) {
+      saveToStorage(hotels);
+    }
+  }, [hotels, hydrated]);
+
+  // Escape key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && modalOpen) {
+        setModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [modalOpen]);
 
   const handleAdd = useCallback((hotel: HotelData) => {
     setHotels((prev) => {
@@ -37,11 +98,20 @@ const ComparePage = () => {
   }, []);
 
   const handleClear = useCallback(() => {
-    setHotels([]);
-  }, []);
+    confirm({
+      message: "Xóa tất cả khách sạn khỏi danh sách so sánh?",
+      title: "Xóa tất cả",
+      confirmLabel: "Xóa",
+      variant: "danger",
+    }).then((ok) => {
+      if (ok) setHotels([]);
+    });
+  }, [confirm]);
 
   return (
+    <FeatureThemeProvider feature="compare">
     <div className="h-full bg-gray-900">
+      {DialogElement}
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -54,13 +124,16 @@ const ComparePage = () => {
           </div>
           <div className="flex items-center gap-3">
             {hotels.length > 0 && (
-              <button
-                onClick={handleClear}
-                className="flex items-center gap-2 px-4 py-2.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-colors text-sm"
-              >
-                <FiTrash2 className="w-4 h-4" />
-                Xóa tất cả
-              </button>
+              <>
+                <CompareExportButtons hotels={hotels} />
+                <button
+                  onClick={handleClear}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-colors text-sm"
+                >
+                  <FiTrash2 className="w-4 h-4" />
+                  Xóa tất cả
+                </button>
+              </>
             )}
             {hotels.length < MAX_HOTELS && (
               <button
@@ -105,6 +178,7 @@ const ComparePage = () => {
         />
       </div>
     </div>
+    </FeatureThemeProvider>
   );
 };
 

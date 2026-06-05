@@ -15,7 +15,6 @@ export default async function ApiKeysLayout({
   }
 
   return (
-    // @ts-expect-error Async Server Component
     <Sidebar>
       <div className="h-full">{children}</div>
     </Sidebar>

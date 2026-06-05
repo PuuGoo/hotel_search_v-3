@@ -16,7 +16,11 @@ import AuthSocialButton from "./AuthSocialButton";
 
 type Variant = "LOGIN" | "REGISTER";
 
-const AuthForm = () => {
+interface AuthFormProps {
+  callbackUrl?: string;
+}
+
+const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) => {
   const session = useSession();
   const router = useRouter();
   const [variant, setVariant] = useState<Variant>("LOGIN");
@@ -36,9 +40,9 @@ const AuthForm = () => {
 
   useEffect(() => {
     if (session?.status === "authenticated") {
-      router.push("/conversations");
+      router.push(callbackUrl);
     }
-  }, [session?.status, router]);
+  }, [session?.status, router, callbackUrl]);
 
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {
@@ -80,7 +84,7 @@ const AuthForm = () => {
 
           if (callback?.ok) {
             toast.success("Đã đăng nhập");
-            router.push("/conversations");
+            router.push(callbackUrl);
           }
         })
         .finally(() => setIsLoading(false));
@@ -178,8 +182,8 @@ const AuthForm = () => {
             </div>
 
             <div className="mt-6 flex gap-2">
-              <AuthSocialButton icon={BsGithub} onClick={() => socialAction("github")} />
-              <AuthSocialButton icon={BsGoogle} onClick={() => socialAction("google")} />
+              <AuthSocialButton icon={BsGithub} onClick={() => socialAction("github")} disabled={isLoading} />
+              <AuthSocialButton icon={BsGoogle} onClick={() => socialAction("google")} disabled={isLoading} />
             </div>
           </div>
           <div
@@ -195,9 +199,9 @@ const AuthForm = () => {
           "
           >
             <div>{variant === "LOGIN" ? "Bạn mới biết đến Hotel Search?" : "Đã có tài khoản?"}</div>
-            <div onClick={toggleVariant} className="cursor-pointer underline">
+            <button type="button" onClick={toggleVariant} className="cursor-pointer underline bg-transparent border-none p-0 text-sm text-sky-600 dark:text-sky-400">
               {variant === "LOGIN" ? "Tạo tài khoản" : "Đăng nhập"}
-            </div>
+            </button>
           </div>
         </div>
       </div>

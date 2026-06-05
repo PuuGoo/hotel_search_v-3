@@ -34,6 +34,7 @@ interface TemplateManagerProps {
   autoSaveLines: number;
   autoSaveFolder: string;
   isRunning: boolean;
+  saveTrigger?: number;
   onApply: (tpl: {
     workers: number;
     template: string;
@@ -50,6 +51,7 @@ export default function TemplateManager({
   autoSaveLines,
   autoSaveFolder,
   isRunning,
+  saveTrigger,
   onApply,
 }: TemplateManagerProps) {
   const [templates, setTemplates] = useState<FinderTemplate[]>([]);
@@ -74,6 +76,12 @@ export default function TemplateManager({
   useEffect(() => {
     fetchTemplates();
   }, [fetchTemplates]);
+
+  useEffect(() => {
+    if (saveTrigger && saveTrigger > 0) {
+      setShowSaveDialog(true);
+    }
+  }, [saveTrigger]);
 
   const handleSelect = useCallback(
     (tpl: FinderTemplate) => {

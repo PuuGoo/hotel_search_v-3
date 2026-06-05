@@ -34,4 +34,4 @@ async function Sidebar({
   );
 }
 
-export default Sidebar;
+export default Sidebar as unknown as React.FC<{ children: React.ReactNode; currentUser?: any }>;

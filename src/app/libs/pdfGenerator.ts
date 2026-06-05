@@ -3,6 +3,48 @@ interface ReportColumn {
   key: string;
 }
 
+export interface SearchHistoryRecord {
+  query?: string;
+  engine?: string;
+  resultCount?: number;
+  duration?: number;
+  createdAt?: string | Date;
+}
+
+export interface ConversationMessage {
+  sender?: { email?: string; name?: string };
+  body?: string;
+  conversation?: { name?: string };
+  createdAt?: string | Date;
+}
+
+export interface AuditLogEntry {
+  action?: string;
+  actorEmail?: string;
+  targetType?: string;
+  targetId?: string;
+  metadata?: unknown;
+  createdAt?: string | Date;
+}
+
+export interface FinderResult {
+  hotelName?: string;
+  address?: string;
+  status?: string;
+  bestPercentage?: number | null;
+  matchedLinks?: { url: string }[];
+  createdAt?: string | Date;
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const PRINT_CSS = `
   @page { margin: 15mm; size: A4 landscape; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,13 +66,15 @@ const PRINT_CSS = `
 `;
 
 function buildHTML(title: string, date: string, summary: string[], columns: ReportColumn[], rows: Record<string, unknown>[]): string {
+  const safeTitle = escapeHtml(title);
+  const safeDate = escapeHtml(date);
   const summaryHTML = summary.map((s) => `<div class="summary-item">${s}</div>`).join("");
 
-  const headerCells = columns.map((c) => `<th>${c.header}</th>`).join("");
+  const headerCells = columns.map((c) => `<th>${escapeHtml(c.header)}</th>`).join("");
   const bodyRows = rows.map((row) => {
     const cells = columns.map((c) => {
       const val = row[c.key];
-      return `<td>${val != null ? String(val) : ""}</td>`;
+      return `<td>${val != null ? escapeHtml(String(val)) : ""}</td>`;
     }).join("");
     return `<tr>${cells}</tr>`;
   }).join("");
@@ -40,7 +84,7 @@ function buildHTML(title: string, date: string, summary: string[], columns: Repo
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${title}</title>
+  <title>${safeTitle}</title>
   <style>${PRINT_CSS}</style>
 </head>
 <body>
@@ -48,8 +92,8 @@ function buildHTML(title: string, date: string, summary: string[], columns: Repo
     <div class="header-left">
       <div class="logo">H</div>
       <div>
-        <div class="title">${title}</div>
-        <div class="meta">Ngày tạo: ${date}</div>
+        <div class="title">${safeTitle}</div>
+        <div class="meta">Ngày tạo: ${safeDate}</div>
       </div>
     </div>
   </div>
@@ -66,7 +110,7 @@ function buildHTML(title: string, date: string, summary: string[], columns: Repo
 </html>`;
 }
 
-export function generateSearchReportHTML(results: any[], title: string, date: string): string {
+export function generateSearchReportHTML(results: SearchHistoryRecord[], title: string, date: string): string {
   const columns: ReportColumn[] = [
     { header: "STT", key: "stt" },
     { header: "Từ khóa tìm kiếm", key: "query" },
@@ -95,7 +139,7 @@ export function generateSearchReportHTML(results: any[], title: string, date: st
   return buildHTML(title, date, summary, columns, rows);
 }
 
-export function generateConversationHTML(messages: any[], title: string, date: string): string {
+export function generateConversationHTML(messages: ConversationMessage[], title: string, date: string): string {
   const columns: ReportColumn[] = [
     { header: "STT", key: "stt" },
     { header: "Người gửi", key: "sender" },
@@ -120,7 +164,7 @@ export function generateConversationHTML(messages: any[], title: string, date: s
   return buildHTML(title, date, summary, columns, rows);
 }
 
-export function generateAuditHTML(logs: any[], title: string, date: string): string {
+export function generateAuditHTML(logs: AuditLogEntry[], title: string, date: string): string {
   const columns: ReportColumn[] = [
     { header: "STT", key: "stt" },
     { header: "Hành động", key: "action" },
@@ -151,7 +195,7 @@ export function generateAuditHTML(logs: any[], title: string, date: string): str
   return buildHTML(title, date, summary, columns, rows);
 }
 
-export function generateFinderHTML(rows: any[], title: string, date: string): string {
+export function generateFinderHTML(rows: FinderResult[], title: string, date: string): string {
   const columns: ReportColumn[] = [
     { header: "STT", key: "stt" },
     { header: "Tên khách sạn", key: "hotelName" },
@@ -170,7 +214,7 @@ export function generateFinderHTML(rows: any[], title: string, date: string): st
     status: r.status ?? "",
     percentage: r.bestPercentage != null ? `${r.bestPercentage}%` : "",
     matchedCount: r.matchedLinks?.length ?? 0,
-    matchedUrls: (r.matchedLinks ?? []).map((l: any) => l.url).join("\n"),
+    matchedUrls: (r.matchedLinks ?? []).map((l) => l.url).join("\\n"),
     createdAt: r.createdAt ? new Date(r.createdAt).toLocaleString("vi-VN") : "",
   }));
 

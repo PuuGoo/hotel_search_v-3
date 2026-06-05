@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
+import { useConfirm } from "../../../components/ConfirmDialog";
 import {
   FiChevronLeft,
   FiChevronRight,
@@ -30,6 +31,7 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
   data,
   currentUserId,
 }) => {
+  const { confirm, DialogElement } = useConfirm();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [term, setTerm] = useState(data.search);
@@ -79,7 +81,7 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
   const deleteUser = useCallback(
     async (user: AdminUserRow) => {
       const label = user.email ?? user.name ?? "người dùng này";
-      if (!window.confirm(`Xóa ${label}? Hành động này không thể hoàn tác.`)) {
+      if (!(await confirm({ message: `Xóa ${label}? Hành động này không thể hoàn tác.`, title: "Xóa người dùng", confirmLabel: "Xóa", variant: "danger" }))) {
         return;
       }
       setPendingId(user.id);
@@ -93,11 +95,12 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
         setPendingId(null);
       }
     },
-    [router]
+    [router, confirm]
   );
 
   return (
     <div className="space-y-4">
+      {DialogElement}
       <form onSubmit={onSearch} className="flex gap-2">
         <div className="relative flex-1">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />

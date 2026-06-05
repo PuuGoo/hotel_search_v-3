@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import {
   FiClock,
   FiChevronDown,
@@ -10,51 +9,33 @@ import {
   FiX,
   FiSearch,
 } from "react-icons/fi";
-
-interface SearchHistoryEntry {
-  id: string;
-  query: string;
-  engine?: string | null;
-  resultCount?: number | null;
-  createdAt: string;
-}
+import { useSearchHistory } from "../contexts/SearchHistoryContext";
 
 interface HistoryPanelProps {
   onSelect: (query: string) => void;
 }
 
 const HistoryPanel = ({ onSelect }: HistoryPanelProps) => {
-  const [history, setHistory] = useState<SearchHistoryEntry[]>([]);
+  const { history, loading, clearAll, removeEntry } = useSearchHistory();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const fetchHistory = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get("/api/search/history");
-      setHistory(res.data.history || []);
-    } catch {}
-    setLoading(false);
-  };
-
+  // Close history panel on Escape
   useEffect(() => {
-    if (isExpanded) {
-      fetchHistory();
-    }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isExpanded) {
+        setIsExpanded(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isExpanded]);
 
   const handleClearAll = async () => {
-    try {
-      await axios.delete("/api/search/history");
-      setHistory([]);
-    } catch {}
+    await clearAll();
   };
 
   const handleDeleteOne = async (id: string) => {
-    try {
-      await axios.delete("/api/search/history", { data: { id } });
-      setHistory((prev) => prev.filter((entry) => entry.id !== id));
-    } catch {}
+    await removeEntry(id);
   };
 
   const formatTime = (dateStr: string) => {
@@ -78,6 +59,8 @@ const HistoryPanel = ({ onSelect }: HistoryPanelProps) => {
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between px-4 py-3 text-white hover:bg-gray-750 transition-colors"
+        aria-expanded={isExpanded}
+        aria-label="Lịch sử tìm kiếm"
       >
         <div className="flex items-center gap-2">
           <FiClock className="w-4 h-4 text-gray-400" />
@@ -104,6 +87,7 @@ const HistoryPanel = ({ onSelect }: HistoryPanelProps) => {
                 type="button"
                 onClick={handleClearAll}
                 className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-400 transition-colors"
+                aria-label="Xóa toàn bộ lịch sử"
               >
                 <FiTrash2 className="w-3 h-3" />
                 Xóa lịch sử
@@ -154,8 +138,9 @@ const HistoryPanel = ({ onSelect }: HistoryPanelProps) => {
                   <button
                     type="button"
                     onClick={() => handleDeleteOne(entry.id)}
-                    className="p-1 text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                    className="p-1 text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 focus:text-red-400"
                     title="Xóa mục này"
+                    aria-label={`Xóa: ${entry.query}`}
                   >
                     <FiX className="w-4 h-4" />
                   </button>

@@ -102,13 +102,13 @@ if (typeof setInterval !== "undefined" && !g.__searchRateLimitCleanup) {
   g.__searchRateLimitCleanup = true;
   setInterval(() => {
     const now = Date.now();
-    const entries = Array.from(searchRequests.entries());
-    for (const [key, entry] of entries) {
+    // Sweep stale entries (older than the rate window) to prevent unbounded growth.
+    for (const [key, entry] of Array.from(searchRequests)) {
       if (now - entry.firstRequest > SEARCH_RATE_WINDOW) {
         searchRequests.delete(key);
       }
     }
-  }, SEARCH_RATE_WINDOW).unref?.();
+  }, 5 * 60 * 1000).unref?.();
 }
 
 export function getRateLimitConfig() {

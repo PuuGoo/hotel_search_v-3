@@ -3,13 +3,15 @@ import { IconType } from "react-icons";
 interface AuthSocialButtonProps {
   icon: IconType;
   onClick: () => void;
+  disabled?: boolean;
 }
 
-const AuthSocialButton: React.FC<AuthSocialButtonProps> = ({ icon: Icon, onClick }) => {
+const AuthSocialButton: React.FC<AuthSocialButtonProps> = ({ icon: Icon, onClick, disabled }) => {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       className="
         inline-flex
         w-full 
@@ -28,6 +30,8 @@ const AuthSocialButton: React.FC<AuthSocialButtonProps> = ({ icon: Icon, onClick
         dark:bg-lightgray
         dark:ring-gray-500
         dark:text-gray-200
+        disabled:opacity-50
+        disabled:cursor-not-allowed
       "
     >
       <Icon />

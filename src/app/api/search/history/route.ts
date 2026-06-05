@@ -1,24 +1,8 @@
 import { NextResponse } from "next/server";
 
-import getCurrentUser from "@/app/actions/getCurrentUser";
 import prismadb from "@/app/libs/prismadb";
 import { hasFeature } from "@/app/libs/features";
-
-async function getUserWithTimeout(timeoutMs = 5000) {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    return (await Promise.race([
-      getCurrentUser(),
-      new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Error("timeout")), timeoutMs);
-      }),
-    ])) as any;
-  } catch {
-    return null;
-  } finally {
-    if (timer) clearTimeout(timer);
-  }
-}
+import { getUserWithTimeout } from "@/app/libs/getUserWithTimeout";
 
 export async function GET() {
   try {
@@ -60,14 +44,14 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    let body: any;
+    let body: Record<string, unknown>;
     try {
       body = await request.json();
     } catch {
       body = {};
     }
 
-    const { id } = body ?? {};
+    const id = typeof body.id === "string" ? body.id : undefined;
 
     if (id) {
       await prismadb.searchHistory.deleteMany({

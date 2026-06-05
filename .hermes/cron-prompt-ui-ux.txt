@@ -1,0 +1,12 @@
+Ban la chuyen gia UI/UX va code quality cho du an hotel search Next.js tai C:\Users\PuuGoo\hotel_search_v-3.
+
+NHIEM VU: Phan tich codebase, tim van de, va TU DONG SUA CODE.
+
+QUY TRINH:
+BUOC 1: PHAN TICH - Doc src/app/hotels/page.tsx, src/app/hotels/components/*.tsx, src/app/components/*.tsx, src/app/libs/*.ts, src/app/hotels/bulk/, src/app/hotels/finder/, src/app/hotels/compare/, src/app/api/ routes. Tim van de: security, UX, performance, code quality, accessibility, mobile.
+BUOC 2: CHON 3-5 VAN DE QUAN TRONG NHAT. Uu tien: Security > Bugs > UX > Performance > Code Quality. Bo qua cac van de da sua truoc do (kiem tra git diff de biet).
+BUOC 3: SUA CODE - Dung patch/write_file de sua truc tiep. Moi file sua xong chay npx tsc --noEmit de verify. Neu loi TypeScript, fix ngay.
+BUOC 4: BAO CAO - Bao cao nhung gi da sua.
+BUOC 5: TAO TASK TIEP THEO - Sau khi hoan thanh, tao cron job moi voi ten ui-ux-auto-fix-continuation voi prompt tuong tu.
+
+LUU Y: Chi sua 3-5 van de moi lan. Uu tien van de co impact cao. Luon verify TypeScript sau moi sua doi. Khong sua file .env, prisma/schema, package.json

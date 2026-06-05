@@ -59,10 +59,17 @@ function generateTOTP(secret: string, timeStep: number): string {
 }
 
 export function verifyTOTP(secret: string, token: string, window: number = 1): boolean {
+  if (typeof token !== "string" || token.length !== 6) return false;
+
   const timeStep = Math.floor(Date.now() / 1000 / 30);
 
   for (let i = -window; i <= window; i++) {
     const expected = generateTOTP(secret, timeStep + i);
+    // crypto.timingSafeEqual throws RangeError when buffer lengths differ.
+    // Both values are always 6 digits after the guard above, but belt-and-
+    // suspenders: compare lengths first so an unexpected internal change
+    // can't crash the auth flow.
+    if (token.length !== expected.length) continue;
     if (crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expected))) {
       return true;
     }

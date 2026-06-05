@@ -20,7 +20,9 @@ const EngineSelector = ({ selected, onChange, available }: EngineSelectorProps) 
 
   const toggleAll = () => {
     if (allSelected) {
-      onChange([]);
+      // Keep only the first available engine selected (don't allow 0)
+      const firstAvailable = available.find((e) => e.available);
+      onChange(firstAvailable ? [firstAvailable.id] : []);
     } else {
       onChange(available.filter((e) => e.available).map((e) => e.id));
     }
@@ -28,6 +30,8 @@ const EngineSelector = ({ selected, onChange, available }: EngineSelectorProps) 
 
   const toggleEngine = (id: string) => {
     if (selected.includes(id)) {
+      // Prevent deselecting the last engine
+      if (selected.length <= 1) return;
       onChange(selected.filter((e) => e !== id));
     } else {
       onChange([...selected, id]);
@@ -46,7 +50,7 @@ const EngineSelector = ({ selected, onChange, available }: EngineSelectorProps) 
           onClick={toggleAll}
           className="text-xs text-sky-400 hover:text-sky-300 transition-colors"
         >
-          {allSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+          {allSelected ? "Chọn 1" : "Chọn tất cả"}
         </button>
       </div>
 
@@ -58,7 +62,9 @@ const EngineSelector = ({ selected, onChange, available }: EngineSelectorProps) 
               selected.includes(engine.id)
                 ? "bg-sky-500/10 border-sky-500/50"
                 : "bg-gray-800/50 border-gray-700 hover:border-gray-600"
-            } ${!engine.available ? "opacity-50 cursor-not-allowed" : ""}`}
+            } ${!engine.available ? "opacity-50 cursor-not-allowed" : ""} ${
+              selected.includes(engine.id) && selected.length <= 1 ? "ring-1 ring-sky-500/30" : ""
+            }`}
           >
             <div className="mt-0.5">
               {selected.includes(engine.id) ? (

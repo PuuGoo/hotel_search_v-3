@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import { redirect } from "next/navigation";
 import prismadb from "@/app/libs/prismadb";
 import { sanitizeUser } from "@/app/libs/sanitizeUser";
 
@@ -16,7 +17,7 @@ const DashboardPage = async () => {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    return null;
+    redirect("/");
   }
 
   const [totalSearches, totalBookmarks, recentSearches, topQueries, engineUsage, rawActivities] =

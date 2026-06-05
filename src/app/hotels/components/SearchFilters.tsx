@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, memo, useCallback, useId, useRef } from "react";
 import {
   FiChevronDown,
   FiChevronUp,
   FiX,
   FiFilter,
-  FiStar,
 } from "react-icons/fi";
 
 export interface SearchFilters {
@@ -19,6 +18,7 @@ interface SearchFiltersProps {
   onFilterChange: (filters: SearchFilters) => void;
   isOpen: boolean;
   onClose: () => void;
+  currentFilters?: SearchFilters;
 }
 
 const defaultFilters: SearchFilters = {
@@ -51,7 +51,7 @@ const countries = [
   { value: "Australia", label: "Úc" },
 ];
 
-const CollapsibleSection = ({
+const CollapsibleSection = memo(({
   title,
   defaultOpen = true,
   children,
@@ -61,30 +61,100 @@ const CollapsibleSection = ({
   children: React.ReactNode;
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const toggle = useCallback(() => setIsOpen((prev) => !prev), []);
+  const contentId = useId();
 
   return (
     <div className="border-b border-gray-700 last:border-b-0">
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggle}
+        aria-expanded={isOpen}
+        aria-controls={contentId}
         className="w-full flex items-center justify-between py-3 px-1 text-sm font-medium text-gray-200 hover:text-white transition-colors"
       >
         {title}
         {isOpen ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
       </button>
-      {isOpen && <div className="pb-4 px-1">{children}</div>}
+      {isOpen && (
+        <div id={contentId} role="region" className="pb-4 px-1">
+          {children}
+        </div>
+      )}
     </div>
   );
-};
+});
+CollapsibleSection.displayName = "CollapsibleSection";
 
-const SearchFilters = ({ onFilterChange, isOpen, onClose }: SearchFiltersProps) => {
-  const [filters, setFilters] = useState<SearchFilters>(defaultFilters);
-  const [ratingHover, setRatingHover] = useState(0);
+const SearchFilters = ({ onFilterChange, isOpen, onClose, currentFilters }: SearchFiltersProps) => {
+  const [filters, setFilters] = useState<SearchFilters>(currentFilters ?? defaultFilters);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
 
-  const handleRatingClick = (rating: number) => {
-    const newRating = filters.minRating === rating ? 0 : rating;
-    setFilters((prev) => ({ ...prev, minRating: newRating }));
-  };
+  // Track viewport breakpoint so aria-hidden/tabIndex only apply on mobile
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  // Sync internal state with parent's current filters when the panel opens
+  useEffect(() => {
+    if (isOpen && currentFilters) {
+      setFilters(currentFilters);
+    }
+  }, [isOpen, currentFilters]);
+
+  // Auto-focus close button when panel opens (mobile)
+  useEffect(() => {
+    if (isOpen) {
+      // Small delay to let the transition start
+      const timer = setTimeout(() => closeBtnRef.current?.focus(), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  // Focus trap: keep Tab/Shift+Tab inside the panel when open on mobile
+  useEffect(() => {
+    if (!isOpen) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      const focusable = panel.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   const handleApply = () => {
     onFilterChange(filters);
@@ -109,9 +179,14 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose }: SearchFiltersProps) 
       )}
 
       <div
+        ref={panelRef}
         className={`fixed top-0 left-0 h-full w-80 bg-gray-800 z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:relative lg:translate-x-0 lg:z-auto lg:w-72 lg:rounded-lg`}
+        role="region"
+        aria-label="Bộ lọc tìm kiếm"
+        aria-hidden={isDesktop ? undefined : !isOpen}
+        tabIndex={isDesktop ? undefined : (isOpen ? undefined : -1)}
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b border-gray-700">
@@ -120,40 +195,45 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose }: SearchFiltersProps) 
               Bộ lọc tìm kiếm
             </div>
             <button
+              ref={closeBtnRef}
               type="button"
               onClick={onClose}
               className="p-1 text-gray-400 hover:text-white transition-colors lg:hidden"
+              aria-label="Đóng bộ lọc"
             >
               <FiX className="w-5 h-5" />
             </button>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-0">
-            <CollapsibleSection title="Đánh giá">
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => handleRatingClick(star)}
-                    onMouseEnter={() => setRatingHover(star)}
-                    onMouseLeave={() => setRatingHover(0)}
-                    className="p-0.5 transition-transform hover:scale-110"
+            <CollapsibleSection title="Điểm liên quan">
+              <div className="space-y-2">
+                {[
+                  { value: 0, label: "Tất cả" },
+                  { value: 20, label: "≥ 20%" },
+                  { value: 40, label: "≥ 40%" },
+                  { value: 60, label: "≥ 60%" },
+                  { value: 80, label: "≥ 80%" },
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    className="flex items-center gap-3 cursor-pointer group"
                   >
-                    <FiStar
-                      className={`w-6 h-6 transition-colors ${
-                        star <= (ratingHover || filters.minRating)
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-gray-500"
-                      }`}
+                    <input
+                      type="radio"
+                      name="minRating"
+                      value={opt.value}
+                      checked={filters.minRating === opt.value}
+                      onChange={() =>
+                        setFilters((prev) => ({ ...prev, minRating: opt.value }))
+                      }
+                      className="w-4 h-4 text-sky-500 bg-gray-700 border-gray-600 focus:ring-sky-500 focus:ring-offset-gray-800"
                     />
-                  </button>
+                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                      {opt.label}
+                    </span>
+                  </label>
                 ))}
-                {filters.minRating > 0 && (
-                  <span className="ml-2 text-sm text-gray-400">
-                    {filters.minRating}+ sao
-                  </span>
-                )}
               </div>
             </CollapsibleSection>
 

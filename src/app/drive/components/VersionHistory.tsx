@@ -52,7 +52,7 @@ export default function VersionHistory({ fileId, currentVersion, isOpen, onClose
   }, [loadVersions]);
 
   const handleDownload = useCallback((filePath: string, fileName: string) => {
-    window.open(`/api/drive/file/${fileName}`, "_blank");
+    window.open(`/api/drive/file/${fileName}`, "_blank", "noopener,noreferrer");
   }, []);
 
   if (!isOpen) return null;

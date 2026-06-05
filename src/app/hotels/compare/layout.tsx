@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import Sidebar from "@/app/components/sidebar/Sidebar";
+import Breadcrumb from "@/app/components/Breadcrumb";
 
 export default async function CompareLayout({
   children,
@@ -14,9 +15,11 @@ export default async function CompareLayout({
   }
 
   return (
-    // @ts-expect-error Async Server Component
     <Sidebar currentUser={currentUser}>
-      <div className="h-full">{children}</div>
+      <div className="h-full">
+        <Breadcrumb />
+        {children}
+      </div>
     </Sidebar>
   );
 }

@@ -88,14 +88,20 @@ export class SearchCache<T = any> {
   }
 
   size(): number {
+    return this.cache.size;
+  }
+
+  /** Remove expired entries. Called periodically by the cleanup interval. */
+  cleanupExpired(): number {
     const now = Date.now();
-    const entries = Array.from(this.cache.entries());
-    for (const [key, entry] of entries) {
+    let removed = 0;
+    for (const [key, entry] of Array.from(this.cache)) {
       if (now > entry.expiresAt) {
         this.cache.delete(key);
+        removed++;
       }
     }
-    return this.cache.size;
+    return removed;
   }
 
   stats() {
@@ -118,8 +124,15 @@ export class SearchCache<T = any> {
   }
 }
 
-const g = globalThis as unknown as { __searchCache?: SearchCache };
+const g = globalThis as unknown as { __searchCache?: SearchCache; __searchCacheCleanup?: boolean };
 export const searchCache = g.__searchCache ?? (g.__searchCache = new SearchCache());
+
+if (typeof setInterval !== "undefined" && !g.__searchCacheCleanup) {
+  g.__searchCacheCleanup = true;
+  setInterval(() => {
+    searchCache.cleanupExpired();
+  }, 60_000).unref?.();
+}
 
 const cacheNamespaces = ["search", "finder", "user", "api"] as const;
 type CacheNamespace = (typeof cacheNamespaces)[number];
@@ -135,12 +148,31 @@ const g2 = globalThis as unknown as {
   __genericCache?: Map<string, GenericCacheEntry>;
   __globalHits?: number;
   __globalMisses?: number;
+  __genericCacheCleanup?: boolean;
 };
 
 const genericCache: Map<string, GenericCacheEntry> =
   g2.__genericCache ?? (g2.__genericCache = new Map());
-let globalHits: number = g2.__globalHits ?? (g2.__globalHits = 0);
-let globalMisses: number = g2.__globalMisses ?? (g2.__globalMisses = 0);
+// Pin counters to globalThis alongside the cache Map so dev hot-reloads don't
+// reset hit/miss stats while the underlying cache data survives.
+const counters = globalThis as unknown as {
+  __globalHits?: number;
+  __globalMisses?: number;
+};
+if (counters.__globalHits == null) counters.__globalHits = 0;
+if (counters.__globalMisses == null) counters.__globalMisses = 0;
+
+if (typeof setInterval !== "undefined" && !g2.__genericCacheCleanup) {
+  g2.__genericCacheCleanup = true;
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of Array.from(genericCache)) {
+      if (now > entry.expiresAt) {
+        genericCache.delete(key);
+      }
+    }
+  }, 60_000).unref?.();
+}
 
 function makeNamespacedKey(namespace: CacheNamespace, key: string): string {
   return `${namespace}:${key}`;
@@ -157,7 +189,7 @@ export async function cacheWithTTL<T>(
     genericCache.delete(key);
     genericCache.set(key, entry);
     entry.hits++;
-    globalHits++;
+    counters.__globalHits!++;
     return entry.data as T;
   }
 
@@ -165,7 +197,7 @@ export async function cacheWithTTL<T>(
     genericCache.delete(key);
   }
 
-  globalMisses++;
+  counters.__globalMisses!++;
   const data = await fetcher();
 
   genericCache.set(key, {
@@ -205,10 +237,10 @@ export function getCacheStats(): {
   }
 
   const keys = Array.from(genericCache.keys());
-  const totalRequests = globalHits + globalMisses;
+  const totalRequests = (counters.__globalHits ?? 0) + (counters.__globalMisses ?? 0);
   const hitRate =
     totalRequests > 0
-      ? ((globalHits / totalRequests) * 100).toFixed(1) + "%"
+      ? (((counters.__globalHits ?? 0) / totalRequests) * 100).toFixed(1) + "%"
       : "0%";
 
   const estimatedBytes = keys.reduce((acc, key) => {
@@ -231,8 +263,8 @@ export function getCacheStats(): {
     size: keys.length,
     hitRate,
     keys,
-    totalHits: globalHits,
-    totalMisses: globalMisses,
+    totalHits: counters.__globalHits ?? 0,
+    totalMisses: counters.__globalMisses ?? 0,
     memoryEstimate,
   };
 }

@@ -4,9 +4,9 @@ import Link from "next/link";
 // notFound() call, instead of Next.js's bare default 404.
 export default function NotFound() {
   return (
-    <div className="flex h-full min-h-screen flex-col items-center justify-center gap-4 bg-gray-900 px-4 text-center">
-      <h2 className="text-2xl font-bold text-white">404</h2>
-      <p className="max-w-md text-sm text-gray-400">
+    <div className="flex h-full min-h-screen flex-col items-center justify-center gap-4 bg-gray-100 px-4 text-center dark:bg-gray-900">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">404</h2>
+      <p className="max-w-md text-sm text-gray-600 dark:text-gray-400">
         Không tìm thấy trang bạn yêu cầu.
       </p>
       <Link

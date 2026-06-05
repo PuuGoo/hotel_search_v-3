@@ -1,51 +1,54 @@
 "use client";
 
 import axios from "axios";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { FiSearch, FiBookmark, FiExternalLink, FiStar, FiZap, FiFilter, FiBell } from "react-icons/fi";
+import { FiSearch, FiZap, FiFilter } from "react-icons/fi";
+import { useSearchParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { SearchFilters as SearchFiltersType } from "./components/SearchFilters";
 import type { EngineInfo } from "./components/EngineSelector";
+import type { SearchResult, Search } from "./types";
 import FeatureThemeProvider from "../components/theme/FeatureThemeProvider";
+import { SearchHistoryProvider, useSearchHistory } from "./contexts/SearchHistoryContext";
+import { PRICE_KEYWORDS, COUNTRY_KEYWORDS } from "../libs/filterKeywords";
 
 const SearchFilters = dynamic(() => import("./components/SearchFilters"), { ssr: false });
 const SearchSuggestions = dynamic(() => import("./components/SearchSuggestions"), { ssr: false });
 const HistoryPanel = dynamic(() => import("./components/HistoryPanel"), { ssr: false });
 const PriceAlertModal = dynamic(() => import("./components/PriceAlertModal"), { ssr: false });
 const EngineSelector = dynamic(() => import("./components/EngineSelector"), { ssr: false });
+const ResultCardSkeleton = dynamic(() => import("./components/ResultCardSkeleton"), { ssr: false });
+const ResultCard = dynamic(() => import("./components/ResultCard"), { ssr: false });
 
-interface SearchResult {
-  id: string;
-  title: string | null;
-  url: string | null;
-  snippet: string | null;
-  position: number | null;
-  score: number | null;
+// SearchResult, PerEngineStat, Search types imported from ./types
+
+/** Deduplicate results by URL, keeping the one with the higher score and merging engine info */
+function dedupResults(results: SearchResult[]): SearchResult[] {
+  const urlMap = new Map<string, SearchResult>();
+  for (const result of results) {
+    const key = result.url || result.id;
+    const existing = urlMap.get(key);
+    if (!existing) {
+      urlMap.set(key, result);
+    } else {
+      // Keep the result with the higher score
+      const existingScore = existing.score ?? 0;
+      const newScore = result.score ?? 0;
+      if (newScore > existingScore) {
+        urlMap.set(key, result);
+      }
+    }
+  }
+  return Array.from(urlMap.values());
 }
 
-interface PerEngineStat {
-  engine: string;
-  resultCount: number;
-  duration: number;
-  cached: boolean;
-  error: string | null;
-}
+const RESULTS_PER_PAGE = 20;
 
-interface Search {
-  id: string;
-  query: string;
-  engine: string;
-  engines?: string[];
-  resultCount: number;
-  duration: number | null;
-  perEngineStats?: PerEngineStat[];
-  results: SearchResult[];
-}
-
-const HotelSearchPage = () => {
+const HotelSearchContent = () => {
   const [query, setQuery] = useState("");
   const [selectedEngines, setSelectedEngines] = useState<string[]>(["tavily"]);
+  const [sortBy, setSortBy] = useState<"score" | "az" | "za">("score");
   const [results, setResults] = useState<Search | null>(null);
   const [loading, setLoading] = useState(false);
   const [cacheHit, setCacheHit] = useState(false);
@@ -58,63 +61,131 @@ const HotelSearchPage = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [priceAlertHotel, setPriceAlertHotel] = useState<{ name: string; url?: string } | null>(null);
   const [showEnginesPanel, setShowEnginesPanel] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const filterBtnRef = useRef<HTMLButtonElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  // Track whether a mousedown occurred inside the suggestions area so
+  // onBlur doesn't close the dropdown before the click event fires.
+  const suggestionsInteractingRef = useRef(false);
+  const [displayCount, setDisplayCount] = useState(RESULTS_PER_PAGE);
+  const { refresh: refreshHistory } = useSearchHistory();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  // Optimization: track stable results reference to avoid unnecessary filteredResults recalculations
+  const resultsHashRef = useRef<string>("");
+  const stableResultsRef = useRef<Search | null>(null);
+
+  // Read URL params on mount and auto-search if q is present
+  const didInitRef = useRef(false);
+  useEffect(() => {
+    if (didInitRef.current) return;
+    didInitRef.current = true;
+    const urlQ = searchParams?.get("q");
+    const urlEngines = searchParams?.get("engines");
+    if (urlQ) {
+      setQuery(urlQ);
+      if (urlEngines) {
+        const engines = urlEngines.split(",").filter(Boolean);
+        if (engines.length > 0) setSelectedEngines(engines);
+      }
+      // Trigger auto-search via state flag so the form handler runs after
+      // React has committed the state updates. The old approach (querySelector
+      // + click + setTimeout) was fragile and could silently fail if the
+      // button wasn't rendered yet.
+      setAutoSearchReady(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [autoSearchReady, setAutoSearchReady] = useState(false);
+  useEffect(() => {
+    if (autoSearchReady) {
+      setAutoSearchReady(false);
+      // Fire after the current render cycle completes (state updates batched).
+      handleSearchRef.current({ preventDefault: () => {} } as React.FormEvent);
+    }
+  }, [autoSearchReady]);
+
+  // Listen for global shortcut events from ShortcutsProvider
+  useEffect(() => {
+    const handleFocusSearch = () => {
+      inputRef.current?.focus();
+    };
+    const handleCloseModal = () => {
+      setFiltersOpen(false);
+      setShowSuggestions(false);
+      setShowEnginesPanel(false);
+      setPriceAlertHotel(null);
+    };
+    window.addEventListener("focus-search", handleFocusSearch);
+    window.addEventListener("close-modal", handleCloseModal);
+    return () => {
+      window.removeEventListener("focus-search", handleFocusSearch);
+      window.removeEventListener("close-modal", handleCloseModal);
+    };
+  }, []);
+
+  // Escape key to close all panels when not in an input
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setFiltersOpen(false);
+        setShowSuggestions(false);
+        setShowEnginesPanel(false);
+        setPriceAlertHotel(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const availableEngines: EngineInfo[] = [
     { id: "tavily", name: "Tavily", available: true, description: "Tìm kiếm AI-powered với kết quả chất lượng cao" },
     { id: "google", name: "Google", available: true, description: "Tìm kiếm Google Custom Search" },
     { id: "ddg", name: "DuckDuckGo", available: true, description: "Tìm kiếm riêng tư không theo dõi" },
-    { id: "bing", name: "Bing", available: !!process.env.NEXT_PUBLIC_BING_AVAILABLE, description: "Microsoft Bing Web Search API" },
+    { id: "bing", name: "Bing", available: true, description: "Microsoft Bing Web Search API" },
     { id: "yahoo", name: "Yahoo", available: true, description: "Tìm kiếm qua Yahoo (scraping)" },
   ];
 
+  // Optimization: compute a lightweight hash of results content
+  // Only update stableResultsRef when content actually changes (avoids re-filtering on referential changes)
+  const resultsHash = results
+    ? `${results.id}-${results.resultCount}-${results.results.length}-${results.results[0]?.id || ""}-${results.results[results.results.length - 1]?.id || ""}`
+    : "";
+  if (resultsHash !== resultsHashRef.current) {
+    resultsHashRef.current = resultsHash;
+    stableResultsRef.current = results;
+  }
+
   const filteredResults = useMemo(() => {
-    if (!results) return null;
+    const stableResults = stableResultsRef.current;
+    if (!stableResults) return null;
 
     const hasActiveFilters =
       filters.minRating > 0 ||
       filters.priceRange !== "" ||
       filters.country !== "";
 
-    if (!hasActiveFilters) return results;
+    if (!hasActiveFilters && sortBy === "score") return stableResults;
 
-    const filtered = results.results.filter((result) => {
+    const filtered = stableResults.results.filter((result) => {
       const snippet = (result.snippet || "").toLowerCase();
       const title = (result.title || "").toLowerCase();
       const combined = `${title} ${snippet}`;
 
       if (filters.minRating > 0 && typeof result.score === "number") {
-        const mappedRating = Math.min(5, Math.max(1, Math.round(result.score * 5)));
-        if (mappedRating < filters.minRating) return false;
+        const scorePercent = Math.round(result.score * 100);
+        if (scorePercent < filters.minRating) return false;
       }
 
       if (filters.priceRange) {
-        const priceKeywords: Record<string, string[]> = {
-          budget: ["rẻ", "giá rẻ", "budget", "cheap", "affordable", "tiết kiệm", "$"],
-          mid: ["trung bình", "mid-range", "moderate", "$$", "3 sao", "4 sao"],
-          luxury: ["cao cấp", "luxury", "5 sao", "resort", "premium", "$$$", "biệt thự"],
-        };
-        const keywords = priceKeywords[filters.priceRange] || [];
+        const keywords = PRICE_KEYWORDS[filters.priceRange] || [];
         const matchesPrice = keywords.some((kw) => combined.includes(kw.toLowerCase()));
         if (!matchesPrice) return false;
       }
 
       if (filters.country) {
-        const countryKeywords: Record<string, string[]> = {
-          Vietnam: ["việt nam", "vietnam", "vietnamese", "sài gòn", "hà nội", "đà nẵng", "nha trang", "phú quốc", "hội an"],
-          Thailand: ["thái lan", "thailand", "thai", "bangkok", "phuket", "chiang mai", "pattaya"],
-          Japan: ["nhật bản", "japan", "japanese", "tokyo", "osaka", "kyoto", "hokkaido"],
-          "South Korea": ["hàn quốc", "korea", "korean", "seoul", "busan", "jeju"],
-          Singapore: ["singapore", "singaporean"],
-          Malaysia: ["malaysia", "malaysian", "kuala lumpur", "penang"],
-          Indonesia: ["indonesia", "indonesian", "bali", "jakarta"],
-          Philippines: ["philippines", "philippine", "manila", "cebu", "boracay"],
-          Cambodia: ["campuchia", "cambodia", "cambodian", "siem reap", "phnom penh"],
-          France: ["pháp", "france", "french", "paris", "nice", "lyon"],
-          "United States": ["mỹ", "usa", "us", "united states", "american", "new york", "los angeles", "las vegas", "miami", "hawaii"],
-          "United Kingdom": ["anh", "uk", "united kingdom", "british", "london", "manchester", "edinburgh"],
-          Australia: ["úc", "australia", "australian", "sydney", "melbourne"],
-        };
-        const keywords = countryKeywords[filters.country] || [];
+        const keywords = COUNTRY_KEYWORDS[filters.country] || [];
         const matchesCountry = keywords.some((kw) => combined.includes(kw.toLowerCase()));
         if (!matchesCountry) return false;
       }
@@ -122,14 +193,26 @@ const HotelSearchPage = () => {
       return true;
     });
 
-    return {
-      ...results,
-      results: filtered,
-      resultCount: filtered.length,
-    };
-  }, [results, filters]);
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      if (sortBy === "az") {
+        return (a.title || "").localeCompare(b.title || "");
+      }
+      if (sortBy === "za") {
+        return (b.title || "").localeCompare(a.title || "");
+      }
+      // score desc (default)
+      return (b.score ?? 0) - (a.score ?? 0);
+    });
 
-  const handleSearch = async (e: React.FormEvent) => {
+    return {
+      ...stableResults,
+      results: sorted,
+      resultCount: sorted.length,
+    };
+  }, [resultsHash, filters, sortBy]);
+
+  const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!query.trim()) {
@@ -142,14 +225,37 @@ const HotelSearchPage = () => {
       return;
     }
 
+    // Persist search state to URL
+    const params = new URLSearchParams();
+    params.set("q", query.trim());
+    params.set("engines", selectedEngines.join(","));
+    router.replace(`/hotels?${params.toString()}`);
+
+    // Cancel any in-flight search to prevent stale responses overwriting fresh ones
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setCacheHit(false);
+    setDisplayCount(RESULTS_PER_PAGE);
     try {
       const response = await axios.post("/api/search", {
         query: query.trim(),
         engines: selectedEngines,
-      });
-      setResults(response.data);
+      }, { signal: controller.signal });
+
+      // Deduplicate results by URL when multiple engines are used
+      const data = response.data as Search;
+      if (selectedEngines.length > 1 && data.results) {
+        const dedupedResults = dedupResults(data.results);
+        data.results = dedupedResults;
+        data.resultCount = dedupedResults.length;
+      }
+
+      setResults(data);
 
       // Check if result came from cache
       const isCache = response.headers["x-cache"] === "HIT";
@@ -160,11 +266,19 @@ const HotelSearchPage = () => {
         engine: selectedEngines.join(","),
       }).catch(() => {});
 
+      // Refresh shared history so SearchSuggestions and HistoryPanel update
+      refreshHistory();
+
       toast.success(
-        `Tìm thấy ${response.data.resultCount} kết quả${isCache ? " (từ cache)" : ""}`
+        `Tìm thấy ${data.resultCount} kết quả${isCache ? " (từ cache)" : ""}`
       );
     } catch (error: any) {
+      // Ignore aborted requests — the user started a new search
+      if (axios.isCancel(error)) return;
+
       console.error("Search error:", error);
+      // Clear stale results so the user doesn't see outdated data
+      setResults(null);
 
       if (error.response?.status === 429) {
         const retryAfter = error.response.data?.retryAfterMs;
@@ -176,9 +290,17 @@ const HotelSearchPage = () => {
         toast.error(error.response?.data?.error || "Có lỗi xảy ra khi tìm kiếm");
       }
     } finally {
-      setLoading(false);
+      // Only clear loading if this is still the active request
+      if (abortControllerRef.current === controller) {
+        setLoading(false);
+      }
     }
-  };
+  }, [query, selectedEngines, router, refreshHistory]);
+
+  // Ref to always call the latest handleSearch from effects,
+  // avoiding stale closures while keeping effect deps minimal.
+  const handleSearchRef = useRef(handleSearch);
+  handleSearchRef.current = handleSearch;
 
   const handleSelectSuggestion = useCallback(
     (selectedQuery: string) => {
@@ -188,7 +310,7 @@ const HotelSearchPage = () => {
     []
   );
 
-  const handleBookmark = async (result: SearchResult) => {
+  const handleBookmark = useCallback(async (result: SearchResult) => {
     if (!result.url) {
       toast.error("Kết quả này không có URL để lưu");
       return;
@@ -204,46 +326,116 @@ const HotelSearchPage = () => {
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Không thể lưu bookmark");
     }
-  };
+  }, []);
+
+  const [comparedUrls, setComparedUrls] = useState<Set<string>>(new Set());
+
+  // Keep comparedUrls in sync with localStorage
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("compared-hotels") || "[]");
+      if (Array.isArray(stored)) {
+        setComparedUrls(new Set(stored.map((h: any) => h.url).filter(Boolean)));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const handleAddToCompare = useCallback((result: SearchResult) => {
+    if (!result.url) {
+      toast.error("Kết quả này không có URL để lưu");
+      return;
+    }
+    try {
+      const stored = JSON.parse(localStorage.getItem("compared-hotels") || "[]");
+      const exists = stored.some((h: any) => h.url === result.url);
+      if (exists) {
+        toast("Đã có trong danh sách so sánh", { icon: "ℹ️" });
+        return;
+      }
+      stored.push({
+        id: result.url,
+        name: result.title || "Không có tiêu đề",
+        address: "",
+        rating: result.score != null ? Math.min(5, Math.max(1, Math.round(result.score * 5))) : 3,
+        priceRange: "",
+        description: result.snippet || "",
+        url: result.url,
+        images: [],
+      });
+      localStorage.setItem("compared-hotels", JSON.stringify(stored));
+      setComparedUrls((prev) => new Set(prev).add(result.url!));
+      toast.success("Đã thêm vào danh sách so sánh");
+    } catch {
+      toast.error("Không thể thêm vào so sánh");
+    }
+  }, []);
+
+  const isCompared = useCallback(
+    (url: string | null) => (url ? comparedUrls.has(url) : false),
+    [comparedUrls]
+  );
 
   return (
     <FeatureThemeProvider feature="search">
-      <div className="h-full bg-gray-900">
+      <main className="h-full bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
+        <header className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">
             Tìm kiếm khách sạn
           </h1>
           <p className="text-gray-400">
             Tìm kiếm thông tin khách sạn với nhiều nguồn khác nhau
           </p>
-        </div>
+        </header>
 
         {/* Search Form */}
+        <section aria-label="Tìm kiếm">
         <form onSubmit={handleSearch} className="mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
+                ref={inputRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                onBlur={() => {
+                  // Delay closing so that mousedown→click on a suggestion
+                  // can fire first. The SearchSuggestions component sets
+                  // suggestionsInteractingRef via onMouseDown.
+                  setTimeout(() => {
+                    if (!suggestionsInteractingRef.current) {
+                      setShowSuggestions(false);
+                    }
+                    suggestionsInteractingRef.current = false;
+                  }, 150);
+                }}
                 placeholder="Nhập tên khách sạn hoặc địa điểm..."
                 className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                 disabled={loading}
                 maxLength={500}
+                aria-label="Tìm kiếm khách sạn"
+                role="combobox"
+                aria-expanded={showSuggestions}
+                aria-haspopup="listbox"
+                aria-autocomplete="list"
+                aria-controls="search-suggestions-listbox"
               />
               <SearchSuggestions
                 query={query}
                 onSelect={handleSelectSuggestion}
                 isVisible={showSuggestions}
                 onClose={() => setShowSuggestions(false)}
+                inputRef={inputRef}
+                onInteractionStart={() => { suggestionsInteractingRef.current = true; }}
               />
             </div>
             <button
+              ref={filterBtnRef}
               type="button"
               onClick={() => setFiltersOpen(true)}
               className={`flex items-center justify-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
@@ -251,6 +443,7 @@ const HotelSearchPage = () => {
                   ? "bg-sky-500/20 border-sky-500 text-sky-400"
                   : "bg-gray-800 border-gray-700 text-gray-400 hover:text-white hover:border-gray-600"
               }`}
+              aria-label="Bộ lọc tìm kiếm"
             >
               <FiFilter className="w-4 h-4" />
               <span className="hidden sm:inline">Bộ lọc</span>
@@ -263,6 +456,7 @@ const HotelSearchPage = () => {
                   ? "bg-sky-500/20 border-sky-500 text-sky-400"
                   : "bg-gray-800 border-gray-700 text-gray-400 hover:text-white hover:border-gray-600"
               }`}
+              aria-label="Chọn nguồn tìm kiếm"
             >
               <FiZap className="w-4 h-4" />
               <span className="hidden sm:inline">
@@ -302,16 +496,21 @@ const HotelSearchPage = () => {
             </button>
           </div>
         </form>
+        </section>
 
-        {showEnginesPanel && (
-          <div className="mb-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+        <div
+          className={`mb-6 overflow-hidden transition-all duration-300 ease-in-out ${
+            showEnginesPanel ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
             <EngineSelector
               selected={selectedEngines}
               onChange={setSelectedEngines}
               available={availableEngines}
             />
           </div>
-        )}
+        </div>
 
         <HistoryPanel onSelect={handleSelectSuggestion} />
 
@@ -319,15 +518,30 @@ const HotelSearchPage = () => {
           <SearchFilters
             onFilterChange={setFilters}
             isOpen={filtersOpen}
-            onClose={() => setFiltersOpen(false)}
+            onClose={() => {
+              setFiltersOpen(false);
+              // Restore focus to the filter button (WCAG focus management)
+              requestAnimationFrame(() => filterBtnRef.current?.focus());
+            }}
+            currentFilters={filters}
           />
 
-          <div className="flex-1 min-w-0">
+          <section className="flex-1 min-w-0" aria-label="Kết quả tìm kiếm">
         {/* Results */}
+        {loading && !filteredResults && (
+          <div className="space-y-4" aria-live="polite" role="status">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-sm text-gray-400 animate-pulse">Đang tìm kiếm...</span>
+            </div>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <ResultCardSkeleton key={i} />
+            ))}
+          </div>
+        )}
         {filteredResults && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
-              <span className="flex items-center gap-2">
+          <div className="space-y-4" aria-live="polite" aria-atomic="false">
+            <div className="flex items-center justify-between flex-wrap gap-2 text-sm text-gray-400 mb-4">
+              <span className="flex items-center gap-2" role="status">
                 Tìm thấy {filteredResults.resultCount} kết quả trong{" "}
                 {filteredResults.duration ? `${filteredResults.duration}ms` : "..."}
                 {cacheHit && (
@@ -343,9 +557,22 @@ const HotelSearchPage = () => {
                   </span>
                 )}
               </span>
-              <span>
+              <div className="flex items-center gap-3">
+                <label className="sr-only" htmlFor="sort-select">Sắp xếp kết quả</label>
+                <select
+                  id="sort-select"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as "score" | "az" | "za")}
+                  className="bg-gray-800 border border-gray-700 text-gray-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-sky-500"
+                >
+                  <option value="score">Điểm cao nhất</option>
+                  <option value="az">A → Z</option>
+                  <option value="za">Z → A</option>
+                </select>
+                <span aria-label={`Nguồn: ${(filteredResults.engines || [filteredResults.engine]).join(", ").toUpperCase()}`}>
                 Nguồn: {(filteredResults.engines || [filteredResults.engine]).join(", ").toUpperCase()}
-              </span>
+                </span>
+              </div>
             </div>
 
             {filteredResults.perEngineStats && filteredResults.perEngineStats.length > 0 && (
@@ -380,80 +607,30 @@ const HotelSearchPage = () => {
                 Không tìm thấy kết quả nào phù hợp với bộ lọc
               </div>
             ) : (
-              filteredResults.results.map((result) => (
-                <div
+              <>
+                {filteredResults.results.slice(0, displayCount).map((result, index) => (
+                <ResultCard
                   key={result.id}
-                  className="bg-gray-800 rounded-lg p-6 hover:bg-gray-750 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-sky-400 mb-1 truncate">
-                        {result.url ? (
-                          <a
-                            href={result.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:underline"
-                          >
-                            {result.title || "Không có tiêu đề"}
-                          </a>
-                        ) : (
-                          result.title || "Không có tiêu đề"
-                        )}
-                      </h3>
-                      {result.url && (
-                        <p className="text-sm text-green-400 truncate mb-2">
-                          {result.url}
-                        </p>
-                      )}
-                      <p className="text-gray-300 text-sm line-clamp-2">
-                        {result.snippet || "Không có mô tả"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() =>
-                          setPriceAlertHotel({
-                            name: result.title || "Không có tiêu đề",
-                            url: result.url || undefined,
-                          })
-                        }
-                        className="p-2 text-gray-400 hover:text-sky-400 transition-colors"
-                        title="Theo dõi giá"
-                      >
-                        <FiBell />
-                      </button>
-                      <button
-                        onClick={() => handleBookmark(result)}
-                        disabled={!result.url}
-                        className="p-2 text-gray-400 hover:text-yellow-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-400"
-                        title={result.url ? "Lưu bookmark" : "Không có URL để lưu"}
-                      >
-                        <FiBookmark />
-                      </button>
-                      {result.url && (
-                        <a
-                          href={result.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 text-gray-400 hover:text-sky-400 transition-colors"
-                          title="Mở link"
-                        >
-                          <FiExternalLink />
-                        </a>
-                      )}
-                    </div>
+                  result={result}
+                  onBookmark={handleBookmark}
+                  onAlert={setPriceAlertHotel}
+                  onCompare={handleAddToCompare}
+                  isCompared={isCompared(result.url)}
+                  index={index}
+                />
+                ))}
+                {displayCount < filteredResults.results.length && (
+                  <div className="text-center pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setDisplayCount((prev) => prev + RESULTS_PER_PAGE)}
+                      className="px-6 py-2.5 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 hover:text-white transition-colors text-sm"
+                    >
+                      Xem thêm ({filteredResults.results.length - displayCount} kết quả)
+                    </button>
                   </div>
-                  {typeof result.score === "number" && (
-                    <div className="mt-3 flex items-center gap-2">
-                      <FiStar className="text-yellow-400" />
-                      <span className="text-sm text-gray-400">
-                        Điểm: {(result.score * 100).toFixed(1)}%
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ))
+                )}
+              </>
             )}
           </div>
         )}
@@ -471,7 +648,7 @@ const HotelSearchPage = () => {
             </p>
           </div>
         )}
-          </div>
+          </section>
         </div>
       </div>
 
@@ -481,9 +658,15 @@ const HotelSearchPage = () => {
         isOpen={!!priceAlertHotel}
         onClose={() => setPriceAlertHotel(null)}
       />
-      </div>
+      </main>
     </FeatureThemeProvider>
   );
 };
 
-export default HotelSearchPage;
+export default function HotelSearchPage() {
+  return (
+    <SearchHistoryProvider>
+      <HotelSearchContent />
+    </SearchHistoryProvider>
+  );
+}

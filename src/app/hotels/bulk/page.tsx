@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useConfirm } from "../../components/ConfirmDialog";
 import { FiPlay, FiPause, FiSquare, FiRotateCcw, FiTrash2, FiZap } from "react-icons/fi";
 import dynamic from "next/dynamic";
 
+import FeatureThemeProvider from "../../components/theme/FeatureThemeProvider";
 import { useBulkSearch } from "./hooks/useBulkSearch";
 import { ExcelRow } from "./utils/excelParser";
 
@@ -11,8 +13,10 @@ const FileUpload = dynamic(() => import("./components/FileUpload"), { ssr: false
 const ProgressBar = dynamic(() => import("./components/ProgressBar"), { ssr: false });
 const ExportButtons = dynamic(() => import("./components/ExportButtons"), { ssr: false });
 const BulkResults = dynamic(() => import("./components/BulkResults"), { ssr: false });
+const BulkResultsSkeleton = dynamic(() => import("./components/BulkResultsSkeleton"), { ssr: false });
 
 export default function BulkSearchPage() {
+  const { confirm, DialogElement } = useConfirm();
   const {
     state,
     startSearch,
@@ -50,18 +54,22 @@ export default function BulkSearchPage() {
   }, [state.isPaused, pauseSearch, unpauseSearch]);
 
   const handleClear = useCallback(() => {
-    if (confirm("Xóa tất cả kết quả?")) {
+    confirm({ message: "Xóa tất cả kết quả?", title: "Xóa kết quả", confirmLabel: "Xóa", variant: "danger" }).then((ok) => {
+      if (ok) {
       clearResults();
       setRows([]);
       setFileName("");
-    }
-  }, [clearResults]);
+      }
+    });
+  }, [clearResults, confirm]);
 
   // Show restored session info
   const restoredFileName = session?.fileName || fileName;
 
   return (
+    <FeatureThemeProvider feature="bulk">
     <div className="h-full bg-gray-900 overflow-y-auto">
+      {DialogElement}
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -190,6 +198,16 @@ export default function BulkSearchPage() {
         )}
 
         {/* Results */}
+        {state.isRunning && state.results.length === 0 && (
+          <div className="mb-6">
+            <div className="bg-gray-800 rounded-lg p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-sm text-gray-400 animate-pulse">Đang tìm kiếm kết quả...</span>
+              </div>
+              <BulkResultsSkeleton rows={6} />
+            </div>
+          </div>
+        )}
         <BulkResults results={state.results} />
 
         {/* Empty State */}
@@ -223,5 +241,6 @@ export default function BulkSearchPage() {
         )}
       </div>
     </div>
+    </FeatureThemeProvider>
   );
 }

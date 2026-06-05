@@ -115,9 +115,9 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
         mimeType: data.fileType,
         folder: "chat",
       });
-      window.open(data.fileUrl, "_blank");
+      window.open(data.fileUrl, "_blank", "noopener,noreferrer");
     } catch {
-      window.open(data.fileUrl, "_blank");
+      window.open(data.fileUrl, "_blank", "noopener,noreferrer");
     } finally {
       setSaving(false);
     }

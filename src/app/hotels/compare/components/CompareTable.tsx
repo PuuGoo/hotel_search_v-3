@@ -1,6 +1,20 @@
 "use client";
 
+import React, { useRef, useEffect, useState } from "react";
 import { FiStar, FiExternalLink, FiX } from "react-icons/fi";
+import { safeHref } from "../../../libs/safeUrl";
+
+/**
+ * Validate an image URL — only allow http/https to prevent data: or javascript:
+ * protocol abuse in <img src>. Returns null for unsafe URLs.
+ */
+function safeImageUrl(url: string | undefined): string | null {
+  if (!url) return null;
+  const result = safeHref(url);
+  // Only allow http/https for images (block mailto:, tel:, etc.)
+  if (result && /^https?:\/\//i.test(result)) return result;
+  return null;
+}
 
 interface HotelData {
   id: string;
@@ -18,7 +32,45 @@ interface CompareTableProps {
   onRemove: (id: string) => void;
 }
 
+/** Pre-built star display component to avoid Array.from on every render */
+const StarRating = React.memo(function StarRating({ rating }: { rating: number }) {
+  const stars = [];
+  for (let i = 0; i < rating; i++) {
+    stars.push(
+      <FiStar
+        key={i}
+        className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"
+      />
+    );
+  }
+  return (
+    <>
+      {stars}
+      <span className="ml-1">{rating} sao</span>
+    </>
+  );
+});
+
 const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const checkScroll = () => {
+      const hasOverflow = el.scrollWidth > el.clientWidth;
+      setShowScrollHint(hasOverflow && el.scrollLeft + el.clientWidth < el.scrollWidth - 10);
+    };
+    checkScroll();
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    window.addEventListener("resize", checkScroll);
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [hotels]);
+
   if (hotels.length === 0) return null;
 
   const ratings = hotels.map((h) => h.rating);
@@ -31,13 +83,28 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
   const minPrice = Math.min(...prices);
 
   return (
-    <div className="overflow-x-auto">
+    <div className="relative">
+      {/* Mobile scroll hint */}
+      <p className="md:hidden text-xs text-gray-500 mb-2 flex items-center gap-1">
+        👆 Kéo ngang để xem thêm
+      </p>
+      <div
+        ref={scrollRef}
+        className="overflow-x-auto"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+      {/* Gradient fade on right edge when scrollable */}
+      {showScrollHint && (
+        <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-gray-900 to-transparent z-20 md:hidden" />
+      )}
       <table className="w-full border-collapse">
+        <caption className="sr-only">So sánh khách sạn</caption>
         <thead>
           <tr>
-            <th className="sticky left-0 z-10 bg-gray-800 p-3 text-left text-sm font-medium text-gray-400 w-36 min-w-[144px] border-b border-gray-700" />
+            <th scope="col" className="sticky left-0 z-10 bg-gray-800 p-3 text-left text-sm font-medium text-gray-400 w-36 min-w-[144px] border-b border-gray-700" />
             {hotels.map((hotel) => (
               <th
+                scope="col"
                 key={hotel.id}
                 className="p-3 text-center min-w-[220px] border-b border-gray-700"
               >
@@ -59,9 +126,9 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
         </thead>
         <tbody>
           <tr>
-            <td className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
               Tên
-            </td>
+            </th>
             {hotels.map((hotel) => (
               <td
                 key={hotel.id}
@@ -72,9 +139,9 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
             ))}
           </tr>
           <tr>
-            <td className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
               Địa chỉ
-            </td>
+            </th>
             {hotels.map((hotel) => (
               <td
                 key={hotel.id}
@@ -85,9 +152,9 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
             ))}
           </tr>
           <tr>
-            <td className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
               Đánh giá
-            </td>
+            </th>
             {hotels.map((hotel) => (
               <td
                 key={hotel.id}
@@ -100,21 +167,15 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
                       : "text-gray-300"
                   }`}
                 >
-                  {Array.from({ length: hotel.rating }).map((_, i) => (
-                    <FiStar
-                      key={i}
-                      className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"
-                    />
-                  ))}
-                  <span className="ml-1">{hotel.rating} sao</span>
+                  <StarRating rating={hotel.rating} />
                 </span>
               </td>
             ))}
           </tr>
           <tr>
-            <td className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
               Khoảng giá
-            </td>
+            </th>
             {hotels.map((hotel, idx) => (
               <td
                 key={hotel.id}
@@ -133,9 +194,9 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
             ))}
           </tr>
           <tr>
-            <td className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
               Mô tả
-            </td>
+            </th>
             {hotels.map((hotel) => (
               <td
                 key={hotel.id}
@@ -146,17 +207,17 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
             ))}
           </tr>
           <tr>
-            <td className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
               URL
-            </td>
+            </th>
             {hotels.map((hotel) => (
               <td
                 key={hotel.id}
                 className="p-3 text-center border-b border-gray-700"
               >
-                {hotel.url ? (
+                {safeHref(hotel.url) ? (
                   <a
-                    href={hotel.url}
+                    href={safeHref(hotel.url)!}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-sm text-sky-400 hover:underline"
@@ -171,15 +232,18 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
             ))}
           </tr>
           <tr>
-            <td className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400">
+            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400">
               Hình ảnh
-            </td>
+            </th>
             {hotels.map((hotel) => (
               <td key={hotel.id} className="p-3 text-center">
-                {hotel.images.length > 0 ? (
+                {safeImageUrl(hotel.images[0]) ? (
                   <img
-                    src={hotel.images[0]}
+                    src={safeImageUrl(hotel.images[0])!}
                     alt={hotel.name}
+                    width={220}
+                    height={128}
+                    loading="lazy"
                     className="w-full h-32 object-cover rounded-lg"
                   />
                 ) : (
@@ -190,6 +254,7 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

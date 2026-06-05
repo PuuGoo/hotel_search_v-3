@@ -6,7 +6,13 @@ import Image from "next/image";
 
 import AuthForm from "./components/AuthForm";
 
-export default function Home() {
+export default function Home({
+  searchParams,
+}: {
+  searchParams?: { callbackUrl?: string; redirect?: string };
+}) {
+  const callbackUrl =
+    searchParams?.callbackUrl || searchParams?.redirect || "/conversations";
   return (
     <>
       <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-100 dark:bg-dusk">
@@ -22,7 +28,7 @@ export default function Home() {
             Đăng nhập vào tài khoản
           </h2>
         </div>
-        <AuthForm />
+        <AuthForm callbackUrl={callbackUrl} />
         <Policy />
       </div>
     </>

@@ -4,6 +4,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import { useConfirm } from "../components/ConfirmDialog";
 import {
   FiDownload,
   FiFile,
@@ -90,6 +91,7 @@ function getFileIconColor(mimeType: string | null) {
 }
 
 export default function DrivePage() {
+  const { confirm, DialogElement } = useConfirm();
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [folder, setFolder] = useState("all");
@@ -150,12 +152,12 @@ export default function DrivePage() {
   }, [files, search, sort]);
 
   const handleDownload = useCallback((file: DriveFile) => {
-    window.open(`/api/drive/file/${file.fileName}`, "_blank");
+    window.open(`/api/drive/file/${file.fileName}`, "_blank", "noopener,noreferrer");
   }, []);
 
   const handleDelete = useCallback(
     async (file: DriveFile) => {
-      if (!window.confirm(`Xóa file "${file.originalName}"?`)) return;
+      if (!(await confirm({ message: `Xóa file "${file.originalName}"?`, title: "Xóa file", confirmLabel: "Xóa", variant: "danger" }))) return;
       setDeletingId(file.id);
       try {
         await axios.delete(`/api/drive/${file.id}`);
@@ -168,12 +170,13 @@ export default function DrivePage() {
         setDeletingId(null);
       }
     },
-    [load]
+    [load, confirm]
   );
 
   return (
     <FeatureThemeProvider feature="drive">
       <div className="h-full bg-gray-900 overflow-y-auto">
+      {DialogElement}
       <div className="max-w-6xl mx-auto px-4 py-8">
         <header className="mb-6">
           <h1 className="text-3xl font-bold text-white mb-2">Drive</h1>

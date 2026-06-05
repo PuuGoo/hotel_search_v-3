@@ -4,6 +4,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useConfirm } from "../../components/ConfirmDialog";
 import { FiX, FiLink, FiCopy, FiTrash2, FiCheck, FiClock, FiDownload } from "react-icons/fi";
 
 interface DriveFileData {
@@ -67,6 +68,7 @@ function isMaxedOut(maxDownloads: number | null, downloadCount: number): boolean
 }
 
 const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
+  const { confirm, DialogElement } = useConfirm();
   const [links, setLinks] = useState<ShareLinkData[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -153,12 +155,14 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
       setCopiedToken(token);
       toast.success("Đã sao chép liên kết");
       setTimeout(() => setCopiedToken(null), 2000);
+    }).catch(() => {
+      toast.error("Không thể sao chép liên kết");
     });
   }, []);
 
   const handleRevoke = useCallback(
     async (token: string) => {
-      if (!window.confirm("Thu hồi liên kết này?")) return;
+      if (!(await confirm({ message: "Thu hồi liên kết này?", title: "Thu hồi liên kết", confirmLabel: "Thu hồi", variant: "danger" }))) return;
       try {
         await axios.delete(`/api/drive/share/${token}`);
         toast.success("Đã thu hồi liên kết");
@@ -167,7 +171,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
         toast.error("Thu hồi liên kết thất bại");
       }
     },
-    []
+    [confirm]
   );
 
   if (!isOpen || !file) return null;
@@ -179,6 +183,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
+      {DialogElement}
       <div className="relative w-full max-w-lg mx-4 bg-gray-900 rounded-xl flex flex-col overflow-hidden shadow-2xl max-h-[85vh]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
           <div className="flex items-center gap-3 min-w-0">

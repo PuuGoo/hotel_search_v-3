@@ -70,10 +70,14 @@ function loadTavilyKeys(): string[] {
   return apiKeys;
 }
 
+interface TavilyAPIError extends Error {
+  status?: number;
+}
+
 async function callTavilyAPI(
   apiKey: string,
   query: string
-): Promise<any> {
+): Promise<unknown> {
   // Abort the request if Tavily hangs. Without a timeout a stalled upstream
   // would hold the whole search request (and a circuit-breaker slot) open
   // indefinitely. The error is treated as a failure by the retry/breaker logic.
@@ -102,8 +106,8 @@ async function callTavilyAPI(
 
   if (!response.ok) {
     const body = await response.text();
-    console.error("[Tavily] Error response:", body);
-    const error: any = new Error(`Tavily API error: ${response.status}`);
+    if (DEBUG) console.error("[Tavily] Error response:", body);
+    const error: TavilyAPIError = new Error(`Tavily API error: ${response.status}`) as TavilyAPIError;
     error.status = response.status;
     throw error;
   }
@@ -111,7 +115,7 @@ async function callTavilyAPI(
   return response.json();
 }
 
-async function searchWithRetry(query: string): Promise<any> {
+async function searchWithRetry(query: string): Promise<unknown> {
   const keys = loadTavilyKeys();
   if (keys.length === 0) {
     throw new Error("No Tavily API keys configured");
@@ -126,12 +130,13 @@ async function searchWithRetry(query: string): Promise<any> {
     const idx = (keyIndex + attempts) % keys.length;
     try {
       return await callTavilyAPI(keys[idx], query);
-    } catch (error: any) {
-      const status = error?.status || 0;
-      console.error("[Tavily] Search error:", error.message, "status:", status);
+    } catch (error: unknown) {
+      const status = (error as TavilyAPIError)?.status ?? 0;
+      const message = error instanceof Error ? error.message : String(error);
+      if (DEBUG) console.error("[Tavily] Search error:", message, "status:", status);
 
       if ([403, 422, 429, 500].includes(status)) {
-        console.warn(
+        if (DEBUG) console.warn(
           `[Tavily] Key ${idx + 1} failed (status ${status}), rotating...`
         );
         // Try the next key on the following loop iteration.
@@ -165,15 +170,16 @@ export async function searchTavily(
   // unexpected shape; without this, undefined/non-numeric values flow into the
   // SearchResult DB write where `score Float?` rejects a non-number and breaks
   // the persistence path.
-  const rawResults = Array.isArray(result?.results) ? result.results : [];
+  const raw = result as Record<string, unknown> | null | undefined;
+  const rawResults = Array.isArray(raw?.results) ? (raw as Record<string, unknown>).results as Record<string, unknown>[] : [];
   const mapped: TavilySearchResponse = {
-    query: typeof result?.query === "string" ? result.query : query,
-    results: rawResults.map((r: any) => {
+    query: typeof raw?.query === "string" ? raw.query : query,
+    results: rawResults.map((r: Record<string, unknown>) => {
       const score = Number(r?.score);
       return {
-        title: typeof r?.title === "string" ? r.title : "",
-        url: typeof r?.url === "string" ? r.url : "",
-        snippet: typeof r?.content === "string" ? r.content : "",
+        title: typeof r?.title === "string" ? r.title as string : "",
+        url: typeof r?.url === "string" ? r.url as string : "",
+        snippet: typeof r?.content === "string" ? r.content as string : "",
         score: Number.isFinite(score) ? score : 0,
       };
     }),

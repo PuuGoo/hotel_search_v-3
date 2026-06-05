@@ -1,21 +1,17 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import axios from "axios";
 import { FiClock, FiSearch, FiX } from "react-icons/fi";
-
-interface SearchHistoryEntry {
-  id: string;
-  query: string;
-  engine?: string | null;
-  createdAt: string;
-}
+import { useSearchHistory } from "../contexts/SearchHistoryContext";
 
 interface SearchSuggestionsProps {
   query: string;
   onSelect: (query: string) => void;
   isVisible: boolean;
   onClose: () => void;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  /** Called when user starts interacting with suggestions (mousedown) */
+  onInteractionStart?: () => void;
 }
 
 const SearchSuggestions = ({
@@ -23,17 +19,12 @@ const SearchSuggestions = ({
   onSelect,
   isVisible,
   onClose,
+  inputRef,
+  onInteractionStart,
 }: SearchSuggestionsProps) => {
-  const [history, setHistory] = useState<SearchHistoryEntry[]>([]);
+  const { history, removeEntry, clearAll } = useSearchHistory();
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    axios
-      .get("/api/search/history")
-      .then((res) => setHistory(res.data.history || []))
-      .catch(() => {});
-  }, []);
 
   const filtered = query.trim()
     ? history.filter(
@@ -69,12 +60,20 @@ const SearchSuggestions = ({
     setActiveIndex(-1);
   }, [query]);
 
+  // Sync aria-activedescendant on the input element
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+    if (isVisible && activeIndex >= 0) {
+      input.setAttribute("aria-activedescendant", `suggestion-${activeIndex}`);
+    } else {
+      input.removeAttribute("aria-activedescendant");
+    }
+  }, [activeIndex, isVisible, inputRef]);
+
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    try {
-      await axios.delete("/api/search/history", { data: { id } });
-      setHistory((prev) => prev.filter((entry) => entry.id !== id));
-    } catch {}
+    await removeEntry(id);
   };
 
   useEffect(() => {
@@ -107,14 +106,12 @@ const SearchSuggestions = ({
       }
     };
 
-    const input = document.querySelector(
-      'input[type="text"]'
-    ) as HTMLElement | null;
+    const input = inputRef.current;
     if (input) {
       input.addEventListener("keydown", handleKeyDown);
       return () => input.removeEventListener("keydown", handleKeyDown);
     }
-  });
+  }, [isVisible, suggestions, activeIndex, onSelect, onClose, inputRef]);
 
   if (!isVisible || suggestions.length === 0) return null;
 
@@ -122,6 +119,9 @@ const SearchSuggestions = ({
     <div
       ref={containerRef}
       className="absolute left-0 right-0 top-full mt-1 z-50 bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden"
+      role="listbox"
+      aria-label="Gợi ý tìm kiếm"
+      id="search-suggestions-listbox"
     >
       <div className="px-3 py-2 border-b border-gray-700 flex items-center justify-between">
         <span className="text-xs text-gray-400 font-medium">
@@ -129,12 +129,13 @@ const SearchSuggestions = ({
         </span>
         <button
           type="button"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onInteractionStart?.();
+          }}
           onClick={async () => {
-            try {
-              await axios.delete("/api/search/history");
-              setHistory([]);
-              onClose();
-            } catch {}
+            await clearAll();
+            onClose();
           }}
           className="text-xs text-gray-500 hover:text-red-400 transition-colors"
         >
@@ -146,12 +147,19 @@ const SearchSuggestions = ({
           <div
             key={entry.id}
             onClick={() => onSelect(entry.query)}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              onInteractionStart?.();
+            }}
             onMouseEnter={() => setActiveIndex(index)}
-            className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${
+            className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors group ${
               index === activeIndex
                 ? "bg-gray-700 text-white"
                 : "text-gray-300 hover:bg-gray-750"
             }`}
+            role="option"
+            aria-selected={index === activeIndex}
+            id={`suggestion-${index}`}
           >
             {query.trim() ? (
               <FiSearch className="w-4 h-4 text-gray-500 flex-shrink-0" />
@@ -167,6 +175,7 @@ const SearchSuggestions = ({
                   ? "text-gray-400 hover:text-red-400 opacity-100"
                   : "text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100"
               }`}
+              aria-label={`Xóa gợi ý: ${entry.query}`}
             >
               <FiX className="w-3.5 h-3.5" />
             </button>

@@ -1,66 +1,34 @@
 import { NextResponse } from "next/server";
 
-import getCurrentUser from "@/app/actions/getCurrentUser";
 import prismadb from "@/app/libs/prismadb";
 import { checkRateLimit } from "@/app/libs/rateLimit";
 import { runEngineSearch, NormalizedSearchResult } from "@/app/libs/searchEngines";
 import { isServiceUnavailable } from "@/app/libs/serviceErrors";
 import { hasFeature } from "@/app/libs/features";
+import { getUserWithTimeout } from "@/app/libs/getUserWithTimeout";
 import { sanitizeQuery, isSupportedEngine, SUPPORTED_ENGINES, SearchEngine } from "./searchValidation";
+import { PRICE_KEYWORDS, COUNTRY_KEYWORDS } from "@/app/libs/filterKeywords";
+import type { User } from "@prisma/client";
 
-// Keyword dictionaries for client-side filter options. Defined once at module
-// scope instead of re-allocated per result inside the filter callback.
-const PRICE_KEYWORDS: Record<string, string[]> = {
-  budget: ["rẻ", "giá rẻ", "budget", "cheap", "affordable", "tiết kiệm", "$"],
-  mid: ["trung bình", "mid-range", "moderate", "$$", "3 sao", "4 sao"],
-  luxury: ["cao cấp", "luxury", "5 sao", "resort", "premium", "$$$", "biệt thự"],
-};
-
-const COUNTRY_KEYWORDS: Record<string, string[]> = {
-  Vietnam: ["việt nam", "vietnam", "vietnamese", "sài gòn", "hà nội", "đà nẵng", "nha trang", "phú quốc", "hội an"],
-  Thailand: ["thái lan", "thailand", "thai", "bangkok", "phuket", "chiang mai", "pattaya"],
-  Japan: ["nhật bản", "japan", "japanese", "tokyo", "osaka", "kyoto", "hokkaido"],
-  "South Korea": ["hàn quốc", "korea", "korean", "seoul", "busan", "jeju"],
-  Singapore: ["singapore", "singaporean"],
-  Malaysia: ["malaysia", "malaysian", "kuala lumpur", "penang"],
-  Indonesia: ["indonesia", "indonesian", "bali", "jakarta"],
-  Philippines: ["philippines", "philippine", "manila", "cebu", "boracay"],
-  Cambodia: ["campuchia", "cambodia", "cambodian", "siem reap", "phnom penh"],
-  France: ["pháp", "france", "french", "paris", "nice", "lyon"],
-  "United States": ["mỹ", "usa", "us", "united states", "american", "new york", "los angeles", "las vegas", "miami", "hawaii"],
-  "United Kingdom": ["anh", "uk", "united kingdom", "british", "london", "manchester", "edinburgh"],
-  Australia: ["úc", "australia", "australian", "sydney", "melbourne"],
-};
+interface SearchRequestBody {
+  query?: string;
+  engine?: string;
+  engines?: string[];
+  minRating?: number;
+  priceRange?: string;
+  country?: string;
+}
 
 // This endpoint backs both the single-search ("search") and bulk-search
 // ("bulk") pages, so an authenticated user passes if they have either feature.
 // Anonymous callers are intentionally allowed (and rate-limited) as before, so
 // the gate only restricts authenticated users who carry a permission list.
-function searchFeatureDenied(currentUser: any): boolean {
+function searchFeatureDenied(currentUser: User | null): boolean {
   return (
     !!currentUser &&
     !hasFeature(currentUser, "search") &&
     !hasFeature(currentUser, "bulk")
   );
-}
-
-// Resolve the current user but never let a slow/hung session lookup block the
-// request. Clears the timer in all paths so it doesn't dangle and keep the
-// event loop alive (or reject unhandled) after getCurrentUser() resolves.
-async function getUserWithTimeout(timeoutMs = 5000) {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    return (await Promise.race([
-      getCurrentUser(),
-      new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Error("timeout")), timeoutMs);
-      }),
-    ])) as any;
-  } catch {
-    return null;
-  } finally {
-    if (timer) clearTimeout(timer);
-  }
 }
 
 export async function POST(request: Request) {
@@ -76,7 +44,7 @@ export async function POST(request: Request) {
 
     // Parse the body defensively: a malformed JSON payload is a client error
     // (400), not an internal server error (500).
-    let body: any;
+    let body: SearchRequestBody;
     try {
       body = await request.json();
     } catch {
@@ -140,13 +108,14 @@ export async function POST(request: Request) {
             duration: Date.now() - engineStart,
             error: null,
           };
-        } catch (err: any) {
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : "Unknown error";
           return {
             engine: eng,
             results: [] as NormalizedSearchResult[],
             cached: false,
             duration: Date.now() - engineStart,
-            error: err?.message || "Unknown error",
+            error: message,
           };
         }
       })
@@ -206,8 +175,8 @@ export async function POST(request: Request) {
         const combined = `${title} ${snippet}`;
 
         if (typeof minRating === "number" && minRating > 0 && typeof r.score === "number") {
-          const mappedRating = Math.min(5, Math.max(1, Math.round(r.score * 5)));
-          if (mappedRating < minRating) return false;
+          const scorePercent = Math.round(r.score * 100);
+          if (scorePercent < minRating) return false;
         }
 
         if (typeof priceRange === "string" && priceRange !== "") {
@@ -283,8 +252,10 @@ export async function POST(request: Request) {
     }
 
     return response;
-  } catch (error: any) {
-    console.error("[SEARCH_ERROR]", error?.message, error?.stack);
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    const errStack = error instanceof Error ? error.stack : undefined;
+    console.error("[SEARCH_ERROR]", errMsg, errStack);
 
     // Classify transient upstream failures (circuit breaker open, all keys
     // exhausted) as 503 by error TYPE, not by matching the message text. The
