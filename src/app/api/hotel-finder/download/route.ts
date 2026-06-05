@@ -24,10 +24,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
-    if (job.status !== "done") {
-      return NextResponse.json({ error: "Job not completed" }, { status: 400 });
-    }
-
+    // For JSON format - always return current rows (even during running)
     if (format === "json") {
       const data = job.rows.map((r: any) => ({
         no: r.no,
@@ -42,37 +39,62 @@ export async function GET(request: Request) {
       return NextResponse.json(data);
     }
 
-    // XLSX download
-    const outputPath = job.output || job.outputFile;
-    if (!outputPath) {
-      return NextResponse.json({ error: "Output file not found" }, { status: 404 });
-    }
-
-    // Async read so a large output file does not block the event loop on this
-    // single-process server while it is buffered for the response. Read directly
-    // and handle ENOENT here rather than doing a separate existsSync() check:
-    // the auto-cleanup interval can delete the artifact between the check and the
-    // read (TOCTOU), so a missing file must map to a clean 404, not a 500.
-    let fileBuffer: Buffer;
-    try {
-      fileBuffer = await fs.promises.readFile(outputPath);
-    } catch (err: any) {
-      if (err?.code === "ENOENT") {
-        return NextResponse.json({ error: "Output file not found" }, { status: 404 });
+    // For XLSX format
+    // If job is done, return the output file
+    if (job.status === "done" && job.output) {
+      let fileBuffer: Buffer;
+      try {
+        fileBuffer = await fs.promises.readFile(job.output);
+      } catch (err: any) {
+        if (err?.code === "ENOENT") {
+          return NextResponse.json({ error: "Output file not found" }, { status: 404 });
+        }
+        throw err;
       }
-      throw err;
+      const safeJobId = jobId.replace(/[^a-zA-Z0-9_-]/g, "");
+      const fileName = `hotel_finder_${safeJobId}.xlsx`;
+      return new NextResponse(fileBuffer, {
+        headers: {
+          "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "Content-Disposition": `attachment; filename="${fileName}"`,
+        },
+      });
     }
-    // jobId is a server-generated 8-char hex slice, but sanitize defensively so a
-    // future id source change can't inject CR/LF or quotes into the header.
-    const safeJobId = jobId.replace(/[^a-zA-Z0-9_-]/g, "");
-    const fileName = `hotel_finder_${safeJobId}.xlsx`;
 
-    return new NextResponse(fileBuffer, {
-      headers: {
-        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": `attachment; filename="${fileName}"`,
-      },
-    });
+    // If job is still running, generate XLSX from current rows
+    if (job.rows.length > 0) {
+      // Dynamic import to avoid loading xlsx library unless needed
+      const XLSX = await import("xlsx");
+      
+      const rows = job.rows.map((r: any, idx: number) => ({
+        "#": idx + 1,
+        "No": r.no,
+        "Hotel Name": r.hotel_name,
+        "Address": r.hotel_address,
+        "Status": r.status,
+        "URL": r.url || "",
+        "Score": r.score || 0,
+        "Images": r.img_count || 0,
+        "Explanation": r.explanation || "",
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Results");
+
+      const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+      const safeJobId = jobId.replace(/[^a-zA-Z0-9_-]/g, "");
+      const fileName = `hotel_finder_${safeJobId}_partial_${job.rows.length}rows.xlsx`;
+
+      return new NextResponse(buffer, {
+        headers: {
+          "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "Content-Disposition": `attachment; filename="${fileName}"`,
+        },
+      });
+    }
+
+    return NextResponse.json({ error: "No results yet" }, { status: 400 });
   } catch (error) {
     console.error("[HOTEL_FINDER_DOWNLOAD]", error);
     return NextResponse.json({ error: "Download failed" }, { status: 500 });
