@@ -16,6 +16,7 @@ import {
   FiSave,
   FiSettings,
   FiX,
+  FiTrash2,
 } from "react-icons/fi";
 import dynamic from "next/dynamic";
 
@@ -256,6 +257,15 @@ export default function HotelFinderPage() {
       setJobStatus("cancelled");
     } catch {}
   }, [jobId]);
+
+  const handleClearCache = useCallback(async () => {
+    try {
+      await axios.delete("/api/hotel-finder/cache");
+      toast.success("Đã xóa cache! Lần chạy tiếp sẽ tìm kiếm lại từ đầu.");
+    } catch {
+      toast.error("Không thể xóa cache");
+    }
+  }, []);
 
   const handleDownload = useCallback(
     (format: string) => {
@@ -622,13 +632,23 @@ export default function HotelFinderPage() {
                   handleReset();
                   setFile(null);
                   if (fileInputRef.current) fileInputRef.current.value = "";
-                }}
+                }} 
                 className="flex items-center gap-2 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
               >
                 <FiRefreshCw />
                 Mới
               </button>
             )}
+
+            {/* Clear Cache - xóa cache để chạy lại từ đầu */}
+            <button
+              onClick={handleClearCache}
+              disabled={isRunning}
+              className="flex items-center gap-2 px-4 py-2.5 bg-red-800 hover:bg-red-900 text-white rounded-lg transition-colors disabled:opacity-50"
+            >
+              <FiTrash2 />
+              Xóa Cache
+            </button>
           </div>
 
           {/* Error */}
