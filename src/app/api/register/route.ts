@@ -38,7 +38,14 @@ export async function POST(request: Request) {
 
     // Never return the password hash to the client.
     const { hashedPassword: _omit, ...safeUser } = user;
-    return NextResponse.json(safeUser);
+    // BigInt fields (storageUsed, storageLimit) must be converted to string
+    // because JSON.stringify cannot serialize BigInt.
+    const serialized = JSON.parse(
+      JSON.stringify(safeUser, (_key, value) =>
+        typeof value === "bigint" ? value.toString() : value
+      )
+    );
+    return NextResponse.json(serialized);
   } catch (error: any) {
     // Unique constraint violation = email already registered.
     if (

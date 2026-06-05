@@ -31,6 +31,7 @@ export const DEFAULT_USER_PERMISSIONS: Feature[] = [
   "chat",
   "search",
   "bulk",
+  "finder",
   "dashboard",
   "users",
   "drive",

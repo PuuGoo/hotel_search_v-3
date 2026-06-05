@@ -38,12 +38,27 @@ class ProgressTracker:
 
     def save(self):
         """Persist current progress to disk."""
+        import time
         self.data["updated_at"] = datetime.now().isoformat()
         self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.path.with_suffix(".tmp")
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump(self.data, f, ensure_ascii=False, indent=2)
-        tmp.replace(self.path)
+        # Retry on Windows PermissionError (OneDrive sync, antivirus, etc.)
+        for attempt in range(5):
+            try:
+                tmp.replace(self.path)
+                return
+            except PermissionError:
+                if attempt < 4:
+                    time.sleep(0.5 * (attempt + 1))
+                else:
+                    # Last resort: write directly
+                    try:
+                        with open(self.path, "w", encoding="utf-8") as f:
+                            json.dump(self.data, f, ensure_ascii=False, indent=2)
+                    except Exception:
+                        pass  # Silent fail - progress is best-effort
 
     def set_input_output(self, input_file: str, output_file: str, total_rows: int):
         """Set input/output file info."""

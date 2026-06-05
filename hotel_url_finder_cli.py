@@ -126,9 +126,23 @@ def emit_progress(data: dict, json_mode: bool):
 
 def save_workbook(workbook, output_path: str):
     """Save workbook safely (write to temp then rename)."""
+    import time
     tmp_path = output_path + ".tmp"
     workbook.save(tmp_path)
-    Path(tmp_path).replace(output_path)
+    # Retry on Windows PermissionError (OneDrive sync, antivirus, etc.)
+    for attempt in range(5):
+        try:
+            Path(tmp_path).replace(output_path)
+            return
+        except PermissionError:
+            if attempt < 4:
+                time.sleep(0.5 * (attempt + 1))
+            else:
+                # Last resort: save directly
+                try:
+                    workbook.save(output_path)
+                except Exception:
+                    pass
 
 
 async def worker_task(browser, row, no_val, hotel_name, hotel_address, worker_id, max_retries=2, json_mode=False, perf_tracker=None, error_logger=None):
@@ -252,7 +266,8 @@ async def worker_task(browser, row, no_val, hotel_name, hotel_address, worker_id
 
 async def process_excel(input_path: str, output_path: str | None = None, json_mode: bool = False,
                         save_every: int = 10, resume: bool = False, workers: int = 1,
-                        progress_file: str | None = None, clean_output: bool = False) -> str:
+                        progress_file: str | None = None, clean_output: bool = False,
+                        compact_output: bool = False) -> str:
     # Initialize progress tracker
     if progress_file is None:
         progress_file = str(Path(input_path).with_suffix(".progress.json"))
@@ -303,6 +318,24 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
     completed_rows = tracker.get_completed_rows() if resume else set()
     if completed_rows:
         log(f"Progress file found: {len(completed_rows)} rows already completed")
+        # When resuming, load status data from the resume file into current workbook
+        resume_file = output_path if resume else None
+        if resume_file and Path(resume_file).exists():
+            try:
+                resume_wb = load_workbook(resume_file, read_only=True)
+                resume_ws = resume_wb.active
+                restored = 0
+                for r in range(2, resume_ws.max_row + 1):
+                    resume_status = (resume_ws.cell(row=r, column=status_col).value or "").strip()
+                    if resume_status and r <= sheet.max_row:
+                        # Copy all result columns from resume file to current workbook
+                        for col in range(url_col, status_col + 1):
+                            sheet.cell(row=r, column=col, value=resume_ws.cell(row=r, column=col).value)
+                        restored += 1
+                resume_wb.close()
+                log(f"Restored {restored} rows with status from resume file")
+            except Exception as e:
+                log(f"Warning: Could not restore from resume file: {e}")
 
     valid_rows = []
     row_data = []  # For duplicate detection
@@ -483,7 +516,14 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
 
             # Save checkpoint after each batch
             if processed - last_save >= save_every:
-                save_workbook(workbook, output_path)
+                if compact_output:
+                    # Save compact output (only processed rows) to output_path
+                    _create_compact_output(workbook, sheet, output_path, url_col, engine_col, score_col, img_col, status_col)
+                    # Save full workbook to a separate file for resume capability
+                    full_path = str(Path(output_path).with_suffix("")) + "_full.xlsx"
+                    save_workbook(workbook, full_path)
+                else:
+                    save_workbook(workbook, output_path)
                 last_save = processed
                 log(f"  [checkpoint] Saved progress: {processed}/{total_valid}")
 
@@ -495,7 +535,16 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
     log(f"Applied export template: {template}")
 
     # Final save
-    save_workbook(workbook, output_path)
+    if compact_output:
+        # Save compact output (only processed rows) to output_path
+        _create_compact_output(workbook, sheet, output_path, url_col, engine_col, score_col, img_col, status_col)
+        log(f"Compact output saved: {output_path} (only processed rows)")
+        # Save full workbook to a separate file
+        full_path = str(Path(output_path).with_suffix("")) + "_full.xlsx"
+        save_workbook(workbook, full_path)
+        log(f"Full workbook saved: {full_path}")
+    else:
+        save_workbook(workbook, output_path)
 
     # Clean output: create a separate file with only results
     if clean_output:
@@ -783,6 +832,78 @@ def _create_clean_output(workbook, data_sheet, clean_path, url_col, engine_col, 
         clean_ws.column_dimensions[get_column_letter(col_idx)].width = final_width
 
     clean_wb.save(clean_path)
+
+
+def _create_compact_output(workbook, data_sheet, output_path, url_col, engine_col, score_col, img_col, status_col):
+    """Create a compact output file with only processed rows (rows that have a status)."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+
+    compact_wb = Workbook()
+    compact_ws = compact_wb.active
+    compact_ws.title = "Results"
+
+    # Get original headers
+    original_headers = [cell.value for cell in data_sheet[1]]
+    
+    # Headers for compact output
+    compact_headers = original_headers[:3] + ["official_website_url", "search_engine_used", "match_score_address", "image_count", "status"]
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    header_fill = PatternFill(start_color="1a73e8", end_color="1a73e8", fill_type="solid")
+
+    for col, header in enumerate(compact_headers, 1):
+        cell = compact_ws.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal="center")
+
+    # Freeze header row
+    compact_ws.freeze_panes = "A2"
+
+    # Status color mapping
+    status_colors = {
+        "matched": PatternFill(start_color="E8F5E9", end_color="E8F5E9", fill_type="solid"),
+        "no-valid-result": PatternFill(start_color="FFF3E0", end_color="FFF3E0", fill_type="solid"),
+        "error": PatternFill(start_color="FFEBEE", end_color="FFEBEE", fill_type="solid"),
+    }
+
+    # Data rows - only include rows that have been processed (have a status)
+    row_idx = 2
+    for row in range(2, data_sheet.max_row + 1):
+        status = (data_sheet.cell(row=row, column=status_col).value or "").strip()
+        if not status:
+            continue  # Skip unprocessed rows
+
+        # Copy original columns (No, child_hotel_name, child_hotel_address)
+        for col in range(1, 4):
+            compact_ws.cell(row=row_idx, column=col, value=data_sheet.cell(row=row, column=col).value)
+
+        # Copy result columns
+        compact_ws.cell(row=row_idx, column=4, value=data_sheet.cell(row=row, column=url_col).value)
+        compact_ws.cell(row=row_idx, column=5, value=data_sheet.cell(row=row, column=engine_col).value)
+        compact_ws.cell(row=row_idx, column=6, value=data_sheet.cell(row=row, column=score_col).value)
+        compact_ws.cell(row=row_idx, column=7, value=data_sheet.cell(row=row, column=img_col).value)
+        compact_ws.cell(row=row_idx, column=8, value=status)
+
+        # Apply status color
+        if status in status_colors:
+            for col in range(1, 9):
+                compact_ws.cell(row=row_idx, column=col).fill = status_colors[status]
+
+        row_idx += 1
+
+    # Auto-width columns
+    from openpyxl.utils import get_column_letter
+    for col_idx in range(1, 9):
+        max_len = 0
+        for row in compact_ws.iter_rows(min_col=col_idx, max_col=col_idx, values_only=True):
+            if row[0]:
+                max_len = max(max_len, len(str(row[0])))
+        width = min(max(max_len + 3, 10), 60)
+        compact_ws.column_dimensions[get_column_letter(col_idx)].width = width
+
+    # Save compact output (overwrite)
+    compact_wb.save(output_path)
 
 
 def _add_summary_sheet(workbook, data_sheet, total_rows, url_col, engine_col, score_col, status_col, workers, worker_stats):
@@ -1491,6 +1612,7 @@ def main():
     parser.add_argument("--parallel-export", action="store_true", help="Enable parallel sheet generation")
     parser.add_argument("--streaming", action="store_true", help="Enable streaming export for large datasets")
     parser.add_argument("--compression-level", type=int, default=6, choices=range(0, 10), help="ZIP compression level (0-9)")
+    parser.add_argument("--compact-output", action="store_true", help="Tạo file output chỉ chứa các dòng đã xử lý (không chứa toàn bộ file input)")
     
     args = parser.parse_args()
 
@@ -1527,7 +1649,8 @@ def main():
 
     output = asyncio.run(process_excel(args.input, output_path, args.json, args.save_every,
                                        resume=bool(args.resume), workers=args.workers,
-                                       progress_file=args.progress, clean_output=args.clean_output))
+                                       progress_file=args.progress, clean_output=args.clean_output,
+                                       compact_output=args.compact_output))
     if not args.json:
         print(output)
 
