@@ -135,6 +135,22 @@ export default function BulkSearchPage() {
                 Xóa kết quả
               </button>
             )}
+
+            {/* Reset - always visible when there are results */}
+            {state.results.length > 0 && (
+              <button
+                onClick={() => {
+                  if (state.isRunning) stopSearch();
+                  clearResults();
+                  setRows([]);
+                  setFileName("");
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors"
+              >
+                <FiRotateCcw />
+                Reset
+              </button>
+            )}
           </div>
 
           {/* Session restored notice */}
@@ -166,10 +182,10 @@ export default function BulkSearchPage() {
           <div className="bg-red-900/20 border border-red-800 rounded-lg p-4 mb-6 text-red-400">{state.error}</div>
         )}
 
-        {/* Export */}
+        {/* Export - always show XLSX during run */}
         {state.results.length > 0 && (
           <div className="mb-6">
-            <ExportButtons results={state.results} disabled={state.isRunning} />
+            <ExportButtons results={state.results} disabled={state.isRunning} showDuringRun={true} />
           </div>
         )}
 
