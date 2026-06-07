@@ -406,13 +406,34 @@ html {
   0%, 93%, 100% { transform: scaleY(1); }
   96.5%         { transform: scaleY(0.08); }
 }
-@keyframes panda-wave {
-  0%, 100% { transform: rotate(12deg); }
-  50%      { transform: rotate(-36deg); }
+/* Both arms share one slow, gentle, even sway (same 3s timing, mirrored
+   amplitude) so they move in symmetry. The right arm grips a rolling
+   suitcase, which is nested inside it and sways along for a "wheeling
+   luggage" feel. */
+@keyframes panda-arm-left {
+  0%, 100% { transform: rotate(28deg); }
+  50%      { transform: rotate(-14deg); }
 }
 @keyframes panda-ear {
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.1); }
+}
+/* Running gait: legs pump hard and high in alternation, one quick cycle. */
+@keyframes panda-step-a {
+  0%, 100% { transform: translateY(-9px) rotate(-22deg); }
+  50%      { transform: translateY(2px)  rotate(20deg); }
+}
+@keyframes panda-step-b {
+  0%, 100% { transform: translateY(2px)  rotate(20deg); }
+  50%      { transform: translateY(-9px) rotate(-22deg); }
+}
+/* Whole-body bob: bigger, springier vertical push for each stride, with a
+   constant slight forward lean (rotate) so the panda reads as running. */
+@keyframes panda-walk-bob {
+  0%, 100% { transform: rotate(6deg) translateY(0); }
+  25%      { transform: rotate(6deg) translateY(-8px); }
+  50%      { transform: rotate(6deg) translateY(0); }
+  75%      { transform: rotate(6deg) translateY(-8px); }
 }
 @keyframes panda-shadow {
   0%, 100% { transform: translateX(-50%) scaleX(1);    opacity: 0.26; }
@@ -467,16 +488,33 @@ html {
   background: radial-gradient(circle at 40% 30%, var(--ink-soft) 0%, #12161f 100%);
   border-radius: 50% 50% 48% 48%;
 }
-.panda-leg.left  { left: calc(50% - 50px); }
-.panda-leg.right { left: calc(50% + 4px); }
+/* Legs + matching feet step in alternation (one 3s gait cycle = two strides,
+   in sync with the swinging arms) so the panda looks like it's walking while
+   wheeling the suitcase. */
+.panda-leg.left {
+  left: calc(50% - 50px);
+  transform-origin: 50% 0;
+  animation: panda-step-a 0.7s ease-in-out infinite;
+}
+.panda-leg.right {
+  left: calc(50% + 4px);
+  transform-origin: 50% 0;
+  animation: panda-step-b 0.7s ease-in-out infinite;
+}
 .panda-foot {
   width: 22px; height: 15px;
   bottom: 6px;
   background: #eef1f6;
   border-radius: 50%;
 }
-.panda-foot.left  { left: calc(50% - 38px); }
-.panda-foot.right { left: calc(50% + 16px); }
+.panda-foot.left {
+  left: calc(50% - 38px);
+  animation: panda-step-a 0.7s ease-in-out infinite;
+}
+.panda-foot.right {
+  left: calc(50% + 16px);
+  animation: panda-step-b 0.7s ease-in-out infinite;
+}
 .panda-foot::after {
   content: "";
   position: absolute;
@@ -496,13 +534,92 @@ html {
 }
 .panda-arm.left {
   left: calc(50% - 74px);
-  transform: rotate(18deg);
+  transform-origin: 50% 8px;
+  animation: panda-arm-left 0.7s ease-in-out infinite;
 }
 .panda-arm.right {
-  left: calc(50% + 36px);
+  left: calc(50% + 40px);
   transform-origin: 50% 8px;
-  animation: panda-wave 1.05s ease-in-out infinite;
+  /* Grips the suitcase grip: hangs back-right (no swing) while running so the
+     paw meets the telescopic handle and the case doesn't flail. Only the left
+     arm pumps. */
+  transform: rotate(8deg);
 }
+
+/* ── Rolling suitcase, dragged BEHIND the panda ──────────────────────── */
+.panda-suitcase {
+  /* Direct child of .panda (sibling of the body) with a negative z-index so the
+     BODY tucks behind the legs (overlap hidden) — only the wheels peek out at
+     the bottom. The grey telescopic GRIP rises just into the right paw so the
+     hand reads as holding the handle. Shrink + dim = depth. */
+  width: 44px; height: 56px;
+  left: 150px; top: 150px;
+  z-index: -1;
+  transform-origin: 8px 0;
+  transform: rotate(10deg) scale(0.85);
+  filter: brightness(0.82) saturate(0.92);
+}
+/* extending handle (telescopic bar) up into the paw */
+.panda-suitcase-handle {
+  width: 7px; height: 42px;
+  left: 50%; top: -38px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #9aa3b2, #c8d0dc 45%, #7d8696);
+  border-radius: 4px;
+}
+.panda-suitcase-handle::before {
+  content: "";
+  position: absolute;
+  width: 22px; height: 9px;
+  left: 50%; top: -6px;
+  transform: translateX(-50%);
+  border: 3px solid #aeb6c4;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+}
+/* body */
+.panda-suitcase-body {
+  width: 44px; height: 50px;
+  left: 0; top: 0;
+  background: linear-gradient(150deg, #2f80ed 0%, #1f5fc4 60%, #18519f 100%);
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.12),
+              inset -6px -8px 14px rgba(0,0,0,0.22),
+              0 4px 8px rgba(0,0,0,0.25);
+}
+/* ribbed center stripe */
+.panda-suitcase-body::before {
+  content: "";
+  position: absolute;
+  width: 8px; height: 100%;
+  left: 50%; top: 0;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(
+    180deg, rgba(255,255,255,0.18) 0 3px, transparent 3px 7px);
+  border-left: 1px solid rgba(255,255,255,0.18);
+  border-right: 1px solid rgba(0,0,0,0.18);
+}
+/* side latches */
+.panda-suitcase-body::after {
+  content: "";
+  position: absolute;
+  width: 6px; height: 6px;
+  left: 5px; top: 9px;
+  background: #f2c84b;
+  border-radius: 2px;
+  box-shadow: 28px 0 0 #f2c84b, 0 30px 0 #f2c84b, 28px 30px 0 #f2c84b;
+}
+/* wheels */
+.panda-suitcase-wheel {
+  width: 9px; height: 9px;
+  bottom: -3px;
+  background: radial-gradient(circle at 40% 35%, #4a4f59, #15171c);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.15);
+}
+.panda-suitcase-wheel.l { left: 6px; }
+.panda-suitcase-wheel.r { right: 6px; }
 
 /* head — large for baby-face chibi ratio */
 .panda-head {
@@ -628,6 +745,117 @@ html {
 .panda-cheek.left  { left: calc(50% - 62px); }
 .panda-cheek.right { left: calc(50% + 40px); }
 
+/* ── Interactive panda: stage + reactions to the auth form ─────────── */
+.panda-stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  min-height: 244px;
+  pointer-events: none;
+}
+.panda-wrap {
+  position: relative;
+  width: 210px;
+  height: 226px;
+  animation: panda-walk-bob 0.7s ease-in-out infinite;
+}
+
+/* Pupils follow the typed email (look-x) / droop when sad (look-y). The eye
+   itself keeps its blink animation; only the pupil + catchlight translate. */
+.panda-eye::before,
+.panda-eye::after {
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.panda-eye::before { transform: translate(var(--look-x, 0), var(--look-y, 0)); }
+.panda-eye::after  { transform: translate(var(--look-x, 0), var(--look-y, 0)); }
+
+/* Arms + mouth swap smoothly between moods. */
+.panda-arm { transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.panda-mouth span,
+.panda-mouth::before,
+.panda-mouth::after { transition: opacity 0.2s ease, transform 0.2s ease; }
+
+/* Big open smile (success) — hidden until happy. */
+.panda-smile-big {
+  width: 26px; height: 16px;
+  left: 50%; top: 1px;
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: 50% 0;
+  background: var(--ink);
+  border-radius: 0 0 16px 16px;
+  opacity: 0;
+}
+.panda-smile-big::after {
+  content: "";
+  position: absolute;
+  left: 50%; bottom: 0;
+  width: 16px; height: 7px;
+  transform: translateX(-50%);
+  background: #ff8ca2;
+  border-radius: 0 0 12px 12px;
+}
+/* Worried frown (error) — hidden until sad. */
+.panda-frown {
+  width: 24px; height: 10px;
+  left: 50%; top: 6px;
+  transform: translateX(-50%) rotate(180deg) scaleY(0);
+  transform-origin: 50% 100%;
+  border: 2.4px solid var(--ink);
+  border-top: 0;
+  border-radius: 0 0 14px 14px;
+  opacity: 0;
+}
+
+/* HAPPY: open smile, hide the "w", soft bounce, cheeks glow. */
+.panda--happy { animation: panda-cheer 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.panda--happy .panda-mouth::before,
+.panda--happy .panda-mouth::after { opacity: 0; }
+.panda--happy .panda-smile-big { opacity: 1; transform: translateX(-50%) scaleY(1); }
+.panda--happy .panda-cheek { opacity: 1; }
+.panda--happy .panda-eye { animation: none; transform: scaleY(0.55); }
+
+/* SAD: frown, hide the "w", slight slump. */
+.panda--sad .panda-mouth::before,
+.panda--sad .panda-mouth::after { opacity: 0; }
+.panda--sad .panda-frown { opacity: 1; transform: translateX(-50%) rotate(180deg) scaleY(1); }
+.panda--sad { animation: panda-shake 0.4s ease both; }
+
+/* PEEK: paws fly up over the eyes while typing a password. They must sit ABOVE
+   the head (z-index 3) and eyes (z-index 5), so lift the z-index too; the right
+   arm's idle wave is paused so the cover holds steady. */
+.panda--peek .panda-arm {
+  z-index: 7;
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.panda--peek .panda-arm { animation: none; }
+/* Paw centres (~14px below the arm top) computed to land on the eye centres:
+   left eye (83.5,67.5), right eye (126.5,67.5); arm paws rest at (50,146) /
+   (160,146). Hence ±33px x, -78px y. Slight inward tilt for charm. */
+.panda--peek .panda-arm.left {
+  transform: translate(33px, -78px) rotate(10deg);
+}
+.panda--peek .panda-arm.right {
+  transform: translate(-33px, -78px) rotate(-10deg);
+}
+/* The suitcase is "set down" while the paws cover the eyes. */
+.panda--peek .panda-suitcase {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+@keyframes panda-cheer {
+  0%   { transform: translateY(0); }
+  40%  { transform: translateY(-22px) scale(1.04); }
+  70%  { transform: translateY(-4px) scale(0.99); }
+  100% { transform: translateY(0); }
+}
+@keyframes panda-shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-7px) rotate(-2deg); }
+  75%      { transform: translateX(7px) rotate(2deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .auth-aurora,
   .auth-bubble,
@@ -635,5 +863,7 @@ html {
   .auth-logo-ring { animation: none !important; }
   .auth-rise { opacity: 1; transform: none; }
   .auth-shimmer-btn:hover::after { animation: none; }
-  .panda, .panda-shadow, .panda-ear, .panda-eye, .panda-arm.right { animation: none !important; }
+  .panda, .panda-shadow, .panda-ear, .panda-eye, .panda-arm,
+  .panda-wrap, .panda-leg, .panda-foot { animation: none !important; }
+  .panda--happy, .panda--sad { animation: none !important; }
 }

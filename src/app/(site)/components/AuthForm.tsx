@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import Input from "../../components/inputs/Input";
 import LoadingModal from "../../components/modals/LoadingModal";
 import AuthSocialButton from "./AuthSocialButton";
+import PandaMascot, { PandaMood } from "./PandaMascot";
 
 type Variant = "LOGIN" | "REGISTER";
 
@@ -25,9 +26,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
   const [variant, setVariant] = useState<Variant>("LOGIN");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Mascot reactions: `peek` covers the eyes while typing a password; `mood`
+  // cheers on success / droops on error then settles back to idle.
+  const [peek, setPeek] = useState(false);
+  const [mood, setMood] = useState<PandaMood>("idle");
+
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FieldValues>({
     defaultValues: {
@@ -36,6 +43,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
       password: "",
     },
   });
+
+  // Eyes track the email as it's typed: shift the pupils right as it grows,
+  // clamped so they never leave the eye whites.
+  const emailValue = (watch("email") as string) ?? "";
+  const lookX = peek ? 0 : Math.min(emailValue.length, 14) * 0.45;
+
+  const flashMood = useCallback((next: PandaMood) => {
+    setMood(next);
+    setTimeout(() => setMood("idle"), next === "happy" ? 1200 : 700);
+  }, []);
 
   useEffect(() => {
     if (session?.status === "authenticated") {
@@ -77,11 +94,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
       })
         .then((callback) => {
           if (callback?.error) {
+            flashMood("sad");
             toast.error("Thông tin đăng nhập không hợp lệ!");
             return;
           }
 
           if (callback?.ok) {
+            flashMood("happy");
             toast.success("Đã đăng nhập");
             router.push(callbackUrl);
           }
@@ -96,11 +115,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
     signIn(action, { redirect: false })
       .then((callback) => {
         if (callback?.error) {
+          flashMood("sad");
           toast.error("Thông tin đăng nhập không hợp lệ!");
           return;
         }
 
         if (callback?.ok) {
+          flashMood("happy");
           toast.success("Đã đăng nhập");
         }
       })
@@ -110,6 +131,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
   return (
     <>
       {session?.status === "loading" && <LoadingModal />}
+      <div className="-mt-2 mb-1 flex justify-center auth-rise auth-rise-3">
+        <PandaMascot mood={mood} peek={peek} lookX={lookX} />
+      </div>
       <div className="auth-rise auth-rise-4">
         <div>
           <form
@@ -144,6 +168,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
               id="password"
               label="Mật khẩu"
               type="password"
+              onFocus={() => setPeek(true)}
+              onBlur={() => setPeek(false)}
             />
             {variant === "LOGIN" && (
               <div className="flex justify-end">
