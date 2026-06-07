@@ -78,6 +78,8 @@ export default function HotelFinderPage() {
   const lastAutoSaveRef = useRef(0);
   const FINDER_ROWS_PER_PAGE = 50;
   const [displayRowsCount, setDisplayRowsCount] = useState(FINDER_ROWS_PER_PAGE);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const dragCounterRef = useRef(0);
 
   // --- Extracted hooks ---
   const { saveSession, clearSession } = useFinderSession({
@@ -113,6 +115,48 @@ export default function HotelFinderPage() {
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
+    if (f) {
+      if (f.name.split(".").pop()?.toLowerCase() !== "xlsx") {
+        toast.error("Chỉ chấp nhận file .xlsx");
+        return;
+      }
+      if (f.size > 20 * 1024 * 1024) {
+        toast.error("File quá lớn (tối đa 20MB)");
+        return;
+      }
+      setFile(f);
+      setError(null);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current += 1;
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current -= 1;
+    if (dragCounterRef.current === 0) {
+      setIsDragOver(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    dragCounterRef.current = 0;
+
+    const f = e.dataTransfer.files?.[0];
     if (f) {
       if (f.name.split(".").pop()?.toLowerCase() !== "xlsx") {
         toast.error("Chỉ chấp nhận file .xlsx");
@@ -197,7 +241,6 @@ export default function HotelFinderPage() {
       setJobStatus("cancelled");
       clearSession();
     } catch (err) {
-      console.warn('[Finder] Failed to cancel job:', err);
     }
   }, [jobId, clearSession]);
 
@@ -387,27 +430,27 @@ export default function HotelFinderPage() {
 
   return (
     <FeatureThemeProvider feature="finder">
-      <div className="h-full bg-gray-900 overflow-y-auto">
+      <div className="h-full overflow-y-auto">
       {DialogElement}
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Tìm URL khách sạn</h1>
-          <p className="text-gray-400">
+          <h1 className="text-3xl font-bold text-ink mb-2">Tìm URL khách sạn</h1>
+          <p className="text-ink-soft">
             Tìm official website URL cho khách sạn bằng Playwright + DuckDuckGo
           </p>
         </div>
 
         {/* Upload Section */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-6">
+        <div className="bg-panel rounded-lg p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
               <FiZap className="text-sky-400" />
               Cấu hình
             </h2>
             <button
               onClick={() => setShowAutoSaveSettings(!showAutoSaveSettings)}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-ink hover:text-ink bg-fill hover:bg-hairline rounded-lg transition-colors"
             >
               <FiSettings size={14} />
               Auto-save
@@ -419,7 +462,7 @@ export default function HotelFinderPage() {
 
           {/* Auto-save Settings Panel */}
           {showAutoSaveSettings && (
-            <div className="mb-4 p-4 bg-gray-700/50 rounded-lg border border-gray-600">
+            <div className="mb-4 p-4 bg-fill/50 rounded-lg border border-hairline">
               <div className="flex items-center gap-4 flex-wrap">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -431,15 +474,15 @@ export default function HotelFinderPage() {
                         enabled: e.target.checked,
                       }))
                     }
-                    className="w-4 h-4 rounded bg-gray-600 border-gray-500 text-sky-500 focus:ring-sky-500"
+                    className="w-4 h-4 rounded bg-fill border-gray-300 text-sky-500 focus:ring-sky-500"
                   />
-                  <span className="text-sm text-gray-300">Bật tự động lưu</span>
+                  <span className="text-sm text-ink">Bật tự động lưu</span>
                 </label>
 
                 {autoSaveSettings.enabled && (
                   <>
                     <div className="flex items-center gap-2">
-                      <label className="text-sm text-gray-400">Số dòng:</label>
+                      <label className="text-sm text-ink-soft">Số dòng:</label>
                       <input
                         type="number"
                         inputMode="numeric"
@@ -452,12 +495,12 @@ export default function HotelFinderPage() {
                             lineThreshold: parseInt(e.target.value) || 10,
                           }))
                         }
-                        className="w-20 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm"
+                        className="w-20 px-2 py-1 bg-fill border border-gray-300 rounded text-ink text-sm"
                       />
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <label className="text-sm text-gray-400">Thư mục:</label>
+                      <label className="text-sm text-ink-soft">Thư mục:</label>
                       <input
                         type="text"
                         value={autoSaveSettings.folder}
@@ -467,7 +510,7 @@ export default function HotelFinderPage() {
                             folder: e.target.value || "finder",
                           }))
                         }
-                        className="w-32 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm"
+                        className="w-32 px-2 py-1 bg-fill border border-gray-300 rounded text-ink text-sm"
                       />
                     </div>
                   </>
@@ -475,7 +518,7 @@ export default function HotelFinderPage() {
               </div>
 
               {autoSaveSettings.enabled && (
-                <p className="mt-2 text-xs text-gray-400">
+                <p className="mt-2 text-xs text-ink-soft">
                   Tự động lưu mỗi {autoSaveSettings.lineThreshold} dòng vào thư mục &quot;{autoSaveSettings.folder}&quot;
                   {autoSaveCount > 0 && (
                     <span className="text-green-400 ml-2">
@@ -488,9 +531,22 @@ export default function HotelFinderPage() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 overflow-hidden">
-            {/* File Upload */}
-            <div className="md:col-span-1 overflow-hidden">
-              <label className="block text-sm text-gray-400 mb-1">File Excel (.xlsx)</label>
+            {/* File Upload with Drag & Drop */}
+            <div
+              className={`md:col-span-1 overflow-hidden rounded-lg border-2 border-dashed transition-colors p-3 ${
+                isDragOver
+                  ? "border-sky-400 bg-sky-400/10"
+                  : "border-hairline hover:border-gray-300"
+              }`}
+              onDragOver={handleDragOver}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <label className="block text-sm text-ink mb-1">
+                File Excel (.xlsx)
+                <span className="text-ink-soft text-xs ml-1">— kéo thả hoặc chọn</span>
+              </label>
               <div className="overflow-hidden">
               <input
                 ref={fileInputRef}
@@ -498,17 +554,22 @@ export default function HotelFinderPage() {
                 accept=".xlsx"
                 onChange={handleFileChange}
                 disabled={isRunning}
-                className="w-full min-w-0 text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sky-600 file:text-white hover:file:bg-sky-700 file:cursor-pointer disabled:opacity-50"
+                className="w-full min-w-0 text-sm text-ink file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sky-600 file:text-white hover:file:bg-sky-700 file:cursor-pointer disabled:opacity-50"
               />
               </div>
               {file && (
                 <p className="text-green-400 text-xs mt-1 truncate">{file.name}</p>
               )}
+              {isDragOver && (
+                <p className="text-sky-400 text-xs mt-2 text-center font-medium">
+                  Thả file vào đây
+                </p>
+              )}
             </div>
 
             {/* Workers */}
             <div className="min-w-0">
-              <label className="block text-sm text-gray-400 mb-1">Số luồng (1-5)</label>
+              <label className="block text-sm text-ink-soft mb-1">Số luồng (1-5)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -520,18 +581,18 @@ export default function HotelFinderPage() {
                   setWorkers(Math.min(5, Math.max(1, n)));
                 }}
                 disabled={isRunning}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm disabled:opacity-50"
+                className="w-full px-3 py-2 bg-fill border border-hairline rounded-lg text-ink text-sm disabled:opacity-50"
               />
             </div>
 
             {/* Template */}
             <div className="min-w-0">
-              <label className="block text-sm text-gray-400 mb-1">Mẫu xuất file</label>
+              <label className="block text-sm text-ink-soft mb-1">Mẫu xuất file</label>
               <select
                 value={template}
                 onChange={(e) => setTemplate(e.target.value)}
                 disabled={isRunning}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm disabled:opacity-50"
+                className="w-full px-3 py-2 bg-fill border border-hairline rounded-lg text-ink text-sm disabled:opacity-50"
               >
                 <option value="full">Đầy đủ (Tổng quan + Ghi chú + Biểu đồ)</option>
                 <option value="executive">Rút gọn (Chỉ tổng quan)</option>
@@ -543,7 +604,7 @@ export default function HotelFinderPage() {
 
           {/* Template Manager */}
           <div className="mb-4">
-            <label className="block text-sm text-gray-400 mb-1">Mẫu cấu hình</label>
+            <label className="block text-sm text-ink-soft mb-1">Mẫu cấu hình</label>
             <TemplateManager
               workers={workers}
               template={template}
@@ -596,7 +657,7 @@ export default function HotelFinderPage() {
                     clearSession();
                     handleReset();
                   }}
-                  className="flex items-center gap-2 px-4 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-1.5 text-sm bg-fill hover:bg-hairline text-ink rounded-lg transition-colors"
                 >
                   <FiTrash2 size={14} />
                   Bỏ qua
@@ -662,7 +723,7 @@ export default function HotelFinderPage() {
                   <>
                     <button
                       onClick={() => handleDownload("json")}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 bg-fill hover:bg-hairline text-gray-200 rounded-lg transition-colors"
                     >
                       <FiDownload />
                       JSON
@@ -698,7 +759,6 @@ export default function HotelFinderPage() {
                       await axios.post(`/api/hotel-finder/cancel/${jobId}`);
                       eventSourceRef.current?.close();
                     } catch (err) {
-                      console.warn('[Finder] Failed to cancel before reset:', err);
                     }
                   }
                   handleReset();
@@ -718,7 +778,7 @@ export default function HotelFinderPage() {
                   setFile(null);
                   if (fileInputRef.current) fileInputRef.current.value = "";
                 }} 
-                className="flex items-center gap-2 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-fill hover:bg-hairline text-ink rounded-lg transition-colors"
               >
                 <FiRefreshCw />
                 Mới
@@ -746,22 +806,22 @@ export default function HotelFinderPage() {
 
         {/* Progress */}
         {(isRunning || isPaused) && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-6 relative overflow-hidden">
+          <div className="bg-panel rounded-lg p-6 mb-6 relative overflow-hidden">
             <div className="flex items-center justify-between text-sm mb-2">
               <span className={isPaused ? "text-yellow-400" : "text-sky-400"}>
                 {isPaused ? "⏸ Đã tạm dừng" : jobStatus === "queued" ? "Đang chờ..." : "Đang tìm kiếm..."}
               </span>
-              <span className="text-gray-400">
+              <span className="text-ink-soft">
                 {rows.length}/{total} ({progress}%)
               </span>
             </div>
-            <div className="w-full bg-gray-700 rounded-full h-6 overflow-hidden relative">
+            <div className="w-full bg-fill rounded-full h-6 overflow-hidden relative">
               <div
                 className="absolute inset-y-0 left-0 bg-sky-500 transition-all duration-300 flex items-center justify-center"
                 style={{ width: `${progress}%` }}
               >
                 {progress > 5 && (
-                  <span className="text-xs font-medium text-white px-2 whitespace-nowrap">
+                  <span className="text-xs font-medium text-ink px-2 whitespace-nowrap">
                     {progress}%
                   </span>
                 )}
@@ -782,16 +842,16 @@ export default function HotelFinderPage() {
                 {Object.values(workerStatus).map((w) => (
                   <div
                     key={w.worker_id}
-                    className="bg-gray-700/50 rounded-lg px-3 py-2 text-xs"
+                    className="bg-fill/50 rounded-lg px-3 py-2 text-xs"
                   >
-                    <div className="text-gray-400">Luồng {w.worker_id}</div>
-                    <div className="text-white truncate">
+                    <div className="text-ink-soft">Luồng {w.worker_id}</div>
+                    <div className="text-ink truncate">
                       {w.status === "searching" ? (
                         <span className="text-yellow-400">{w.hotel_name?.slice(0, 20)}...</span>
                       ) : w.status === "done" ? (
                         <span className="text-green-400">Xong #{w.no}</span>
                       ) : (
-                        <span className="text-gray-500">{w.status}</span>
+                        <span className="text-ink-soft">{w.status}</span>
                       )}
                     </div>
                   </div>
@@ -804,53 +864,53 @@ export default function HotelFinderPage() {
         {/* Stats Dashboard */}
         {rows.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-            <div className="bg-gray-800 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-white">{rows.length}</div>
-              <div className="text-xs text-gray-400">Đã xử lý</div>
+            <div className="bg-panel rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-ink">{rows.length}</div>
+              <div className="text-xs text-ink-soft">Đã xử lý</div>
             </div>
-            <div className="bg-gray-800 rounded-lg p-4 text-center">
+            <div className="bg-panel rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-green-400">{matched}</div>
-              <div className="text-xs text-gray-400">Khớp</div>
+              <div className="text-xs text-ink-soft">Khớp</div>
             </div>
-            <div className="bg-gray-800 rounded-lg p-4 text-center">
+            <div className="bg-panel rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-yellow-400">{noResult}</div>
-              <div className="text-xs text-gray-400">Không có kết quả</div>
+              <div className="text-xs text-ink-soft">Không có kết quả</div>
             </div>
-            <div className="bg-gray-800 rounded-lg p-4 text-center">
+            <div className="bg-panel rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-red-400">{errors}</div>
-              <div className="text-xs text-gray-400">Lỗi</div>
+              <div className="text-xs text-ink-soft">Lỗi</div>
             </div>
-            <div className="bg-gray-800 rounded-lg p-4 text-center">
+            <div className="bg-panel rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-sky-400">{avgScore}%</div>
-              <div className="text-xs text-gray-400">Điểm trung bình</div>
+              <div className="text-xs text-ink-soft">Điểm trung bình</div>
             </div>
           </div>
         )}
 
         {/* Results Table */}
         {rows.length > 0 && (
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Kết quả</h2>
+          <div className="bg-panel rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-ink mb-4">Kết quả</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <caption className="sr-only">Kết quả tìm URL khách sạn</caption>
                 <thead>
-                  <tr className="border-b border-gray-700">
-                    <th scope="col" className="px-3 py-2 text-left text-gray-400">#</th>
-                    <th scope="col" className="px-3 py-2 text-left text-gray-400">No</th>
-                    <th scope="col" className="px-3 py-2 text-left text-gray-400">Điểm</th>
-                    <th scope="col" className="px-3 py-2 text-left text-gray-400">Trạng thái</th>
-                    <th scope="col" className="px-3 py-2 text-left text-gray-400">Tên khách sạn</th>
-                    <th scope="col" className="px-3 py-2 text-left text-gray-400">Địa chỉ</th>
-                    <th scope="col" className="px-3 py-2 text-left text-gray-400">URL</th>
-                    <th scope="col" className="px-3 py-2 text-left text-gray-400">Hình ảnh</th>
+                  <tr className="border-b border-hairline">
+                    <th scope="col" className="px-3 py-2 text-left text-ink-soft">#</th>
+                    <th scope="col" className="px-3 py-2 text-left text-ink-soft">No</th>
+                    <th scope="col" className="px-3 py-2 text-left text-ink-soft">Điểm</th>
+                    <th scope="col" className="px-3 py-2 text-left text-ink-soft">Trạng thái</th>
+                    <th scope="col" className="px-3 py-2 text-left text-ink-soft">Tên khách sạn</th>
+                    <th scope="col" className="px-3 py-2 text-left text-ink-soft">Địa chỉ</th>
+                    <th scope="col" className="px-3 py-2 text-left text-ink-soft">URL</th>
+                    <th scope="col" className="px-3 py-2 text-left text-ink-soft">Hình ảnh</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.slice(0, displayRowsCount).map((row, idx) => (
                     <tr
                       key={idx}
-                      className={`border-b border-gray-800 hover:bg-gray-800/50 ${
+                      className={`border-b border-hairline hover:bg-panel/50 ${
                         row.status === "error"
                           ? "bg-red-900/10 border-l-2 border-l-red-500"
                           : row.status === "no-valid-result"
@@ -858,8 +918,8 @@ export default function HotelFinderPage() {
                           : ""
                       }`}
                     >
-                      <td className="px-3 py-2 text-gray-500">{idx + 1}</td>
-                      <td className="px-3 py-2 text-gray-300">{row.no}</td>
+                      <td className="px-3 py-2 text-ink-soft">{idx + 1}</td>
+                      <td className="px-3 py-2 text-ink">{row.no}</td>
                       <td className="px-3 py-2">
                         <span
                           className={`font-medium ${
@@ -888,10 +948,10 @@ export default function HotelFinderPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-3 py-2 text-white truncate max-w-[200px]">
+                      <td className="px-3 py-2 text-ink truncate max-w-[200px]">
                         {row.hotel_name}
                       </td>
-                      <td className="px-3 py-2 text-gray-400 truncate max-w-[200px]">
+                      <td className="px-3 py-2 text-ink-soft truncate max-w-[200px]">
                         {row.hotel_address}
                       </td>
                       <td className="px-3 py-2">
@@ -908,7 +968,7 @@ export default function HotelFinderPage() {
                           <span className="text-gray-600">-</span>
                         )}
                       </td>
-                      <td className="px-3 py-2 text-gray-400">{row.img_count || 0}</td>
+                      <td className="px-3 py-2 text-ink-soft">{row.img_count || 0}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -919,7 +979,7 @@ export default function HotelFinderPage() {
                 <button
                   type="button"
                   onClick={() => setDisplayRowsCount((prev) => prev + FINDER_ROWS_PER_PAGE)}
-                  className="px-6 py-2.5 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 hover:text-white transition-colors text-sm"
+                  className="px-6 py-2.5 bg-fill text-ink rounded-lg hover:bg-hairline hover:text-ink transition-colors text-sm"
                 >
                   Xem thêm ({rows.length - displayRowsCount} kết quả)
                 </button>
@@ -930,7 +990,7 @@ export default function HotelFinderPage() {
 
         {/* Empty State */}
         {rows.length === 0 && !isRunning && (
-          <div className="text-center py-16 text-gray-400">
+          <div className="text-center py-16 text-ink-soft">
             <FiUpload className="mx-auto h-12 w-12 mb-4 opacity-50" />
             <p className="text-lg">Chọn file Excel để bắt đầu</p>
             <p className="text-sm mt-2">
@@ -949,23 +1009,23 @@ export default function HotelFinderPage() {
 
         {/* Save as Template Prompt */}
         {showSaveTemplatePrompt && isDone && (
-          <div className="fixed bottom-6 right-6 z-50 bg-gray-800 border border-gray-700 rounded-xl p-4 shadow-2xl max-w-sm">
+          <div className="fixed bottom-6 right-6 z-50 bg-panel border border-hairline rounded-xl p-4 shadow-2xl max-w-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-white">Lưu cấu hình này làm mẫu?</span>
+              <span className="text-sm font-medium text-ink">Lưu cấu hình này làm mẫu?</span>
               <button
                 onClick={() => setShowSaveTemplatePrompt(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-ink-soft hover:text-ink"
               >
                 <FiX size={16} />
               </button>
             </div>
-            <p className="text-xs text-gray-400 mb-3">
+            <p className="text-xs text-ink-soft mb-3">
               {workers} luồng · {template} · Tự động lưu: {autoSaveSettings.enabled ? "Bật" : "Tắt"}
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowSaveTemplatePrompt(false)}
-                className="flex-1 px-3 py-1.5 text-sm text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                className="flex-1 px-3 py-1.5 text-sm text-ink-soft hover:text-ink bg-fill hover:bg-hairline rounded-lg transition-colors"
               >
                 Để sau
               </button>

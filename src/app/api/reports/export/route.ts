@@ -55,7 +55,7 @@ export async function POST(request: Request) {
 
     const hasDateFilter = Object.keys(dateFilter).length > 0;
 
-    let data: any[];
+    let data: Record<string, unknown>[];
     const timestamp = new Date().toISOString().slice(0, 10);
 
     switch (type) {

@@ -113,8 +113,8 @@ const CachePage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <FiRefreshCw className="h-6 w-6 text-gray-400 animate-spin" />
-        <span className="ml-3 text-gray-400">Đang tải...</span>
+        <FiRefreshCw className="h-6 w-6 text-ink-soft animate-spin" />
+        <span className="ml-3 text-ink-soft">Đang tải...</span>
       </div>
     );
   }
@@ -139,55 +139,55 @@ const CachePage = () => {
       )}
 
       <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Thống kê</h2>
+        <h2 className="text-lg font-semibold text-ink mb-4">Thống kê</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-panel rounded-lg p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-lg bg-sky-500/20 text-sky-400">
                 <FiDatabase className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-400">Số mục</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-ink-soft">Số mục</p>
+                <p className="text-2xl font-bold text-ink">
                   {stats?.generic.size ?? 0}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-panel rounded-lg p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-lg bg-green-500/20 text-green-400">
                 <FiCheckCircle className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-400">Tỷ lệ trúng</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-ink-soft">Tỷ lệ trúng</p>
+                <p className="text-2xl font-bold text-ink">
                   {stats?.generic.hitRate ?? "0%"}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-panel rounded-lg p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-lg bg-purple-500/20 text-purple-400">
                 <FiDatabase className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-400">Bộ nhớ đệm</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-ink-soft">Bộ nhớ đệm</p>
+                <p className="text-2xl font-bold text-ink">
                   {stats?.generic.memoryEstimate ?? "0 B"}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-panel rounded-lg p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-lg bg-yellow-500/20 text-yellow-400">
                 <FiDatabase className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-400">Search cache</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-ink-soft">Search cache</p>
+                <p className="text-2xl font-bold text-ink">
                   {stats?.search.size ?? 0} / {stats?.search.maxSize ?? 200}
                 </p>
               </div>
@@ -198,7 +198,7 @@ const CachePage = () => {
 
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">
+          <h2 className="text-lg font-semibold text-ink">
             Quản lý cache
           </h2>
           <button
@@ -211,7 +211,7 @@ const CachePage = () => {
           </button>
         </div>
 
-        <div className="bg-gray-800 rounded-lg p-6">
+        <div className="bg-panel rounded-lg p-6">
           <div className="flex flex-wrap gap-3 mb-6">
             <button
               onClick={() => handleClearAll()}
@@ -226,7 +226,7 @@ const CachePage = () => {
                 key={ns}
                 onClick={() => handleClearNamespace(ns)}
                 disabled={clearing === ns}
-                className="flex items-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-600 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-fill px-4 py-2 text-sm font-medium text-ink hover:bg-hairline transition-colors disabled:opacity-50"
               >
                 <FiTrash2 className={`h-4 w-4 ${clearing === ns ? "animate-pulse" : ""}`} />
                 Xóa {ns}
@@ -235,11 +235,11 @@ const CachePage = () => {
           </div>
 
           <div className="flex items-center gap-4 mb-4">
-            <FiFilter className="h-4 w-4 text-gray-400" />
+            <FiFilter className="h-4 w-4 text-ink-soft" />
             <select
               value={namespaceFilter}
               onChange={(e) => setNamespaceFilter(e.target.value)}
-              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="rounded-lg bg-fill border border-hairline px-3 py-1.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sky-500"
             >
               <option value="all">Tất cả ({stats?.generic.size ?? 0})</option>
               {namespaces.map((ns) => {
@@ -255,17 +255,17 @@ const CachePage = () => {
             </select>
             <button
               onClick={() => fetchStats()}
-              className="flex items-center gap-2 rounded-lg bg-gray-700 px-3 py-1.5 text-sm font-medium text-gray-300 hover:bg-gray-600 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-fill px-3 py-1.5 text-sm font-medium text-ink hover:bg-hairline transition-colors"
             >
               <FiRefreshCw className="h-4 w-4" />
               Làm mới
             </button>
           </div>
 
-          <div className="bg-gray-900 rounded-lg max-h-96 overflow-y-auto">
+          <div className="bg-canvas rounded-lg max-h-96 overflow-y-auto">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-gray-900">
-                <tr className="border-b border-gray-700 text-gray-400">
+              <thead className="sticky top-0 bg-canvas">
+                <tr className="border-b border-hairline text-ink-soft">
                   <th className="px-4 py-2 text-left font-medium">Khóa</th>
                   <th className="px-4 py-2 text-left font-medium">Namespace</th>
                 </tr>
@@ -275,7 +275,7 @@ const CachePage = () => {
                   <tr>
                     <td
                       colSpan={2}
-                      className="px-4 py-8 text-center text-gray-500"
+                      className="px-4 py-8 text-center text-ink-soft"
                     >
                       Không có mục cache nào
                     </td>
@@ -287,9 +287,9 @@ const CachePage = () => {
                     return (
                       <tr
                         key={key}
-                        className="border-b border-gray-700/50 last:border-0 hover:bg-gray-800/50"
+                        className="border-b border-hairline/50 last:border-0 hover:bg-panel/50"
                       >
-                        <td className="px-4 py-2 text-white font-mono text-xs truncate max-w-md">
+                        <td className="px-4 py-2 text-ink font-mono text-xs truncate max-w-md">
                           {key}
                         </td>
                         <td className="px-4 py-2">
@@ -304,61 +304,61 @@ const CachePage = () => {
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-xs text-gray-500">
+          <p className="mt-3 text-xs text-ink-soft">
             Hiển thị {filteredKeys.length} / {stats?.generic.size ?? 0} mục
           </p>
         </div>
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Thống kê chi tiết</h2>
+        <h2 className="text-lg font-semibold text-ink mb-4">Thống kê chi tiết</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-sm font-medium text-gray-400 mb-3">Cache chung</h3>
+          <div className="bg-panel rounded-lg p-6">
+            <h3 className="text-sm font-medium text-ink-soft mb-3">Cache chung</h3>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-400">Lượt trúng:</span>
+                <span className="text-ink-soft">Lượt trúng:</span>
                 <span className="text-green-400 font-medium">
                   {stats?.generic.totalHits ?? 0}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Lượt miss:</span>
+                <span className="text-ink-soft">Lượt miss:</span>
                 <span className="text-red-400 font-medium">
                   {stats?.generic.totalMisses ?? 0}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Tỷ lệ trúng:</span>
-                <span className="text-white font-medium">
+                <span className="text-ink-soft">Tỷ lệ trúng:</span>
+                <span className="text-ink font-medium">
                   {stats?.generic.hitRate ?? "0%"}
                 </span>
               </div>
             </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-sm font-medium text-gray-400 mb-3">Search cache</h3>
+          <div className="bg-panel rounded-lg p-6">
+            <h3 className="text-sm font-medium text-ink-soft mb-3">Search cache</h3>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-400">Lượt trúng:</span>
+                <span className="text-ink-soft">Lượt trúng:</span>
                 <span className="text-green-400 font-medium">
                   {stats?.search.cacheHits ?? 0}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Lượt miss:</span>
+                <span className="text-ink-soft">Lượt miss:</span>
                 <span className="text-red-400 font-medium">
                   {stats?.search.cacheMisses ?? 0}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Tỷ lệ trúng:</span>
-                <span className="text-white font-medium">
+                <span className="text-ink-soft">Tỷ lệ trúng:</span>
+                <span className="text-ink font-medium">
                   {stats?.search.hitRate ?? "0%"}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Entry hits:</span>
+                <span className="text-ink-soft">Entry hits:</span>
                 <span className="text-yellow-400 font-medium">
                   {stats?.search.entryHits ?? 0}
                 </span>

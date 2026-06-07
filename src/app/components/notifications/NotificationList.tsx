@@ -115,7 +115,7 @@ const NotificationList = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-sm text-ink-soft dark:text-gray-400">
           Đang tải...
         </div>
       </div>
@@ -143,7 +143,7 @@ const NotificationList = () => {
 
       <div className="flex-1 overflow-y-auto">
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col items-center justify-center h-64 text-ink-soft dark:text-gray-400">
             <HiBell className="w-12 h-12 mb-3 opacity-50" />
             <p className="text-sm">Không có thông báo</p>
           </div>
@@ -172,11 +172,11 @@ const NotificationList = () => {
                     {notification.title}
                   </p>
                   {notification.message && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    <p className="text-xs text-ink-soft dark:text-gray-400 mt-0.5">
                       {notification.message}
                     </p>
                   )}
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  <p className="text-xs text-ink-soft dark:text-gray-500 mt-1">
                     {timeAgo(notification.createdAt)}
                   </p>
                 </div>

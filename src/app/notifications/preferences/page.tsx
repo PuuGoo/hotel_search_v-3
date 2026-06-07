@@ -48,8 +48,8 @@ const ToggleSwitch = ({
       className={`
         relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent
         transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500
-        focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50 disabled:cursor-not-allowed
-        ${enabled ? "bg-blue-600" : "bg-gray-700"}
+        focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed
+        ${enabled ? "bg-blue-600" : "bg-fill"}
       `}
     >
       <span
@@ -108,7 +108,7 @@ const NotificationPreferencesPage = () => {
 
   if (isLoading) {
     return (
-      <div className="h-full bg-gray-900 px-4 py-8 sm:px-6 lg:px-8">
+      <div className="h-full bg-canvas px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
           <div className="flex items-center justify-center py-20">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
@@ -119,12 +119,12 @@ const NotificationPreferencesPage = () => {
   }
 
   return (
-    <div className="h-full bg-gray-900 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="h-full bg-canvas px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
         <div className="mb-2">
           <Link
             href="/settings"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-ink-soft hover:text-ink transition-colors"
           >
             <FiArrowLeft className="h-4 w-4" />
             Quay lại cài đặt
@@ -133,19 +133,19 @@ const NotificationPreferencesPage = () => {
 
         <div className="flex items-center gap-3 mb-8">
           <FiBell className="h-8 w-8 text-blue-500" />
-          <h1 className="text-2xl font-bold text-white">Tùy chọn thông báo</h1>
+          <h1 className="text-2xl font-bold text-ink">Tùy chọn thông báo</h1>
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-lg border border-gray-800 bg-gray-950 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+          <div className="rounded-lg border border-hairline bg-panel p-6">
+            <h2 className="text-lg font-semibold text-ink mb-4">
               Loại thông báo
             </h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white">Tin nhắn mới</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-medium text-ink">Tin nhắn mới</p>
+                  <p className="text-xs text-ink-soft">
                     Nhận thông báo khi có tin nhắn mới
                   </p>
                 </div>
@@ -157,10 +157,10 @@ const NotificationPreferencesPage = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-medium text-ink">
                     Thông báo hệ thống
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-ink-soft">
                     Thông báo từ hệ thống và cập nhật
                   </p>
                 </div>
@@ -172,8 +172,8 @@ const NotificationPreferencesPage = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white">Cảnh báo giá</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-medium text-ink">Cảnh báo giá</p>
+                  <p className="text-xs text-ink-soft">
                     Thông báo khi giá khách sạn thay đổi
                   </p>
                 </div>
@@ -185,10 +185,10 @@ const NotificationPreferencesPage = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-medium text-ink">
                     Có người đang nhập
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-ink-soft">
                     Hiển thị khi người khác đang nhập tin nhắn
                   </p>
                 </div>
@@ -200,10 +200,10 @@ const NotificationPreferencesPage = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-medium text-ink">
                     Đã xem tin nhắn
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-ink-soft">
                     Thông báo khi tin nhắn của bạn đã được đọc
                   </p>
                 </div>
@@ -215,17 +215,17 @@ const NotificationPreferencesPage = () => {
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-800 bg-gray-950 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+          <div className="rounded-lg border border-hairline bg-panel p-6">
+            <h2 className="text-lg font-semibold text-ink mb-4">
               Phương thức thông báo
             </h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-medium text-ink">
                     Âm thanh thông báo
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-ink-soft">
                     Phát âm thanh khi nhận thông báo
                   </p>
                 </div>
@@ -237,10 +237,10 @@ const NotificationPreferencesPage = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-medium text-ink">
                     Thông báo trên máy tính
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-ink-soft">
                     Hiển thị thông báo trên màn hình desktop
                   </p>
                 </div>
@@ -252,16 +252,16 @@ const NotificationPreferencesPage = () => {
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-800 bg-gray-950 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+          <div className="rounded-lg border border-hairline bg-panel p-6">
+            <h2 className="text-lg font-semibold text-ink mb-4">
               Giờ yên tĩnh
             </h2>
-            <p className="text-sm text-gray-400 mb-4">
+            <p className="text-sm text-ink-soft mb-4">
               Tắt thông báo trong khoảng thời gian này
             </p>
             <div className="flex items-center gap-4">
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5">
+                <label className="block text-xs text-ink-soft mb-1.5">
                   Từ
                 </label>
                 <input
@@ -269,15 +269,15 @@ const NotificationPreferencesPage = () => {
                   value={prefs.quietHoursFrom}
                   onChange={(e) => updatePref("quietHoursFrom", e.target.value)}
                   className="
-                    rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5
-                    text-sm text-white focus:border-blue-500 focus:outline-none
+                    rounded-lg border border-hairline bg-panel px-4 py-2.5
+                    text-sm text-ink focus:border-blue-500 focus:outline-none
                     focus:ring-1 focus:ring-blue-500
                   "
                 />
               </div>
-              <span className="mt-6 text-gray-500">đến</span>
+              <span className="mt-6 text-ink-soft">đến</span>
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5">
+                <label className="block text-xs text-ink-soft mb-1.5">
                   Đến
                 </label>
                 <input
@@ -285,8 +285,8 @@ const NotificationPreferencesPage = () => {
                   value={prefs.quietHoursTo}
                   onChange={(e) => updatePref("quietHoursTo", e.target.value)}
                   className="
-                    rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5
-                    text-sm text-white focus:border-blue-500 focus:outline-none
+                    rounded-lg border border-hairline bg-panel px-4 py-2.5
+                    text-sm text-ink focus:border-blue-500 focus:outline-none
                     focus:ring-1 focus:ring-blue-500
                   "
                 />
@@ -302,7 +302,7 @@ const NotificationPreferencesPage = () => {
                 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5
                 text-sm font-medium text-white hover:bg-blue-500 focus:outline-none
                 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed
+                focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed
               "
             >
               <FiSave className="h-4 w-4" />

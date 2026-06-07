@@ -112,23 +112,23 @@ export default function BulkResults({ results }: BulkResultsProps) {
   const matched = results.filter((r) => r.status === "matched").length;
 
   return (
-    <div className="space-y-4">
+    <div className="bg-panel rounded-lg p-4 sm:p-5 space-y-4">
       {/* Stats */}
-      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+      <div className="flex flex-wrap items-center gap-4 text-sm text-ink-soft">
         <span>
-          Tổng: <span className="text-white font-medium">{results.length}</span>
+          Tổng: <span className="text-ink font-medium">{results.length}</span>
         </span>
         <span>
           Khớp:{" "}
-          <span className="text-green-400 font-medium">{matched}</span>
+          <span className="text-green-600 font-medium">{matched}</span>
         </span>
         <span>
           Không khớp:{" "}
-          <span className="text-red-400 font-medium">{results.length - matched}</span>
+          <span className="text-red-600 font-medium">{results.length - matched}</span>
         </span>
         <span>
           Tỷ lệ:{" "}
-          <span className="text-sky-400 font-medium">
+          <span className="text-sky-600 font-medium">
             {results.length ? Math.round((matched / results.length) * 100) : 0}%
           </span>
         </span>
@@ -144,7 +144,7 @@ export default function BulkResults({ results }: BulkResultsProps) {
             setPage(0);
           }}
           placeholder="Lọc theo tên, địa chỉ, số..."
-          className="flex-1 min-w-[200px] px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-sky-500"
+          className="flex-1 min-w-[200px] px-3 py-2 bg-panel border border-hairline rounded-lg text-ink text-sm focus:outline-none focus:border-sky-500"
         />
         <select
           value={pageSize}
@@ -152,7 +152,7 @@ export default function BulkResults({ results }: BulkResultsProps) {
             setPageSize(Number(e.target.value));
             setPage(0);
           }}
-          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+          className="px-3 py-2 bg-panel border border-hairline rounded-lg text-ink text-sm"
         >
           {[25, 50, 100, 200, 500].map((n) => (
             <option key={n} value={n}>
@@ -166,45 +166,45 @@ export default function BulkResults({ results }: BulkResultsProps) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-700">
+            <tr className="border-b border-hairline">
               <th
-                className="px-3 py-2 text-left text-gray-400 cursor-pointer hover:text-white"
+                className="px-3 py-2 text-left text-ink-soft cursor-pointer hover:text-ink"
                 onClick={() => handleSort("order")}
               >
                 #<SortIcon field="order" />
               </th>
               <th
-                className="px-3 py-2 text-left text-gray-400 cursor-pointer hover:text-white"
+                className="px-3 py-2 text-left text-ink-soft cursor-pointer hover:text-ink"
                 onClick={() => handleSort("no")}
               >
                 No<SortIcon field="no" />
               </th>
               <th
-                className="px-3 py-2 text-left text-gray-400 cursor-pointer hover:text-white"
+                className="px-3 py-2 text-left text-ink-soft cursor-pointer hover:text-ink"
                 onClick={() => handleSort("percentage")}
               >
                 %<SortIcon field="percentage" />
               </th>
               <th
-                className="px-3 py-2 text-left text-gray-400 cursor-pointer hover:text-white"
+                className="px-3 py-2 text-left text-ink-soft cursor-pointer hover:text-ink"
                 onClick={() => handleSort("status")}
               >
                 Trạng thái<SortIcon field="status" />
               </th>
               <th
-                className="px-3 py-2 text-left text-gray-400 cursor-pointer hover:text-white"
+                className="px-3 py-2 text-left text-ink-soft cursor-pointer hover:text-ink"
                 onClick={() => handleSort("name")}
               >
                 Tên khách sạn<SortIcon field="name" />
               </th>
-              <th className="px-3 py-2 text-left text-gray-400">Địa chỉ</th>
+              <th className="px-3 py-2 text-left text-ink-soft">Địa chỉ</th>
               <th
-                className="px-3 py-2 text-left text-gray-400 cursor-pointer hover:text-white"
+                className="px-3 py-2 text-left text-ink-soft cursor-pointer hover:text-ink"
                 onClick={() => handleSort("links")}
               >
                 Liên kết<SortIcon field="links" />
               </th>
-              <th className="px-3 py-2 text-left text-gray-400">Liên kết khớp</th>
+              <th className="px-3 py-2 text-left text-ink-soft">Liên kết khớp</th>
             </tr>
           </thead>
           <tbody>
@@ -214,10 +214,10 @@ export default function BulkResults({ results }: BulkResultsProps) {
               return (
                 <Fragment key={`row-${globalIdx}`}>
                   <tr
-                    className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors"
+                    className="border-b border-hairline hover:bg-panel/50 transition-colors"
                   >
-                    <td className="px-3 py-2 text-gray-500">{globalIdx + 1}</td>
-                    <td className="px-3 py-2 text-gray-300">{result.no}</td>
+                    <td className="px-3 py-2 text-ink-soft">{globalIdx + 1}</td>
+                    <td className="px-3 py-2 text-ink">{result.no}</td>
                     <td className="px-3 py-2">
                       <span
                         className={`font-medium ${
@@ -244,14 +244,14 @@ export default function BulkResults({ results }: BulkResultsProps) {
                     </td>
                     <td className="px-3 py-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-white truncate max-w-[200px]">
+                        <span className="text-ink truncate max-w-[200px]">
                           {result.hotelName}
                         </span>
                         <button
                           onClick={() =>
                             copyToClipboard(result.hotelName, globalIdx * 100)
                           }
-                          className="text-gray-500 hover:text-gray-300"
+                          className="text-ink-soft hover:text-ink"
                         >
                           {copiedIdx === globalIdx * 100 ? (
                             <FiCheck className="text-green-400" />
@@ -261,10 +261,10 @@ export default function BulkResults({ results }: BulkResultsProps) {
                         </button>
                       </div>
                     </td>
-                    <td className="px-3 py-2 text-gray-400 truncate max-w-[200px]">
+                    <td className="px-3 py-2 text-ink-soft truncate max-w-[200px]">
                       {result.address}
                     </td>
-                    <td className="px-3 py-2 text-gray-400">
+                    <td className="px-3 py-2 text-ink-soft">
                       {result.matchedLinks.length}
                     </td>
                     <td className="px-3 py-2">
@@ -276,7 +276,7 @@ export default function BulkResults({ results }: BulkResultsProps) {
                               href={link.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-700 hover:bg-gray-600 rounded text-xs text-sky-400 truncate max-w-[200px]"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 bg-fill hover:bg-hairline rounded text-xs text-sky-400 truncate max-w-[200px]"
                             >
                               <span>{link.percentage}%</span>
                               <FiExternalLink className="flex-shrink-0" />
@@ -287,7 +287,7 @@ export default function BulkResults({ results }: BulkResultsProps) {
                               onClick={() =>
                                 setExpandedRow(isExpanded ? null : globalIdx)
                               }
-                              className="text-xs text-gray-500 hover:text-gray-300"
+                              className="text-xs text-ink-soft hover:text-ink"
                             >
                               +{result.matchedLinks.length - 2} thêm
                             </button>
@@ -299,7 +299,7 @@ export default function BulkResults({ results }: BulkResultsProps) {
                     </td>
                   </tr>
                   {isExpanded && (
-                    <tr key={`detail-${globalIdx}`} className="bg-gray-900/50">
+                    <tr key={`detail-${globalIdx}`} className="bg-canvas/50">
                       <td colSpan={8} className="px-6 py-3">
                         <div className="space-y-1">
                           {result.matchedLinks.map((link, li) => (
@@ -338,7 +338,7 @@ export default function BulkResults({ results }: BulkResultsProps) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-gray-400">
+        <div className="flex items-center justify-between text-sm text-ink-soft">
           <span>
             Trang {page + 1}/{totalPages} ({sorted.length} kết quả)
           </span>
@@ -346,14 +346,14 @@ export default function BulkResults({ results }: BulkResultsProps) {
             <button
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
-              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded disabled:opacity-50"
+              className="px-3 py-1 bg-fill hover:bg-hairline rounded disabled:opacity-50"
             >
               Trước
             </button>
             <button
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page >= totalPages - 1}
-              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded disabled:opacity-50"
+              className="px-3 py-1 bg-fill hover:bg-hairline rounded disabled:opacity-50"
             >
               Sau
             </button>

@@ -55,10 +55,10 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = memo(({ currentUser }) => 
         lg:left-0 
         lg:z-40 
         lg:w-20 
-        xl:px-6
         lg:overflow-y-auto 
-        lg:bg-white 
+        lg:bg-panel 
         lg:border-r-[1px]
+        lg:border-hairline
         lg:pb-4
         lg:flex
         lg:flex-col
@@ -67,14 +67,20 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = memo(({ currentUser }) => 
         dark:border-lightgray
       "
       >
-        <nav className="mt-4 flex flex-col justify-between">
+        {/* Brand mark */}
+        <div className="flex justify-center pt-4 pb-2">
+          <div className="ms-avatar w-11 h-11 text-lg bg-gradient-to-br from-brand to-accent shadow-card">
+            H
+          </div>
+        </div>
+        <nav className="mt-1 flex flex-col justify-between">
           {grouped.map((group, gi) => (
             <div key={group.key}>
               {gi > 0 && (
-                <hr className="my-2 border-t border-gray-200 dark:border-gray-700 mx-2" />
+                <hr className="my-2 border-t border-hairline dark:border-gray-700 mx-3" />
               )}
               {group.label && (
-                <span className="block text-[9px] uppercase tracking-wider text-gray-400 dark:text-gray-500 text-center mb-1 select-none">
+                <span className="block text-[9px] uppercase tracking-wider text-ink-soft dark:text-gray-500 text-center mb-1 select-none">
                   {group.label}
                 </span>
               )}
@@ -94,7 +100,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = memo(({ currentUser }) => 
             </div>
           ))}
         </nav>
-        <nav className="mt-4 flex flex-col justify-between items-center">
+        <nav className="mt-4 flex flex-col justify-between items-center gap-1">
           <ThemeToggle />
           <NotificationBell />
           <ProfileItem currentUser={currentUser} />

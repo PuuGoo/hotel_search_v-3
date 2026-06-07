@@ -19,12 +19,10 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const folder = searchParams.get("folder") || undefined;
 
-    const where: any = {
+    const where = {
       uploadedById: currentUser.id,
+      ...(folder ? { folder } : {}),
     };
-    if (folder) {
-      where.folder = folder;
-    }
 
     const files = await prisma.driveFile.findMany({
       where,
@@ -58,7 +56,7 @@ export async function POST(request: Request) {
       return new NextResponse("Invalid JSON body", { status: 400 });
     }
 
-    const { fileName, originalName, filePath, fileSize, mimeType, folder } = body;
+    const { fileName, originalName, filePath, fileSize, mimeType, folder } = body as { fileName: string; originalName: string; filePath: string; fileSize: number; mimeType: string; folder: string };
 
     if (!fileName || !originalName || !filePath) {
       return new NextResponse("Thiếu thông tin file", { status: 400 });
@@ -73,7 +71,7 @@ export async function POST(request: Request) {
       orderBy: { version: "desc" },
     });
 
-    let result: any;
+    let result: unknown;
 
     if (existing) {
       const newVersion = existing.version + 1;

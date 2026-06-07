@@ -10,7 +10,7 @@ export default async function HotelsLayout({
   return (
     // valid in Next.js 13 but not yet recognized by the React 18 JSX types.
     <Sidebar>
-      <div className="h-full">
+      <div className="h-full bg-canvas">
         <Breadcrumb />
         {children}
         <ScrollToTop />

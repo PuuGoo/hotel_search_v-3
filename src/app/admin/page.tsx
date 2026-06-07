@@ -24,14 +24,14 @@ const AdminOverviewPage = async () => {
 
   if (!overview) {
     return (
-      <p className="text-gray-400">Bạn không có quyền truy cập dữ liệu này.</p>
+      <p className="text-ink-soft">Bạn không có quyền truy cập dữ liệu này.</p>
     );
   }
 
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Người dùng</h2>
+        <h2 className="text-lg font-semibold text-ink mb-4">Người dùng</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             label="Tổng người dùng"
@@ -61,7 +61,7 @@ const AdminOverviewPage = async () => {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Hoạt động</h2>
+        <h2 className="text-lg font-semibold text-ink mb-4">Hoạt động</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             label="Tổng tìm kiếm"

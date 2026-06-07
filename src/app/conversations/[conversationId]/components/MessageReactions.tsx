@@ -57,7 +57,7 @@ const MessageReactions: React.FC<MessageReactionsProps> = ({
             ${
               isOwn
                 ? "text-white/50 hover:text-white/80 hover:bg-white/10"
-                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                : "text-ink-soft hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
             }
           `}
           title="Thêm phản ứng"

@@ -64,5 +64,10 @@ export const config = {
     "/bookmarks/:path*",
     "/dashboard/:path*",
     "/admin/:path*",
+    "/drive/:path*",
+    "/reports/:path*",
+    "/price-alerts/:path*",
+    "/notifications/:path*",
+    "/settings/:path*",
   ],
 };

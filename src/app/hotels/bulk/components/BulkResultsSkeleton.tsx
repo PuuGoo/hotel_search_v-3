@@ -34,7 +34,7 @@ export default function BulkResultsSkeleton({ rows = 8 }: { rows?: number }) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-700">
+            <tr className="border-b border-hairline">
               {SKELETON_COLS.map((col, i) => (
                 <th key={i} className="px-3 py-2 text-left">
                   <Skeleton width={col.width} height="h-4" />
@@ -46,7 +46,7 @@ export default function BulkResultsSkeleton({ rows = 8 }: { rows?: number }) {
             {Array.from({ length: rows }).map((_, rowIdx) => (
               <tr
                 key={rowIdx}
-                className="border-b border-gray-800"
+                className="border-b border-hairline"
               >
                 {SKELETON_COLS.map((col, colIdx) => (
                   <td key={colIdx} className="px-3 py-2">

@@ -12,8 +12,9 @@ export type RoleUpdateResult =
   | { ok: true; role: Role }
   | { ok: false; error: string };
 
-export function validateRoleUpdate(body: any): RoleUpdateResult {
-  const role = body?.role;
+export function validateRoleUpdate(body: unknown): RoleUpdateResult {
+  const b = body as Record<string, unknown> | null | undefined;
+  const role = b?.role;
   if (!isValidRole(role)) {
     return { ok: false, error: "Invalid role" };
   }
@@ -26,8 +27,9 @@ export type PermissionsUpdateResult =
 
 // Accepts only an array of feature keys; unknown/duplicate values are dropped
 // (sanitizePermissions). An empty array is valid and means "unrestricted".
-export function validatePermissionsUpdate(body: any): PermissionsUpdateResult {
-  const raw = body?.permissions;
+export function validatePermissionsUpdate(body: unknown): PermissionsUpdateResult {
+  const b = body as Record<string, unknown> | null | undefined;
+  const raw = b?.permissions;
   if (!Array.isArray(raw)) {
     return { ok: false, error: "permissions must be an array" };
   }

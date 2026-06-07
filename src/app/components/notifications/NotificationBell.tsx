@@ -167,7 +167,7 @@ const NotificationBell = () => {
           hover:bg-gray-200
           dark:hover:bg-gray-700
           transition
-          text-gray-500
+          text-ink-soft
           dark:text-gray-400
         "
       >
@@ -237,7 +237,7 @@ const NotificationBell = () => {
           </div>
 
           {notifications.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+            <div className="px-4 py-8 text-center text-sm text-ink-soft dark:text-gray-400">
               Không có thông báo
             </div>
           ) : (
@@ -272,11 +272,11 @@ const NotificationBell = () => {
                       {notification.title}
                     </p>
                     {notification.message && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                      <p className="text-xs text-ink-soft dark:text-gray-400 truncate mt-0.5">
                         {notification.message}
                       </p>
                     )}
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    <p className="text-xs text-ink-soft dark:text-gray-500 mt-1">
                       {timeAgo(notification.createdAt)}
                     </p>
                   </div>

@@ -155,10 +155,10 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-[11px] text-gray-400">
+          <span className="text-[11px] text-ink-soft">
             {formatTime(currentTime)}
           </span>
-          <span className="text-[11px] text-gray-400">
+          <span className="text-[11px] text-ink-soft">
             {formatTime(displayDuration)}
           </span>
         </div>

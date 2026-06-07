@@ -96,8 +96,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
                     className="
                       rounded-md 
                       bg-white 
-                      text-gray-400 
-                      hover:text-gray-500 
+                      text-ink-soft 
+                      hover:text-ink-soft 
                       focus:outline-none 
                       focus:ring-2 
                       focus:ring-indigo-500 

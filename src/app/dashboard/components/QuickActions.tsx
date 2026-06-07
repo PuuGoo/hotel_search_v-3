@@ -51,8 +51,8 @@ const actions: QuickAction[] = [
 
 const QuickActions: React.FC = () => {
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
-      <h2 className="text-xl font-semibold text-white mb-4">Thao tác nhanh</h2>
+    <div className="bg-panel rounded-lg p-6">
+      <h2 className="text-xl font-semibold text-ink mb-4">Thao tác nhanh</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {actions.map((action) => (
           <Link

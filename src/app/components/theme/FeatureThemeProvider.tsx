@@ -35,13 +35,13 @@ export default function FeatureThemeProvider({
     };
   }, [refreshTheme]);
 
-  if (!mounted) return <>{children}</>;
+  if (!mounted) return <div className="h-full">{children}</div>;
 
   const resolved =
     featureTheme === "system" ? globalTheme : featureTheme;
 
   return (
-    <div className={resolved === "dark" ? "dark" : ""}>
+    <div className={`h-full ${resolved === "dark" ? "dark" : ""}`}>
       {children}
     </div>
   );

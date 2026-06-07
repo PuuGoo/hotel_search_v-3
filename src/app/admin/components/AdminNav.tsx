@@ -30,7 +30,7 @@ const AdminNav = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-wrap gap-2 border-b border-gray-700 pb-3">
+    <nav className="flex flex-wrap gap-2 border-b border-hairline pb-3">
       {tabs.map((tab) => {
         const active = tab.exact
           ? pathname === tab.href
@@ -44,7 +44,7 @@ const AdminNav = () => {
               "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
               active
                 ? "bg-sky-500 text-white"
-                : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+                : "bg-panel text-ink hover:bg-fill hover:text-ink"
             )}
           >
             <Icon className="h-4 w-4" />

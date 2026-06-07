@@ -110,15 +110,15 @@ const ComparePage = () => {
 
   return (
     <FeatureThemeProvider feature="compare">
-    <div className="h-full bg-gray-900">
+    <div className="h-full">
       {DialogElement}
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold text-ink mb-2">
               So sánh khách sạn
             </h1>
-            <p className="text-gray-400">
+            <p className="text-ink-soft">
               So sánh tối đa {MAX_HOTELS} khách sạn side-by-side
             </p>
           </div>
@@ -150,10 +150,10 @@ const ComparePage = () => {
         {hotels.length === 0 ? (
           <div className="text-center py-16">
             <FiPlus className="mx-auto h-12 w-12 text-gray-600 mb-4" />
-            <p className="text-lg text-gray-400">
+            <p className="text-lg text-ink-soft">
               Chưa có khách sạn để so sánh
             </p>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-ink-soft mt-2">
               Hãy tìm kiếm và thêm khách sạn
             </p>
             <button
@@ -165,7 +165,7 @@ const ComparePage = () => {
             </button>
           </div>
         ) : (
-          <div className="bg-gray-800 rounded-lg overflow-hidden">
+          <div className="bg-panel rounded-lg overflow-hidden">
             <CompareTable hotels={hotels} onRemove={handleRemove} />
           </div>
         )}

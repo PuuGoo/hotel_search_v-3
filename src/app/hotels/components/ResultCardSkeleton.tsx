@@ -4,7 +4,7 @@ import Skeleton from "../../components/Skeleton";
 
 export default function ResultCardSkeleton() {
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
+    <div className="bg-panel rounded-lg p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0 space-y-2">
           {/* Title */}

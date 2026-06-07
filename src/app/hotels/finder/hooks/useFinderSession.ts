@@ -102,7 +102,6 @@ export function useFinderSession(opts: UseFinderSessionOptions) {
         };
         localStorage.setItem(FINDER_SESSION_KEY, JSON.stringify(data));
       } catch (err) {
-        console.warn('[FinderSession] Failed to save session:', err);
       }
     },
     [workers, template, autoSaveSettings, jobId, total, jobStatus, originalFileName, rowsRef]
@@ -112,7 +111,6 @@ export function useFinderSession(opts: UseFinderSessionOptions) {
     try {
       localStorage.removeItem(FINDER_SESSION_KEY);
     } catch (err) {
-      console.warn('[FinderSession] Failed to clear session:', err);
     }
   }, []);
 
@@ -147,7 +145,6 @@ export function useFinderSession(opts: UseFinderSessionOptions) {
         setRestoredSession(true);
       }
     } catch (err) {
-      console.warn('[FinderSession] Failed to restore session:', err);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

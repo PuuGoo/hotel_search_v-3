@@ -46,7 +46,7 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({ conversationId, other
   if (!isTyping) return null;
 
   return (
-    <div className="px-4 py-1 text-xs text-gray-400 italic">
+    <div className="px-4 py-1 text-xs text-ink-soft italic">
       {otherUser?.name || "Đang"} đang nhập...
     </div>
   );

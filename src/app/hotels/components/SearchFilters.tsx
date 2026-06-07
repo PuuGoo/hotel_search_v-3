@@ -6,12 +6,18 @@ import {
   FiChevronUp,
   FiX,
   FiFilter,
+  FiCalendar,
+  FiUsers,
 } from "react-icons/fi";
 
 export interface SearchFilters {
   minRating: number;
   priceRange: string;
   country: string;
+  checkIn: string;
+  checkOut: string;
+  adults: number;
+  rooms: number;
 }
 
 interface SearchFiltersProps {
@@ -25,6 +31,10 @@ const defaultFilters: SearchFilters = {
   minRating: 0,
   priceRange: "",
   country: "",
+  checkIn: "",
+  checkOut: "",
+  adults: 2,
+  rooms: 1,
 };
 
 const priceRanges = [
@@ -65,13 +75,13 @@ const CollapsibleSection = memo(({
   const contentId = useId();
 
   return (
-    <div className="border-b border-gray-700 last:border-b-0">
+    <div className="border-b border-hairline last:border-b-0">
       <button
         type="button"
         onClick={toggle}
         aria-expanded={isOpen}
         aria-controls={contentId}
-        className="w-full flex items-center justify-between py-3 px-1 text-sm font-medium text-gray-200 hover:text-white transition-colors"
+        className="w-full flex items-center justify-between py-3 px-1 text-sm font-medium text-gray-200 hover:text-ink transition-colors"
       >
         {title}
         {isOpen ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
@@ -167,7 +177,8 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose, currentFilters }: Sear
   };
 
   const hasActiveFilters =
-    filters.minRating > 0 || filters.priceRange !== "" || filters.country !== "";
+    filters.minRating > 0 || filters.priceRange !== "" || filters.country !== "" ||
+    filters.checkIn !== "" || filters.checkOut !== "" || filters.adults !== 2 || filters.rooms !== 1;
 
   return (
     <>
@@ -180,7 +191,7 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose, currentFilters }: Sear
 
       <div
         ref={panelRef}
-        className={`fixed top-0 left-0 h-full w-80 bg-gray-800 z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full w-80 bg-panel z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:relative lg:translate-x-0 lg:z-auto lg:w-72 lg:rounded-lg`}
         role="region"
@@ -189,8 +200,8 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose, currentFilters }: Sear
         tabIndex={isDesktop ? undefined : (isOpen ? undefined : -1)}
       >
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-4 border-b border-gray-700">
-            <div className="flex items-center gap-2 text-white font-semibold">
+          <div className="flex items-center justify-between p-4 border-b border-hairline">
+            <div className="flex items-center gap-2 text-ink font-semibold">
               <FiFilter className="w-4 h-4" />
               Bộ lọc tìm kiếm
             </div>
@@ -198,7 +209,7 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose, currentFilters }: Sear
               ref={closeBtnRef}
               type="button"
               onClick={onClose}
-              className="p-1 text-gray-400 hover:text-white transition-colors lg:hidden"
+              className="p-1 text-ink hover:text-ink transition-colors lg:hidden"
               aria-label="Đóng bộ lọc"
             >
               <FiX className="w-5 h-5" />
@@ -227,9 +238,9 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose, currentFilters }: Sear
                       onChange={() =>
                         setFilters((prev) => ({ ...prev, minRating: opt.value }))
                       }
-                      className="w-4 h-4 text-sky-500 bg-gray-700 border-gray-600 focus:ring-sky-500 focus:ring-offset-gray-800"
+                      className="w-4 h-4 text-sky-500 bg-fill border-hairline focus:ring-sky-500 focus:ring-offset-gray-800"
                     />
-                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                    <span className="text-sm text-ink group-hover:text-ink transition-colors">
                       {opt.label}
                     </span>
                   </label>
@@ -255,9 +266,9 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose, currentFilters }: Sear
                           priceRange: e.target.value,
                         }))
                       }
-                      className="w-4 h-4 text-sky-500 bg-gray-700 border-gray-600 focus:ring-sky-500 focus:ring-offset-gray-800"
+                      className="w-4 h-4 text-sky-500 bg-fill border-hairline focus:ring-sky-500 focus:ring-offset-gray-800"
                     />
-                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                    <span className="text-sm text-ink group-hover:text-ink transition-colors">
                       {range.label}
                     </span>
                   </label>
@@ -271,7 +282,7 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose, currentFilters }: Sear
                 onChange={(e) =>
                   setFilters((prev) => ({ ...prev, country: e.target.value }))
                 }
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                className="w-full px-3 py-2 bg-fill border border-hairline rounded-lg text-ink text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
               >
                 {countries.map((c) => (
                   <option key={c.value} value={c.value}>
@@ -280,9 +291,122 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose, currentFilters }: Sear
                 ))}
               </select>
             </CollapsibleSection>
+
+            <CollapsibleSection title="Ngày nhận / trả phòng">
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs text-ink-soft mb-1">
+                    <FiCalendar className="inline w-3 h-3 mr-1" />
+                    Nhận phòng
+                  </label>
+                  <input
+                    type="date"
+                    value={filters.checkIn}
+                    onChange={(e) =>
+                      setFilters((prev) => ({ ...prev, checkIn: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 bg-fill border border-hairline rounded-lg text-ink text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-ink-soft mb-1">
+                    <FiCalendar className="inline w-3 h-3 mr-1" />
+                    Trả phòng
+                  </label>
+                  <input
+                    type="date"
+                    value={filters.checkOut}
+                    min={filters.checkIn || undefined}
+                    onChange={(e) =>
+                      setFilters((prev) => ({ ...prev, checkOut: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 bg-fill border border-hairline rounded-lg text-ink text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                  />
+                </div>
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection title="Số khách & Phòng">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm text-ink flex items-center gap-1">
+                    <FiUsers className="w-3 h-3" />
+                    Người lớn
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          adults: Math.max(1, prev.adults - 1),
+                        }))
+                      }
+                      className="w-8 h-8 bg-fill border border-hairline rounded text-ink hover:bg-hairline transition-colors text-sm font-bold"
+                      aria-label="Giảm số người lớn"
+                    >
+                      −
+                    </button>
+                    <span className="w-8 text-center text-sm text-ink font-medium">
+                      {filters.adults}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          adults: Math.min(10, prev.adults + 1),
+                        }))
+                      }
+                      className="w-8 h-8 bg-fill border border-hairline rounded text-ink hover:bg-hairline transition-colors text-sm font-bold"
+                      aria-label="Tăng số người lớn"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm text-ink flex items-center gap-1">
+                    <FiCalendar className="w-3 h-3" />
+                    Phòng
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          rooms: Math.max(1, prev.rooms - 1),
+                        }))
+                      }
+                      className="w-8 h-8 bg-fill border border-hairline rounded text-ink hover:bg-hairline transition-colors text-sm font-bold"
+                      aria-label="Giảm số phòng"
+                    >
+                      −
+                    </button>
+                    <span className="w-8 text-center text-sm text-ink font-medium">
+                      {filters.rooms}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          rooms: Math.min(5, prev.rooms + 1),
+                        }))
+                      }
+                      className="w-8 h-8 bg-fill border border-hairline rounded text-ink hover:bg-hairline transition-colors text-sm font-bold"
+                      aria-label="Tăng số phòng"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </CollapsibleSection>
           </div>
 
-          <div className="p-4 border-t border-gray-700 space-y-2">
+          <div className="p-4 border-t border-hairline space-y-2">
             <button
               type="button"
               onClick={handleApply}
@@ -294,7 +418,7 @@ const SearchFilters = ({ onFilterChange, isOpen, onClose, currentFilters }: Sear
               <button
                 type="button"
                 onClick={handleClear}
-                className="w-full py-2.5 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 hover:text-white transition-colors text-sm"
+                className="w-full py-2.5 bg-fill text-ink rounded-lg hover:bg-hairline hover:text-ink transition-colors text-sm"
               >
                 Xóa bộ lọc
               </button>

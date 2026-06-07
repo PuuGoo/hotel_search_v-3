@@ -35,14 +35,14 @@ export default function ExportButtons({ results, disabled, showDuringRun }: Expo
         <>
           <button
             onClick={() => downloadCSV(results, `hotel_results_${timestamp}.csv`)}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg text-sm transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-fill hover:bg-hairline text-gray-200 rounded-lg text-sm transition-colors"
           >
             <FiFileText />
             CSV
           </button>
           <button
             onClick={() => downloadJSON(results, `hotel_results_${timestamp}.json`)}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg text-sm transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-fill hover:bg-hairline text-gray-200 rounded-lg text-sm transition-colors"
           >
             <FiDownload />
             JSON

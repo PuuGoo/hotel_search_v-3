@@ -69,7 +69,7 @@ export async function PUT(request: Request) {
       return new NextResponse("Invalid JSON body", { status: 400 });
     }
 
-    const { userId, storageLimit } = body;
+    const { userId, storageLimit } = body as { userId: string; storageLimit: number };
 
     if (!userId || typeof storageLimit !== "number" || storageLimit < 0) {
       return new NextResponse("Invalid parameters", { status: 400 });

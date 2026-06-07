@@ -34,13 +34,13 @@ const MobileLink: React.FC<MobileItemProps> = memo(({ href, icon: Icon, active, 
         w-full
         justify-center
         p-4
-        text-gray-500
-        hover:text-black
-        hover:bg-gray-100
+        text-ink-soft
+        hover:text-brand
+        hover:bg-brand-soft
         dark:hover:bg-lightgray
         dark:hover:text-gray-100
       `,
-        active && "bg-gray-100 text-black dark:bg-lightgray dark:text-gray-200"
+        active && "bg-brand-soft text-brand dark:bg-lightgray dark:text-gray-200"
       )}
     >
       <Icon className="h-6 w-6" />

@@ -65,14 +65,14 @@ const DatabasePage = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <FiDatabase className="h-6 w-6 text-sky-400" />
-          <h2 className="text-xl font-semibold text-white">
+          <h2 className="text-xl font-semibold text-ink">
             Thống kê cơ sở dữ liệu
           </h2>
         </div>
         <button
           onClick={fetchStats}
           disabled={loading}
-          className="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-panel px-4 py-2 text-sm text-ink hover:bg-fill hover:text-ink transition-colors disabled:opacity-50"
         >
           <FiRefreshCw
             className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
@@ -90,34 +90,34 @@ const DatabasePage = () => {
       {data && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="rounded-xl bg-gray-800 border border-gray-700 p-6">
-              <p className="text-sm text-gray-400">Tổng bộ sưu tập</p>
-              <p className="text-3xl font-bold text-white mt-1">
+            <div className="rounded-xl bg-panel border border-hairline p-6">
+              <p className="text-sm text-ink-soft">Tổng bộ sưu tập</p>
+              <p className="text-3xl font-bold text-ink mt-1">
                 {data.stats.length}
               </p>
             </div>
-            <div className="rounded-xl bg-gray-800 border border-gray-700 p-6">
-              <p className="text-sm text-gray-400">Tổng số lượng tài liệu</p>
-              <p className="text-3xl font-bold text-white mt-1">
+            <div className="rounded-xl bg-panel border border-hairline p-6">
+              <p className="text-sm text-ink-soft">Tổng số lượng tài liệu</p>
+              <p className="text-3xl font-bold text-ink mt-1">
                 {data.totalCount.toLocaleString()}
               </p>
             </div>
-            <div className="rounded-xl bg-gray-800 border border-gray-700 p-6">
-              <p className="text-sm text-gray-400">Tổng chỉ mục</p>
-              <p className="text-3xl font-bold text-white mt-1">
+            <div className="rounded-xl bg-panel border border-hairline p-6">
+              <p className="text-sm text-ink-soft">Tổng chỉ mục</p>
+              <p className="text-3xl font-bold text-ink mt-1">
                 {data.stats.reduce((sum, s) => sum + s.indexes, 0)}
               </p>
             </div>
           </div>
 
           <section>
-            <h3 className="text-lg font-semibold text-white mb-4">
+            <h3 className="text-lg font-semibold text-ink mb-4">
               Bộ sưu tập
             </h3>
-            <div className="rounded-xl border border-gray-700 overflow-hidden">
+            <div className="rounded-xl border border-hairline overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-800 text-gray-400">
+                  <tr className="bg-panel text-ink-soft">
                     <th className="text-left px-4 py-3 font-medium">
                       Bộ sưu tập
                     </th>
@@ -136,19 +136,19 @@ const DatabasePage = () => {
                   {data.stats.map((s) => (
                     <tr
                       key={s.name}
-                      className="border-t border-gray-700 hover:bg-gray-800/50"
+                      className="border-t border-hairline hover:bg-panel/50"
                     >
-                      <td className="px-4 py-3 text-white font-mono">
+                      <td className="px-4 py-3 text-ink font-mono">
                         {s.name}
                       </td>
-                      <td className="px-4 py-3 text-right text-gray-300">
+                      <td className="px-4 py-3 text-right text-ink">
                         {s.count.toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-right text-gray-300">
+                      <td className="px-4 py-3 text-right text-ink">
                         {s.indexes}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-2 bg-fill rounded-full overflow-hidden">
                           <div
                             className="h-full bg-sky-500 rounded-full transition-all"
                             style={{
@@ -168,7 +168,7 @@ const DatabasePage = () => {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-white mb-4">
+            <h3 className="text-lg font-semibold text-ink mb-4">
               Chỉ mục theo bộ sưu tập
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -177,17 +177,17 @@ const DatabasePage = () => {
                 .map((s) => (
                   <div
                     key={s.name}
-                    className="rounded-xl bg-gray-800 border border-gray-700 p-4"
+                    className="rounded-xl bg-panel border border-hairline p-4"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-mono text-white text-sm">
+                      <span className="font-mono text-ink text-sm">
                         {s.name}
                       </span>
-                      <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded-full">
+                      <span className="text-xs text-ink-soft bg-fill px-2 py-0.5 rounded-full">
                         {s.indexes} chỉ mục
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-ink-soft">
                       {s.count.toLocaleString()} tài liệu
                     </p>
                   </div>
@@ -196,11 +196,11 @@ const DatabasePage = () => {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-white mb-4">
+            <h3 className="text-lg font-semibold text-ink mb-4">
               Tối ưu hóa
             </h3>
-            <div className="rounded-xl bg-gray-800 border border-gray-700 p-6 space-y-4">
-              <p className="text-gray-300 text-sm">
+            <div className="rounded-xl bg-panel border border-hairline p-6 space-y-4">
+              <p className="text-ink text-sm">
                 Dưới đây là các chỉ mục đang được sử dụng và khuyến nghị cho
                 từng bộ sưu tập. Các chỉ mục đã được tối ưu hóa trong schema
                 Prisma.
@@ -210,7 +210,7 @@ const DatabasePage = () => {
                   ([collection, indexes]) => (
                     <div
                       key={collection}
-                      className="rounded-lg bg-gray-900 border border-gray-700 p-4"
+                      className="rounded-lg bg-canvas border border-hairline p-4"
                     >
                       <h4 className="font-mono text-sky-400 text-sm mb-2">
                         {collection}
@@ -219,7 +219,7 @@ const DatabasePage = () => {
                         {indexes.map((idx) => (
                           <li
                             key={idx}
-                            className="text-xs text-gray-400 flex items-center gap-2"
+                            className="text-xs text-ink-soft flex items-center gap-2"
                           >
                             <span className="h-1 w-1 rounded-full bg-green-400 flex-shrink-0" />
                             {idx}
@@ -237,8 +237,8 @@ const DatabasePage = () => {
 
       {loading && !data && (
         <div className="flex items-center justify-center py-16">
-          <FiRefreshCw className="h-6 w-6 text-gray-500 animate-spin" />
-          <span className="ml-3 text-gray-400">Đang tải...</span>
+          <FiRefreshCw className="h-6 w-6 text-ink-soft animate-spin" />
+          <span className="ml-3 text-ink-soft">Đang tải...</span>
         </div>
       )}
     </div>

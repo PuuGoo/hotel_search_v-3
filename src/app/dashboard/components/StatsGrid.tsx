@@ -115,13 +115,13 @@ const StatsGrid: React.FC<StatsGridProps> = ({ stats, loading }) => {
         ? Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="bg-gray-800 rounded-lg p-5 animate-pulse"
+              className="bg-panel rounded-lg p-5 animate-pulse"
             >
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-gray-700 rounded-lg" />
+                <div className="h-12 w-12 bg-fill rounded-lg" />
                 <div className="flex-1">
-                  <div className="h-4 w-20 bg-gray-700 rounded mb-2" />
-                  <div className="h-7 w-14 bg-gray-700 rounded" />
+                  <div className="h-4 w-20 bg-fill rounded mb-2" />
+                  <div className="h-7 w-14 bg-fill rounded" />
                 </div>
               </div>
             </div>
@@ -129,16 +129,16 @@ const StatsGrid: React.FC<StatsGridProps> = ({ stats, loading }) => {
         : cards.map((card) => (
             <div
               key={card.label}
-              className="bg-gray-800 rounded-lg p-5 hover:bg-gray-750 transition-colors"
+              className="bg-panel rounded-lg p-5 hover:bg-fill transition-colors"
             >
               <div className="flex items-center gap-4">
                 <div className={`p-3 rounded-lg ${card.colorClass}`}>
                   {card.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-400">{card.label}</p>
+                  <p className="text-sm text-ink-soft">{card.label}</p>
                   <div className="flex items-center gap-2">
-                    <p className="text-2xl font-bold text-white">
+                    <p className="text-2xl font-bold text-ink">
                       {card.value.toLocaleString("vi-VN")}
                     </p>
                     <TrendIndicator value={card.trend} />

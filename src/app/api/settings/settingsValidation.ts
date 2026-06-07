@@ -22,8 +22,9 @@ export type SettingsResult =
   | { ok: true; data: { name?: string; image?: string } }
   | { ok: false; error: string };
 
-export function validateSettings(body: any): SettingsResult {
-  const { name, image } = body ?? {};
+export function validateSettings(body: unknown): SettingsResult {
+  const b = body as Record<string, unknown> | null | undefined;
+  const { name, image } = (b ?? {}) as { name?: string; image?: string };
 
   if (name != null && (typeof name !== "string" || name.trim().length === 0 || name.length > MAX_NAME_LEN)) {
     return { ok: false, error: "Tên không hợp lệ" };

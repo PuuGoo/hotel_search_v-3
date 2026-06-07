@@ -64,14 +64,14 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onSend, onCancel }) => {
   };
 
   return (
-    <div className="bg-gray-800 border-t border-lightgray px-4 py-3">
+    <div className="bg-panel border-t border-lightgray px-4 py-3">
       {!audioBlob ? (
         <div className="flex items-center gap-3">
           {isRecording ? (
             <>
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-sm text-white font-medium">
+                <span className="text-sm text-ink font-medium">
                   {formatDuration(duration)}
                 </span>
               </div>
@@ -98,14 +98,14 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onSend, onCancel }) => {
             </>
           ) : (
             <>
-              <span className="text-sm text-gray-400">Bắt đầu ghi âm</span>
+              <span className="text-sm text-ink-soft">Bắt đầu ghi âm</span>
               <div className="flex-1" />
               <button
                 onClick={handleCancel}
-                className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+                className="p-2 rounded-full hover:bg-fill transition-colors"
                 title="Hủy"
               >
-                <HiXMark size={20} className="text-gray-400" />
+                <HiXMark size={20} className="text-ink-soft" />
               </button>
               <button
                 onClick={handleStart}
@@ -121,7 +121,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onSend, onCancel }) => {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-sky-500" />
-            <span className="text-sm text-white font-medium">
+            <span className="text-sm text-ink font-medium">
               {formatDuration(duration)}
             </span>
           </div>
@@ -137,17 +137,17 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onSend, onCancel }) => {
           </div>
           <button
             onClick={handleNewRecording}
-            className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+            className="p-2 rounded-full hover:bg-fill transition-colors"
             title="Ghi lại"
           >
-            <HiMicrophone size={18} className="text-gray-400" />
+            <HiMicrophone size={18} className="text-ink-soft" />
           </button>
           <button
             onClick={handleCancel}
-            className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+            className="p-2 rounded-full hover:bg-fill transition-colors"
             title="Hủy"
           >
-            <HiXMark size={20} className="text-gray-400" />
+            <HiXMark size={20} className="text-ink-soft" />
           </button>
           <button
             onClick={handleSend}

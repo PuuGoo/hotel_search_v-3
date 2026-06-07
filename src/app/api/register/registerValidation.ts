@@ -19,8 +19,9 @@ export type RegistrationResult =
   | { ok: true; email: string; name: string; password: string }
   | { ok: false; error: string };
 
-export function validateRegistration(body: any): RegistrationResult {
-  const { email, name, password } = body ?? {};
+export function validateRegistration(body: unknown): RegistrationResult {
+  const b = body as Record<string, unknown> | null | undefined;
+  const { email, name, password } = (b ?? {}) as Record<string, unknown>;
 
   if (!email || !name || !password) {
     return { ok: false, error: "Thiếu thông tin" };

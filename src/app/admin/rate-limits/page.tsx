@@ -126,8 +126,8 @@ const RateLimitsPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <FiRefreshCw className="h-6 w-6 text-gray-400 animate-spin" />
-        <span className="ml-3 text-gray-400">Đang tải...</span>
+        <FiRefreshCw className="h-6 w-6 text-ink-soft animate-spin" />
+        <span className="ml-3 text-ink-soft">Đang tải...</span>
       </div>
     );
   }
@@ -147,55 +147,55 @@ const RateLimitsPage = () => {
       )}
 
       <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Thống kê</h2>
+        <h2 className="text-lg font-semibold text-ink mb-4">Thống kê</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-panel rounded-lg p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-lg bg-sky-500/20 text-sky-400">
                 <FiShield className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-400">Khóa đang hoạt động</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-ink-soft">Khóa đang hoạt động</p>
+                <p className="text-2xl font-bold text-ink">
                   {stats?.totalKeys ?? 0}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-panel rounded-lg p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-lg bg-red-500/20 text-red-400">
                 <FiAlertTriangle className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-400">Đang bị chặn</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-ink-soft">Đang bị chặn</p>
+                <p className="text-2xl font-bold text-ink">
                   {stats?.totalBlocked ?? 0}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-panel rounded-lg p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-lg bg-yellow-500/20 text-yellow-400">
                 <FiClock className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-400">Chặn trong 24 giờ</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-ink-soft">Chặn trong 24 giờ</p>
+                <p className="text-2xl font-bold text-ink">
                   {stats?.blockedLast24h ?? 0}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-panel rounded-lg p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-lg bg-purple-500/20 text-purple-400">
                 <FiShield className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-400">Giới hạn hiện tại</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm text-ink-soft">Giới hạn hiện tại</p>
+                <p className="text-2xl font-bold text-ink">
                   {stats?.config.max ?? 30} / {formatWindow(stats?.config.windowMs ?? 60000)}
                 </p>
               </div>
@@ -205,13 +205,13 @@ const RateLimitsPage = () => {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Cấu hình giới hạn</h2>
+        <h2 className="text-lg font-semibold text-ink mb-4">Cấu hình giới hạn</h2>
         <form
           onSubmit={handleSaveConfig}
-          className="bg-gray-800 rounded-lg p-6 space-y-4 max-w-lg"
+          className="bg-panel rounded-lg p-6 space-y-4 max-w-lg"
         >
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="block text-sm text-ink-soft mb-1">
               Kích thước cửa sổ (phút)
             </label>
             <input
@@ -219,11 +219,11 @@ const RateLimitsPage = () => {
               value={windowMs}
               onChange={(e) => setWindowMs(Number(e.target.value))}
               min={1}
-              className="w-full rounded-lg bg-gray-700 border border-gray-600 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full rounded-lg bg-fill border border-hairline px-4 py-2 text-ink focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="block text-sm text-ink-soft mb-1">
               Số yêu cầu tối đa
             </label>
             <input
@@ -231,7 +231,7 @@ const RateLimitsPage = () => {
               value={max}
               onChange={(e) => setMax(Number(e.target.value))}
               min={1}
-              className="w-full rounded-lg bg-gray-700 border border-gray-600 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full rounded-lg bg-fill border border-hairline px-4 py-2 text-ink focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
           <button
@@ -247,7 +247,7 @@ const RateLimitsPage = () => {
 
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">
+          <h2 className="text-lg font-semibold text-ink">
             IP đang hoạt động ({stats?.active.length ?? 0})
           </h2>
           <button
@@ -261,10 +261,10 @@ const RateLimitsPage = () => {
             Đặt lại tất cả
           </button>
         </div>
-        <div className="bg-gray-800 rounded-lg overflow-hidden">
+        <div className="bg-panel rounded-lg overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-700 text-gray-400">
+              <tr className="border-b border-hairline text-ink-soft">
                 <th className="px-6 py-3 text-left font-medium">Khóa</th>
                 <th className="px-6 py-3 text-left font-medium">Đã dùng</th>
                 <th className="px-6 py-3 text-left font-medium">Giới hạn</th>
@@ -276,7 +276,7 @@ const RateLimitsPage = () => {
             <tbody>
               {stats?.active.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-8 text-center text-ink-soft">
                     Không có yêu cầu đang hoạt động
                   </td>
                 </tr>
@@ -284,13 +284,13 @@ const RateLimitsPage = () => {
                 stats?.active.map((entry) => (
                   <tr
                     key={entry.key}
-                    className="border-b border-gray-700/50 last:border-0"
+                    className="border-b border-hairline/50 last:border-0"
                   >
-                    <td className="px-6 py-3 text-white font-mono text-xs">
+                    <td className="px-6 py-3 text-ink font-mono text-xs">
                       {entry.key}
                     </td>
-                    <td className="px-6 py-3 text-white">{entry.used}</td>
-                    <td className="px-6 py-3 text-gray-300">{entry.limit}</td>
+                    <td className="px-6 py-3 text-ink">{entry.used}</td>
+                    <td className="px-6 py-3 text-ink">{entry.limit}</td>
                     <td className="px-6 py-3">
                       {entry.blocked ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-medium text-red-400">
@@ -303,14 +303,14 @@ const RateLimitsPage = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-3 text-gray-400">
+                    <td className="px-6 py-3 text-ink-soft">
                       {formatMs(entry.resetInMs)}
                     </td>
                     <td className="px-6 py-3 text-right">
                       <button
                         onClick={() => handleReset(entry.key)}
                         disabled={resetting === entry.key}
-                        className="inline-flex items-center gap-1 rounded-lg bg-gray-700 px-3 py-1.5 text-xs font-medium text-gray-300 hover:bg-gray-600 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-1 rounded-lg bg-fill px-3 py-1.5 text-xs font-medium text-ink hover:bg-hairline transition-colors disabled:opacity-50"
                       >
                         <FiRefreshCw
                           className={`h-3 w-3 ${
@@ -330,13 +330,13 @@ const RateLimitsPage = () => {
 
       {(stats?.mostBlocked.length ?? 0) > 0 && (
         <section>
-          <h2 className="text-lg font-semibold text-white mb-4">
+          <h2 className="text-lg font-semibold text-ink mb-4">
             IP bị chặn nhiều nhất
           </h2>
-          <div className="bg-gray-800 rounded-lg overflow-hidden">
+          <div className="bg-panel rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-700 text-gray-400">
+                <tr className="border-b border-hairline text-ink-soft">
                   <th className="px-6 py-3 text-left font-medium">Khóa</th>
                   <th className="px-6 py-3 text-left font-medium">Đã dùng</th>
                   <th className="px-6 py-3 text-left font-medium">Giới hạn</th>
@@ -347,20 +347,20 @@ const RateLimitsPage = () => {
                 {stats?.mostBlocked.map((entry) => (
                   <tr
                     key={entry.key}
-                    className="border-b border-gray-700/50 last:border-0"
+                    className="border-b border-hairline/50 last:border-0"
                   >
-                    <td className="px-6 py-3 text-white font-mono text-xs">
+                    <td className="px-6 py-3 text-ink font-mono text-xs">
                       {entry.key}
                     </td>
                     <td className="px-6 py-3 text-red-400 font-medium">
                       {entry.used}
                     </td>
-                    <td className="px-6 py-3 text-gray-300">{entry.limit}</td>
+                    <td className="px-6 py-3 text-ink">{entry.limit}</td>
                     <td className="px-6 py-3 text-right">
                       <button
                         onClick={() => handleReset(entry.key)}
                         disabled={resetting === entry.key}
-                        className="inline-flex items-center gap-1 rounded-lg bg-gray-700 px-3 py-1.5 text-xs font-medium text-gray-300 hover:bg-gray-600 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-1 rounded-lg bg-fill px-3 py-1.5 text-xs font-medium text-ink hover:bg-hairline transition-colors disabled:opacity-50"
                       >
                         <FiRefreshCw
                           className={`h-3 w-3 ${

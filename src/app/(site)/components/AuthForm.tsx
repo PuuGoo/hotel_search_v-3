@@ -9,7 +9,6 @@ import { BsGithub, BsGoogle } from "react-icons/bs";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-import Button from "../../components/Button";
 import Input from "../../components/inputs/Input";
 import LoadingModal from "../../components/modals/LoadingModal";
 import AuthSocialButton from "./AuthSocialButton";
@@ -111,10 +110,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
   return (
     <>
       {session?.status === "loading" && <LoadingModal />}
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className=" bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10 dark:bg-dusk dark:sm:border-2 dark:border-lightgray">
+      <div className="auth-rise auth-rise-4">
+        <div>
           <form
-            className="space-y-6"
+            className="space-y-4"
             method="post"
             onSubmit={handleSubmit(onSubmit)}
           >
@@ -157,12 +156,19 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
               </div>
             )}
             <div>
-              <Button disabled={isLoading} fullWidth type="submit">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="auth-shimmer-btn w-full flex justify-center items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-brand to-accent hover:from-brand-dark hover:to-accent-dark shadow-bubble transition-all hover:shadow-card active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50 disabled:cursor-default"
+              >
+                {isLoading && (
+                  <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                )}
                 {variant === "LOGIN" ? "Đăng nhập" : "Đăng ký"}
-              </Button>
+              </button>
             </div>
           </form>
-          <div className="mt-6">
+          <div className="mt-5">
             <div className="relative">
               <div
                 className="
@@ -175,26 +181,26 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
                 <div className="w-full border-t border-gray-300 dark:border-t-2 dark:border-lightgray" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500 dark:bg-dusk dark:text-gray-200">
+                <span className="bg-white px-2 text-ink-soft dark:bg-dusk dark:text-gray-200">
                   Hoặc tiếp tục với
                 </span>
               </div>
             </div>
 
-            <div className="mt-6 flex gap-2">
+            <div className="mt-5 flex gap-2">
               <AuthSocialButton icon={BsGithub} onClick={() => socialAction("github")} disabled={isLoading} />
               <AuthSocialButton icon={BsGoogle} onClick={() => socialAction("google")} disabled={isLoading} />
             </div>
           </div>
           <div
             className="
-            mt-6 
+            mt-5 
             flex 
             justify-center 
             gap-2 
             px-2 
             text-sm 
-            text-gray-500
+            text-ink-soft
             dark:text-gray-400
           "
           >

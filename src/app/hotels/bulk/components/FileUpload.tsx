@@ -84,7 +84,7 @@ export default function FileUpload({ onFileLoaded, disabled }: FileUploadProps) 
         onClick={() => !disabled && inputRef.current?.click()}
         className={`
           relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-          ${dragActive ? "border-sky-400 bg-sky-900/20" : "border-gray-600 hover:border-gray-500"}
+          ${dragActive ? "border-sky-400 bg-sky-900/20" : "border-hairline hover:border-gray-300"}
           ${disabled ? "opacity-50 cursor-not-allowed" : ""}
         `}
       >
@@ -103,7 +103,7 @@ export default function FileUpload({ onFileLoaded, disabled }: FileUploadProps) 
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            <span className="text-gray-300">Đang đọc file...</span>
+            <span className="text-ink">Đang đọc file...</span>
           </div>
         ) : fileName ? (
           <div className="flex items-center justify-center gap-3">
@@ -114,22 +114,22 @@ export default function FileUpload({ onFileLoaded, disabled }: FileUploadProps) 
                 e.stopPropagation();
                 clearFile();
               }}
-              className="text-gray-400 hover:text-red-400 transition-colors"
+              className="text-ink-soft hover:text-red-400 transition-colors"
             >
               <FiX />
             </button>
           </div>
         ) : (
           <div>
-            <FiUpload className="mx-auto text-3xl text-gray-400 mb-3" />
-            <p className="text-gray-300 mb-1">
+            <FiUpload className="mx-auto text-3xl text-ink-soft mb-3" />
+            <p className="text-ink mb-1">
               Kéo thả file Excel vào đây hoặc{" "}
               <span className="text-sky-400 underline">chọn file</span>
             </p>
-            <p className="text-gray-500 text-sm">
+            <p className="text-ink-soft text-sm">
               Hỗ trợ .xlsx, .xls (tối đa 20MB)
             </p>
-            <p className="text-gray-500 text-xs mt-2">
+            <p className="text-ink-soft text-xs mt-2">
               Cột: No, Hotel Name, Address, URL Type (tùy chọn)
             </p>
           </div>

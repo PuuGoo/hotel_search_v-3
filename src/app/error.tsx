@@ -19,9 +19,9 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex h-full min-h-screen flex-col items-center justify-center gap-4 bg-gray-900 px-4 text-center">
-      <h2 className="text-xl font-semibold text-white">Đã xảy ra lỗi</h2>
-      <p className="max-w-md text-sm text-gray-400">
+    <div className="flex h-full min-h-screen flex-col items-center justify-center gap-4 bg-canvas px-4 text-center">
+      <h2 className="text-xl font-semibold text-ink">Đã xảy ra lỗi</h2>
+      <p className="max-w-md text-sm text-ink-soft">
         Có lỗi không mong muốn xảy ra. Vui lòng thử lại.
       </p>
       <button

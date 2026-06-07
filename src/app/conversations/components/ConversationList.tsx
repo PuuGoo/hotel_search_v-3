@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MdOutlineGroupAdd } from "react-icons/md";
+import { HiMagnifyingGlass } from "react-icons/hi2";
 
 import { User } from "@prisma/client";
 import { useSession } from "next-auth/react";
@@ -19,6 +20,7 @@ interface ConversationListProps {
 
 const ConversationList: React.FC<ConversationListProps> = ({ initialItems }) => {
   const [items, setItems] = useState(initialItems);
+  const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [usersLoaded, setUsersLoaded] = useState(false);
@@ -121,6 +123,19 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems }) => 
     await handleOpenModal();
   }, [loadModal, handleOpenModal]);
 
+  const filteredItems = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((item) => {
+      const name = (item.name || "").toLowerCase();
+      const userNames = (item.users || [])
+        .map((u) => (u?.name || "").toLowerCase())
+        .join(" ");
+      const lastBody = (item.messages?.[item.messages.length - 1]?.body || "").toLowerCase();
+      return name.includes(q) || userNames.includes(q) || lastBody.includes(q);
+    });
+  }, [items, search]);
+
   return (
     <>
       {GroupChatModal && (
@@ -138,35 +153,56 @@ const ConversationList: React.FC<ConversationListProps> = ({ initialItems }) => 
           lg:block
           overflow-y-auto 
           border-r 
-          border-gray-200 
+          border-hairline 
+          bg-panel
+          dark:bg-dusk
           dark:border-lightgray
         `,
           isOpen ? "hidden" : "block w-full left-0"
         )}
       >
-        <div className="px-5">
-          <div className="flex justify-between mb-4 pt-4">
-            <div className="text-2xl font-bold text-neutral-800 dark:text-gray-200">Tin nhắn</div>
+        <div className="px-4">
+          <div className="flex justify-between items-center mb-3 pt-4">
+            <div className="text-2xl font-bold text-ink dark:text-gray-200">Tin nhắn</div>
             <div
               onClick={handleOpenModalWithLoad}
-              className="
-                rounded-full 
-                p-2 
-                bg-gray-100 
-                text-gray-600 
-                cursor-pointer 
-                hover:opacity-75 
-                transition
-                dark:bg-lightgray
-                dark:text-gray-200
-              "
+              className="ms-icon-btn cursor-pointer"
+              title="Tạo nhóm trò chuyện"
             >
               <MdOutlineGroupAdd size={20} />
             </div>
           </div>
-          {items.map((item) => (
-            <ConversationBox key={item.id} data={item} selected={conversationId === item.id} />
-          ))}
+
+          {/* Search bar */}
+          <div className="relative mb-3">
+            <HiMagnifyingGlass
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft"
+              size={16}
+            />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm cuộc trò chuyện..."
+              className="
+                w-full rounded-lg bg-fill py-2.5 pl-9 pr-3 text-sm text-ink
+                placeholder:text-ink-soft border-none focus:ring-2 focus:ring-brand/40
+                dark:bg-lightgray dark:text-gray-100
+              "
+            />
+          </div>
+
+          <div className="space-y-1">
+            {filteredItems.length === 0 ? (
+              <p className="text-sm text-ink-soft text-center py-6 select-none">
+                Không có cuộc trò chuyện nào
+              </p>
+            ) : (
+              filteredItems.map((item) => (
+                <ConversationBox key={item.id} data={item} selected={conversationId === item.id} />
+              ))
+            )}
+          </div>
         </div>
       </aside>
     </>

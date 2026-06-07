@@ -118,23 +118,23 @@ const PriceAlertModal: React.FC<PriceAlertModalProps> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform rounded-xl bg-gray-800 p-6 shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-md transform rounded-xl bg-panel p-6 shadow-xl transition-all">
                 <Dialog.Title as="div" className="flex items-center gap-3 mb-6">
                   <div className="p-2 rounded-lg bg-sky-500/20">
                     <FiBell className="h-5 w-5 text-sky-400" />
                   </div>
-                  <h2 className="text-lg font-semibold text-white">Theo dõi giá</h2>
+                  <h2 className="text-lg font-semibold text-ink">Theo dõi giá</h2>
                   <button
                     onClick={onClose}
-                    className="ml-auto text-gray-400 hover:text-white"
+                    className="ml-auto text-ink-soft hover:text-ink"
                     aria-label="Đóng"
                   >
                     <FiX className="h-5 w-5" />
                   </button>
                 </Dialog.Title>
 
-                <p className="text-sm text-gray-400 mb-4">
-                  Khách sạn: <span className="text-white">{hotelName}</span>
+                <p className="text-sm text-ink-soft mb-4">
+                  Khách sạn: <span className="text-ink">{hotelName}</span>
                   {hotelUrl && (
                     <span className="block text-xs text-sky-400 truncate mt-0.5">
                       {safeHref(hotelUrl) ? (
@@ -154,17 +154,17 @@ const PriceAlertModal: React.FC<PriceAlertModalProps> = ({
                 </p>
 
                 {checking ? (
-                  <div className="flex items-center justify-center py-8 text-gray-400">
+                  <div className="flex items-center justify-center py-8 text-ink-soft">
                     <FiLoader className="animate-spin h-5 w-5 mr-2" />
                     Đang kiểm tra...
                   </div>
                 ) : existingAlert ? (
                   <div className="space-y-4">
-                    <div className="bg-gray-700/50 rounded-lg p-4">
-                      <p className="text-sm text-gray-400">
+                    <div className="bg-fill/50 rounded-lg p-4">
+                      <p className="text-sm text-ink-soft">
                         Đã có cảnh báo giá cho khách sạn này.
                       </p>
-                      <p className="text-sm text-white mt-1">
+                      <p className="text-sm text-ink mt-1">
                         Giá mục tiêu hiện tại:{" "}
                         <span className="text-sky-400 font-medium">
                           {existingAlert.targetPrice.toLocaleString("vi-VN")}₫
@@ -173,7 +173,7 @@ const PriceAlertModal: React.FC<PriceAlertModalProps> = ({
                     </div>
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div>
-                        <label htmlFor="update-target-price" className="block text-sm font-medium text-gray-300 mb-1">
+                        <label htmlFor="update-target-price" className="block text-sm font-medium text-ink mb-1">
                           Giá mục tiêu mới (₫)
                         </label>
                         <input
@@ -183,13 +183,13 @@ const PriceAlertModal: React.FC<PriceAlertModalProps> = ({
                           value={targetPrice}
                           onChange={(e) => setTargetPrice(e.target.value)}
                           placeholder="Nhập giá mục tiêu"
-                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-sky-500"
+                          className="w-full px-3 py-2 bg-fill border border-hairline rounded-lg text-ink placeholder-ink-soft focus:outline-none focus:border-sky-500"
                           min="0"
                           step="1000"
                           aria-describedby="update-price-hint"
                           required
                         />
-                        <p id="update-price-hint" className="text-xs text-gray-500 mt-1">Nhập giá bằng VNĐ, ví dụ: 1000000</p>
+                        <p id="update-price-hint" className="text-xs text-ink-soft mt-1">Nhập giá bằng VNĐ, ví dụ: 1000000</p>
                       </div>
                       <button
                         type="submit"
@@ -203,7 +203,7 @@ const PriceAlertModal: React.FC<PriceAlertModalProps> = ({
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <label htmlFor="new-target-price" className="block text-sm font-medium text-gray-300 mb-1">
+                      <label htmlFor="new-target-price" className="block text-sm font-medium text-ink mb-1">
                         Giá mục tiêu (₫)
                       </label>
                       <input
@@ -213,14 +213,14 @@ const PriceAlertModal: React.FC<PriceAlertModalProps> = ({
                         value={targetPrice}
                         onChange={(e) => setTargetPrice(e.target.value)}
                         placeholder="Nhập giá bạn muốn theo dõi"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-sky-500"
+                        className="w-full px-3 py-2 bg-fill border border-hairline rounded-lg text-ink placeholder-ink-soft focus:outline-none focus:border-sky-500"
                         min="0"
                         step="1000"
                         aria-describedby="new-price-hint"
                         autoFocus
                         required
                       />
-                      <p id="new-price-hint" className="text-xs text-gray-500 mt-1">Nhập giá bằng VNĐ, ví dụ: 1000000</p>
+                      <p id="new-price-hint" className="text-xs text-ink-soft mt-1">Nhập giá bằng VNĐ, ví dụ: 1000000</p>
                     </div>
                     <button
                       type="submit"

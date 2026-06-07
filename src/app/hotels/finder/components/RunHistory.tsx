@@ -71,9 +71,9 @@ export default function RunHistory() {
 
   return (
     <>
-      <div className="bg-gray-800 rounded-lg p-6 mt-6">
+      <div className="bg-panel rounded-lg p-6 mt-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
             <FiClock className="text-sky-400" />
             Lịch sử chạy
           </h2>
@@ -89,7 +89,7 @@ export default function RunHistory() {
         </div>
 
         {selected.size < 2 && (
-          <p className="text-gray-500 text-sm mb-3">Chọn 2 kết quả để so sánh</p>
+          <p className="text-ink-soft text-sm mb-3">Chọn 2 kết quả để so sánh</p>
         )}
 
         <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -99,24 +99,24 @@ export default function RunHistory() {
               className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
                 selected.has(run.id)
                   ? "bg-sky-900/30 border-sky-700/50"
-                  : "bg-gray-700/50 border-transparent hover:border-gray-600"
+                  : "bg-fill/50 border-transparent hover:border-gray-300"
               }`}
             >
               <input
                 type="checkbox"
                 checked={selected.has(run.id)}
                 onChange={() => toggleSelect(run.id)}
-                className="w-4 h-4 rounded bg-gray-600 border-gray-500 text-sky-500 focus:ring-sky-500"
+                className="w-4 h-4 rounded bg-fill border-gray-300 text-sky-500 focus:ring-sky-500"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-white text-sm font-medium truncate">{run.name}</span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-ink text-sm font-medium truncate">{run.name}</span>
+                  <span className="text-xs text-ink-soft">
                     {new Date(run.date).toLocaleDateString("vi-VN")}
                   </span>
                 </div>
                 <div className="flex gap-2 mt-1">
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-600 text-gray-300">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-fill text-ink">
                     {run.stats.total} tổng
                   </span>
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900/50 text-green-400">
@@ -129,7 +129,7 @@ export default function RunHistory() {
               </div>
               <button
                 onClick={() => handleDelete(run.id)}
-                className="p-2 text-gray-500 hover:text-red-400 rounded-lg hover:bg-gray-600 transition-colors shrink-0"
+                className="p-2 text-ink-soft hover:text-red-400 rounded-lg hover:bg-hairline transition-colors shrink-0"
                 title="Xóa"
               >
                 <FiTrash2 size={14} />

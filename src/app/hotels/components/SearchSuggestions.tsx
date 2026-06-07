@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FiClock, FiSearch, FiX } from "react-icons/fi";
 import { useSearchHistory } from "../contexts/SearchHistoryContext";
 
@@ -118,13 +118,13 @@ const SearchSuggestions = ({
   return (
     <div
       ref={containerRef}
-      className="absolute left-0 right-0 top-full mt-1 z-50 bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden"
+      className="absolute left-0 right-0 top-full mt-1 z-50 bg-panel border border-hairline rounded-lg shadow-lg overflow-hidden"
       role="listbox"
       aria-label="Gợi ý tìm kiếm"
       id="search-suggestions-listbox"
     >
-      <div className="px-3 py-2 border-b border-gray-700 flex items-center justify-between">
-        <span className="text-xs text-gray-400 font-medium">
+      <div className="px-3 py-2 border-b border-hairline flex items-center justify-between">
+        <span className="text-xs text-ink-soft font-medium">
           {query.trim() ? "Gợi ý tìm kiếm" : "Tìm kiếm gần đây"}
         </span>
         <button
@@ -137,7 +137,7 @@ const SearchSuggestions = ({
             await clearAll();
             onClose();
           }}
-          className="text-xs text-gray-500 hover:text-red-400 transition-colors"
+          className="text-xs text-ink-soft hover:text-red-400 transition-colors"
         >
           Xóa lịch sử
         </button>
@@ -154,17 +154,17 @@ const SearchSuggestions = ({
             onMouseEnter={() => setActiveIndex(index)}
             className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors group ${
               index === activeIndex
-                ? "bg-gray-700 text-white"
-                : "text-gray-300 hover:bg-gray-750"
+                ? "bg-fill text-ink"
+                : "text-ink hover:bg-fill"
             }`}
             role="option"
             aria-selected={index === activeIndex}
             id={`suggestion-${index}`}
           >
             {query.trim() ? (
-              <FiSearch className="w-4 h-4 text-gray-500 flex-shrink-0" />
+              <FiSearch className="w-4 h-4 text-ink-soft flex-shrink-0" />
             ) : (
-              <FiClock className="w-4 h-4 text-gray-500 flex-shrink-0" />
+              <FiClock className="w-4 h-4 text-ink-soft flex-shrink-0" />
             )}
             <span className="flex-1 truncate text-sm">{entry.query}</span>
             <button
@@ -172,8 +172,8 @@ const SearchSuggestions = ({
               onClick={(e) => handleDelete(e, entry.id)}
               className={`p-1 rounded transition-colors ${
                 index === activeIndex
-                  ? "text-gray-400 hover:text-red-400 opacity-100"
-                  : "text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100"
+                  ? "text-ink-soft hover:text-red-400 opacity-100"
+                  : "text-ink-soft hover:text-red-400 opacity-0 group-hover:opacity-100"
               }`}
               aria-label={`Xóa gợi ý: ${entry.query}`}
             >
@@ -186,4 +186,4 @@ const SearchSuggestions = ({
   );
 };
 
-export default SearchSuggestions;
+export default React.memo(SearchSuggestions);

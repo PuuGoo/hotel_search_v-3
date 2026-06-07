@@ -76,14 +76,16 @@ const ConversationBox: React.FC<ConversationBoxProps> = memo(({ data, selected }
         flex 
         items-center 
         space-x-3 
-        p-3 
-        hover:bg-neutral-100
-        rounded-lg
-        transition
+        px-3
+        py-2.5
+        rounded-2xl
+        transition-all
+        duration-150
         cursor-pointer
+        hover:bg-fill
         dark:hover:bg-lightgray
         `,
-        selected ? "bg-neutral-100 dark:bg-lightgray" : ""
+        selected ? "ms-row-active" : ""
       )}
     >
       {data.isGroup ? <AvatarGroup users={data.users} /> : <Avatar user={otherUser} />}
@@ -91,35 +93,43 @@ const ConversationBox: React.FC<ConversationBoxProps> = memo(({ data, selected }
       <div className="min-w-0 flex-1">
         <div className="focus:outline-none">
           <span className="absolute inset-0" aria-hidden="true" />
-          <div className="flex justify-between items-center mb-1">
-            <p className="text-md font-medium text-gray-900 dark:text-gray-200">
+          <div className="flex justify-between items-center mb-0.5">
+            <p
+              className={clsx(
+                "text-[15px] font-semibold truncate",
+                selected ? "text-white" : "text-ink dark:text-gray-200"
+              )}
+            >
               {data.name || otherUser?.name || "Người dùng đã xóa"}
             </p>
             {lastMessage?.createdAt && (
               <p
-                className="
-                  text-xs 
-                  text-gray-400 
-                  font-light
-                "
+                className={clsx(
+                  "text-[11px] font-light shrink-0 ml-2",
+                  selected ? "text-white/80" : "text-ink-soft"
+                )}
               >
                 {format(new Date(lastMessage.createdAt), "p")}
               </p>
             )}
           </div>
-          <p
-            className={clsx(
-              `
-              truncate 
-              text-sm
-              `,
-              hasSeen
-                ? "text-gray-500 dark:text-gray-400"
-                : "text-black font-medium dark:text-gray-100"
+          <div className="flex items-center gap-2">
+            <p
+              className={clsx(
+                "truncate text-[13px] flex-1",
+                selected
+                  ? "text-white/90"
+                  : hasSeen
+                  ? "text-ink-soft dark:text-gray-400"
+                  : "text-ink font-semibold dark:text-gray-100"
+              )}
+            >
+              {lastMessageText}
+            </p>
+            {!hasSeen && !selected && (
+              <span className="h-2.5 w-2.5 rounded-full bg-brand shrink-0" aria-hidden="true" />
             )}
-          >
-            {lastMessageText}
-          </p>
+          </div>
         </div>
       </div>
     </div>

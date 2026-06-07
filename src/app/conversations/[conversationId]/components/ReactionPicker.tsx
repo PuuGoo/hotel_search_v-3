@@ -34,7 +34,7 @@ const ReactionPicker: React.FC<ReactionPickerProps> = ({ onSelect, isOpen, onClo
       ref={ref}
       className="
         absolute bottom-full left-0 mb-1
-        bg-gray-800 rounded-full px-2 py-1
+        bg-panel rounded-full px-2 py-1
         flex items-center gap-1
         shadow-lg z-50
       "
@@ -48,7 +48,7 @@ const ReactionPicker: React.FC<ReactionPickerProps> = ({ onSelect, isOpen, onClo
           }}
           className="
             text-lg hover:scale-125 transition-transform
-            p-1 rounded-full hover:bg-gray-700
+            p-1 rounded-full hover:bg-fill
           "
         >
           {emoji}

@@ -63,19 +63,19 @@ const MessageSearch: React.FC<MessageSearchProps> = ({ messages, onSelectMessage
   if (!isOpen) return null;
 
   return (
-    <div className="bg-gray-800 border-b border-gray-700 p-3">
+    <div className="bg-panel border-b border-hairline p-3">
       <div className="flex items-center gap-2">
-        <FiSearch size={18} className="text-gray-400 shrink-0" />
+        <FiSearch size={18} className="text-ink-soft shrink-0" />
         <input
           ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Tìm tin nhắn..."
-          className="flex-1 bg-gray-700 text-white text-sm rounded-lg px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-sky-500"
+          className="flex-1 bg-fill text-ink text-sm rounded-lg px-3 py-2 placeholder-ink-soft focus:outline-none focus:ring-1 focus:ring-sky-500"
         />
         {query && (
-          <span className="text-xs text-gray-400 whitespace-nowrap">
+          <span className="text-xs text-ink-soft whitespace-nowrap">
             {results.length} kết quả
           </span>
         )}
@@ -85,14 +85,14 @@ const MessageSearch: React.FC<MessageSearchProps> = ({ messages, onSelectMessage
             setQuery("");
             setResults([]);
           }}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="text-ink-soft hover:text-ink transition-colors"
         >
           <FiX size={18} />
         </button>
       </div>
 
       {query.trim() && results.length === 0 && (
-        <div className="text-center text-gray-400 text-sm py-4">
+        <div className="text-center text-ink-soft text-sm py-4">
           Không tìm thấy tin nhắn
         </div>
       )}
@@ -107,15 +107,15 @@ const MessageSearch: React.FC<MessageSearchProps> = ({ messages, onSelectMessage
                 const el = document.querySelector(`[data-message-id="${msg.id}"]`);
                 el?.scrollIntoView({ behavior: "smooth", block: "center" });
               }}
-              className="w-full text-left px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-sm text-white"
+              className="w-full text-left px-3 py-2 rounded-lg bg-fill hover:bg-hairline transition-colors text-sm text-ink"
             >
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs text-sky-400 font-medium">{msg.sender.name}</span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-ink-soft">
                   {new Date(msg.createdAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
-              <div className="text-gray-300 truncate">
+              <div className="text-ink truncate">
                 {highlightText(msg.body || "", query)}
               </div>
             </button>

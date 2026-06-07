@@ -79,12 +79,12 @@ const WidgetPicker: React.FC<WidgetPickerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
-          <h3 className="text-lg font-semibold text-white">Thêm widget</h3>
+      <div className="bg-panel rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-hairline">
+          <h3 className="text-lg font-semibold text-ink">Thêm widget</h3>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 text-ink-soft hover:text-ink hover:bg-fill rounded-lg transition-colors"
           >
             <FiX className="h-5 w-5" />
           </button>
@@ -98,14 +98,14 @@ const WidgetPicker: React.FC<WidgetPickerProps> = ({
                 key={widget.type}
                 className={`flex items-center gap-4 p-4 rounded-lg border transition-colors ${
                   isAdded
-                    ? "border-gray-700 bg-gray-750 opacity-50"
-                    : "border-gray-700 bg-gray-700 hover:border-sky-500"
+                    ? "border-hairline bg-fill opacity-50"
+                    : "border-hairline bg-fill hover:border-sky-500"
                 }`}
               >
                 <div className="flex-shrink-0">{widget.icon}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-white">{widget.title}</p>
-                  <p className="text-sm text-gray-400 truncate">
+                  <p className="font-medium text-ink">{widget.title}</p>
+                  <p className="text-sm text-ink-soft truncate">
                     {widget.description}
                   </p>
                 </div>
@@ -121,7 +121,7 @@ const WidgetPicker: React.FC<WidgetPickerProps> = ({
                   disabled={isAdded}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isAdded
-                      ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                      ? "bg-fill text-ink-soft cursor-not-allowed"
                       : "bg-sky-500 text-white hover:bg-sky-600"
                   }`}
                 >

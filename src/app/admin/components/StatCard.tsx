@@ -24,15 +24,15 @@ const StatCard: React.FC<StatCardProps> = ({
   hint,
 }) => {
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
+    <div className="bg-panel rounded-lg p-6">
       <div className="flex items-center gap-4">
         <div className={`p-3 rounded-lg ${ACCENTS[accent]}`}>
           <Icon className="h-6 w-6" />
         </div>
         <div className="min-w-0">
-          <p className="text-sm text-gray-400">{label}</p>
-          <p className="text-2xl font-bold text-white">{value}</p>
-          {hint ? <p className="text-xs text-gray-500 mt-0.5">{hint}</p> : null}
+          <p className="text-sm text-ink-soft">{label}</p>
+          <p className="text-2xl font-bold text-ink">{value}</p>
+          {hint ? <p className="text-xs text-ink-soft mt-0.5">{hint}</p> : null}
         </div>
       </div>
     </div>

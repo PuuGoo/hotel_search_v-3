@@ -89,7 +89,7 @@ const PriceAlertsPage = () => {
   const getStatusBadge = (alert: PriceAlert) => {
     if (!alert.isActive) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300">
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-fill text-ink">
           <FiBellOff className="h-3 w-3" />
           Tạm dừng
         </span>
@@ -115,7 +115,7 @@ const PriceAlertsPage = () => {
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-900">
+    <div className="h-full overflow-y-auto bg-canvas">
       {DialogElement}
       <div className="max-w-5xl mx-auto px-4 py-8">
         <header className="mb-6 flex items-center gap-3">
@@ -123,8 +123,8 @@ const PriceAlertsPage = () => {
             <FiBell className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Cảnh báo giá</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-2xl font-bold text-ink">Cảnh báo giá</h1>
+            <p className="text-sm text-ink-soft">
               {loading
                 ? "Đang tải..."
                 : `${alerts.length} cảnh báo`}
@@ -133,9 +133,9 @@ const PriceAlertsPage = () => {
         </header>
 
         {loading ? (
-          <p className="text-gray-400 py-12 text-center">Đang tải...</p>
+          <p className="text-ink-soft py-12 text-center">Đang tải...</p>
         ) : alerts.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
+          <div className="text-center py-16 text-ink-soft">
             <FiBell className="mx-auto h-12 w-12 mb-4 opacity-50" />
             <p className="text-lg">Chưa có cảnh báo giá nào</p>
             <p className="text-sm mt-2">
@@ -150,23 +150,23 @@ const PriceAlertsPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">
+                <tr className="border-b border-hairline">
+                  <th className="text-left py-3 px-4 text-ink-soft font-medium">
                     Tên khách sạn
                   </th>
-                  <th className="text-right py-3 px-4 text-gray-400 font-medium">
+                  <th className="text-right py-3 px-4 text-ink-soft font-medium">
                     Giá mục tiêu
                   </th>
-                  <th className="text-right py-3 px-4 text-gray-400 font-medium">
+                  <th className="text-right py-3 px-4 text-ink-soft font-medium">
                     Giá hiện tại
                   </th>
-                  <th className="text-center py-3 px-4 text-gray-400 font-medium">
+                  <th className="text-center py-3 px-4 text-ink-soft font-medium">
                     Trạng thái
                   </th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">
+                  <th className="text-left py-3 px-4 text-ink-soft font-medium">
                     Ngày tạo
                   </th>
-                  <th className="text-center py-3 px-4 text-gray-400 font-medium">
+                  <th className="text-center py-3 px-4 text-ink-soft font-medium">
                     Hành động
                   </th>
                 </tr>
@@ -175,10 +175,10 @@ const PriceAlertsPage = () => {
                 {alerts.map((alert) => (
                   <tr
                     key={alert.id}
-                    className="border-b border-gray-800 hover:bg-gray-800/50"
+                    className="border-b border-hairline hover:bg-panel/50"
                   >
                     <td className="py-3 px-4">
-                      <span className="text-white font-medium">
+                      <span className="text-ink font-medium">
                         {alert.hotelName}
                       </span>
                     </td>
@@ -188,7 +188,7 @@ const PriceAlertsPage = () => {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <span className="text-gray-300">
+                      <span className="text-ink">
                         {alert.currentPrice !== null
                           ? `${alert.currentPrice.toLocaleString("vi-VN")}₫`
                           : "—"}
@@ -198,7 +198,7 @@ const PriceAlertsPage = () => {
                       {getStatusBadge(alert)}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="text-gray-400 text-xs">
+                      <span className="text-ink-soft text-xs">
                         {format(new Date(alert.createdAt), "dd/MM/yyyy")}
                       </span>
                     </td>
@@ -209,8 +209,8 @@ const PriceAlertsPage = () => {
                           onClick={() => toggleActive(alert)}
                           className={`p-1.5 rounded transition-colors disabled:opacity-50 ${
                             alert.isActive
-                              ? "text-gray-400 hover:text-yellow-400"
-                              : "text-gray-400 hover:text-green-400"
+                              ? "text-ink-soft hover:text-yellow-400"
+                              : "text-ink-soft hover:text-green-400"
                           }`}
                           title={alert.isActive ? "Tạm dừng" : "Kích hoạt"}
                         >
@@ -223,7 +223,7 @@ const PriceAlertsPage = () => {
                         <button
                           disabled={busyId === alert.id}
                           onClick={() => remove(alert)}
-                          className="p-1.5 text-gray-400 hover:text-rose-400 transition-colors disabled:opacity-50"
+                          className="p-1.5 text-ink-soft hover:text-rose-400 transition-colors disabled:opacity-50"
                           title="Xóa"
                         >
                           <FiTrash2 className="h-4 w-4" />

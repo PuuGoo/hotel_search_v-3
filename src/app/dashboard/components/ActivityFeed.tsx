@@ -90,15 +90,15 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ initialActivities }) => {
   }, [handleNewActivity]);
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
-      <h2 className="text-xl font-semibold text-white mb-4">
+    <div className="bg-panel rounded-lg p-6">
+      <h2 className="text-xl font-semibold text-ink mb-4">
         Hoạt động gần đây
       </h2>
 
       {activities.length === 0 ? (
         <div className="text-center py-8">
-          <FiLoader className="h-8 w-8 text-gray-500 mx-auto mb-3 animate-spin" />
-          <p className="text-gray-400">Không có hoạt động gần đây</p>
+          <FiLoader className="h-8 w-8 text-ink-soft mx-auto mb-3 animate-spin" />
+          <p className="text-ink-soft">Không có hoạt động gần đây</p>
         </div>
       ) : (
         <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
@@ -107,7 +107,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ initialActivities }) => {
             return (
               <div
                 key={activity.id}
-                className="flex items-start gap-3 p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors"
+                className="flex items-start gap-3 p-3 bg-fill/50 rounded-lg hover:bg-fill transition-colors"
               >
                 <div className={`p-2 rounded-lg flex-shrink-0 ${config.colorClass}`}>
                   {config.icon}
@@ -118,11 +118,11 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ initialActivities }) => {
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     {activity.user && (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-ink-soft">
                         {activity.user.name || activity.user.email}
                       </span>
                     )}
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-ink-soft">
                       {timeAgo(activity.timestamp)}
                     </span>
                   </div>

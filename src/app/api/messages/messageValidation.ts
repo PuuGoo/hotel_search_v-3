@@ -9,8 +9,9 @@ export type MessageResult =
   | { ok: true; hasText: boolean; hasImage: boolean; hasFile: boolean }
   | { ok: false; error: string };
 
-export function validateMessage(body: any): MessageResult {
-  const { message, image, fileUrl, conversationId } = body ?? {};
+export function validateMessage(body: unknown): MessageResult {
+  const b = body as Record<string, unknown> | null | undefined;
+  const { message, image, fileUrl, conversationId } = (b ?? {}) as Record<string, unknown>;
 
   if (!conversationId || typeof conversationId !== "string") {
     return { ok: false, error: "conversationId không hợp lệ" };

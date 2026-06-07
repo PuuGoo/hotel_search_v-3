@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import prismadb from "@/app/libs/prismadb";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const currentUser = await getCurrentUser();
 
@@ -14,18 +14,41 @@ export async function GET() {
       );
     }
 
+    const { searchParams } = new URL(request.url);
+    const cursor = searchParams.get("cursor");
+    const takeParam = parseInt(searchParams.get("take") || "20", 10);
+    const take = Number.isFinite(takeParam)
+      ? Math.min(100, Math.max(1, takeParam))
+      : 20;
+
+    // Build cursor-based pagination: if a cursor is provided, fetch items
+    // strictly after that ID.  We always request `take + 1` so we can
+    // determine whether there is a next page without an extra count query.
     const [notifications, unreadCount] = await Promise.all([
       prismadb.notification.findMany({
         where: { userId: currentUser.id },
         orderBy: { createdAt: "desc" },
-        take: 50,
+        ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+        take: take + 1,
       }),
       prismadb.notification.count({
         where: { userId: currentUser.id, isRead: false },
       }),
     ]);
 
-    return NextResponse.json({ notifications, unreadCount });
+    const hasNextPage = notifications.length > take;
+    const pageNotifications = hasNextPage
+      ? notifications.slice(0, take)
+      : notifications;
+    const nextCursor = hasNextPage
+      ? pageNotifications[pageNotifications.length - 1]?.id ?? null
+      : null;
+
+    return NextResponse.json({
+      notifications: pageNotifications,
+      unreadCount,
+      nextCursor,
+    });
   } catch (error) {
     console.error("[NOTIFICATIONS_GET_ERROR]", error);
     return NextResponse.json(
@@ -53,7 +76,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    const { ids, markAll } = body ?? {};
+    const { ids, markAll } = (body ?? {}) as Record<string, unknown>;
 
     if (markAll) {
       await prismadb.notification.updateMany({
@@ -100,7 +123,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    const { id } = body ?? {};
+    const { id } = (body ?? {}) as { id: string };
 
     if (!id) {
       return NextResponse.json(

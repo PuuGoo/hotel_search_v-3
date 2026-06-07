@@ -28,16 +28,16 @@ export default function CDNAdminPage() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+      <div className="bg-panel rounded-xl p-6 border border-hairline">
         <div className="flex items-center gap-3 mb-4">
           <FiGlobe className="w-6 h-6 text-sky-400" />
-          <h2 className="text-xl font-semibold text-white">Cấu hình CDN</h2>
+          <h2 className="text-xl font-semibold text-ink">Cấu hình CDN</h2>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-900 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-canvas rounded-lg">
             <div>
-              <p className="text-sm text-gray-400">Trạng thái</p>
+              <p className="text-sm text-ink-soft">Trạng thái</p>
               <div className="flex items-center gap-2 mt-1">
                 {isConfigured ? (
                   <FiCheckCircle className="w-5 h-5 text-green-400" />
@@ -51,18 +51,18 @@ export default function CDNAdminPage() {
             </div>
           </div>
 
-          <div className="p-4 bg-gray-900 rounded-lg">
-            <p className="text-sm text-gray-400 mb-1">URL cơ sở</p>
-            <p className="text-white font-mono">
+          <div className="p-4 bg-canvas rounded-lg">
+            <p className="text-sm text-ink-soft mb-1">URL cơ sở</p>
+            <p className="text-ink font-mono">
               {cdnUrl || "Chưa cấu hình"}
             </p>
           </div>
 
-          <div className="p-4 bg-gray-900 rounded-lg">
-            <p className="text-sm text-gray-400 mb-1">Hỗ trợ CDN</p>
+          <div className="p-4 bg-canvas rounded-lg">
+            <p className="text-sm text-ink-soft mb-1">Hỗ trợ CDN</p>
             <div className="flex flex-wrap gap-2 mt-2">
               {["Cloudflare", "AWS CloudFront", "Fastly", "Bunny CDN", "Any Reverse Proxy"].map((name) => (
-                <span key={name} className="px-3 py-1 bg-gray-800 text-gray-300 text-sm rounded-full border border-gray-700">
+                <span key={name} className="px-3 py-1 bg-panel text-ink text-sm rounded-full border border-hairline">
                   {name}
                 </span>
               ))}
@@ -71,32 +71,32 @@ export default function CDNAdminPage() {
         </div>
       </div>
 
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <h3 className="text-lg font-semibold text-white mb-4">Kiểm tra URL CDN</h3>
+      <div className="bg-panel rounded-xl p-6 border border-hairline">
+        <h3 className="text-lg font-semibold text-ink mb-4">Kiểm tra URL CDN</h3>
         <div className="flex gap-3">
           <input
             type="text"
             value={testUrl}
             onChange={(e) => setTestUrl(e.target.value)}
             placeholder="/api/drive/file/example.jpg"
-            className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="flex-1 bg-canvas border border-hairline rounded-lg px-4 py-2 text-ink placeholder-ink-soft focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
           <button
             onClick={() => setTestUrl("/api/drive/file/test.jpg")}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-fill hover:bg-hairline text-ink rounded-lg transition-colors"
           >
             <FiRefreshCw className="w-4 h-4" />
             Mẫu
           </button>
         </div>
         {getTestResult() && (
-          <div className="mt-3 p-3 bg-gray-900 rounded-lg flex items-center justify-between">
+          <div className="mt-3 p-3 bg-canvas rounded-lg flex items-center justify-between">
             <code className="text-sky-400 text-sm break-all">{getTestResult()}</code>
             <button
               onClick={() => copyToClipboard(getTestResult()!)}
-              className="ml-3 p-2 hover:bg-gray-800 rounded-lg transition-colors shrink-0"
+              className="ml-3 p-2 hover:bg-panel rounded-lg transition-colors shrink-0"
             >
-              <FiCopy className="w-4 h-4 text-gray-400" />
+              <FiCopy className="w-4 h-4 text-ink-soft" />
             </button>
           </div>
         )}
@@ -105,39 +105,39 @@ export default function CDNAdminPage() {
         )}
       </div>
 
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <h3 className="text-lg font-semibold text-white mb-4">Hướng dẫn thiết lập</h3>
-        <div className="space-y-4 text-sm text-gray-300">
-          <div className="p-4 bg-gray-900 rounded-lg">
-            <p className="font-medium text-white mb-2">Bước 1: Cấu hình biến môi trường</p>
+      <div className="bg-panel rounded-xl p-6 border border-hairline">
+        <h3 className="text-lg font-semibold text-ink mb-4">Hướng dẫn thiết lập</h3>
+        <div className="space-y-4 text-sm text-ink">
+          <div className="p-4 bg-canvas rounded-lg">
+            <p className="font-medium text-ink mb-2">Bước 1: Cấu hình biến môi trường</p>
             <p>Thêm biến <code className="text-sky-400">CDN_BASE_URL</code> vào file .env:</p>
-            <div className="mt-2 p-3 bg-gray-800 rounded-lg relative">
-              <pre className="text-sm text-gray-300">{exampleEnv}</pre>
+            <div className="mt-2 p-3 bg-panel rounded-lg relative">
+              <pre className="text-sm text-ink">{exampleEnv}</pre>
               <button
                 onClick={() => copyToClipboard(exampleEnv)}
-                className="absolute top-2 right-2 p-1 hover:bg-gray-700 rounded transition-colors"
+                className="absolute top-2 right-2 p-1 hover:bg-fill rounded transition-colors"
               >
-                <FiCopy className="w-4 h-4 text-gray-400" />
+                <FiCopy className="w-4 h-4 text-ink-soft" />
               </button>
             </div>
           </div>
-          <div className="p-4 bg-gray-900 rounded-lg">
-            <p className="font-medium text-white mb-2">Bước 2: Thiết lập CDN origin</p>
+          <div className="p-4 bg-canvas rounded-lg">
+            <p className="font-medium text-ink mb-2">Bước 2: Thiết lập CDN origin</p>
             <p>CDN của bạn cần trỏ về URL gốc của ứng dụng (ví dụ: <code className="text-sky-400">https://your-app.vercel.app</code>)</p>
           </div>
-          <div className="p-4 bg-gray-900 rounded-lg">
-            <p className="font-medium text-white mb-2">Bước 3: Cấu hình cache</p>
+          <div className="p-4 bg-canvas rounded-lg">
+            <p className="font-medium text-ink mb-2">Bước 3: Cấu hình cache</p>
             <p>Đặt thời gian cache tĩnh thành <code className="text-sky-400">max-age=31536000, immutable</code> cho các file tĩnh</p>
           </div>
-          <div className="p-4 bg-gray-900 rounded-lg">
-            <p className="font-medium text-white mb-2">Bước 4: Kiểm tra</p>
+          <div className="p-4 bg-canvas rounded-lg">
+            <p className="font-medium text-ink mb-2">Bước 4: Kiểm tra</p>
             <p>Sử dụng công cụ kiểm tra URL ở trên để xác minh cấu hình CDN hoạt động đúng</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <h3 className="text-lg font-semibold text-white mb-4">Tính năng CDN</h3>
+      <div className="bg-panel rounded-xl p-6 border border-hairline">
+        <h3 className="text-lg font-semibold text-ink mb-4">Tính năng CDN</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             { title: "Tối ưu hình ảnh", desc: "Tự động chuyển đổi URL hình ảnh qua CDN" },
@@ -145,9 +145,9 @@ export default function CDNAdminPage() {
             { title: "ETag", desc: "Hỗ trợ request có điều kiện để tiết kiệm băng thông" },
             { title: "CORS", desc: "Hỗ trợ truy cập cross-origin cho CDN" },
           ].map((feature) => (
-            <div key={feature.title} className="p-4 bg-gray-900 rounded-lg">
-              <p className="font-medium text-white">{feature.title}</p>
-              <p className="text-sm text-gray-400 mt-1">{feature.desc}</p>
+            <div key={feature.title} className="p-4 bg-canvas rounded-lg">
+              <p className="font-medium text-ink">{feature.title}</p>
+              <p className="text-sm text-ink-soft mt-1">{feature.desc}</p>
             </div>
           ))}
         </div>

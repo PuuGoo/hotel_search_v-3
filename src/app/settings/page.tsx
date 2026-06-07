@@ -103,83 +103,83 @@ const SettingsPage = () => {
   }, [secret]);
 
   return (
-    <div className="h-full bg-gray-900 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="h-full bg-canvas px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center gap-3 mb-8">
           <FiShield className="h-8 w-8 text-blue-500" />
-          <h1 className="text-2xl font-bold text-white">Cài đặt</h1>
+          <h1 className="text-2xl font-bold text-ink">Cài đặt</h1>
         </div>
 
         <Link
           href="/notifications/preferences"
           className="
-            mb-6 flex items-center justify-between rounded-lg border border-gray-800
-            bg-gray-950 p-6 transition-colors hover:border-gray-700 hover:bg-gray-900
+            mb-6 flex items-center justify-between rounded-lg border border-hairline
+            bg-panel p-6 transition-colors hover:border-hairline hover:bg-canvas
           "
         >
           <div className="flex items-center gap-3">
             <FiBell className="h-6 w-6 text-blue-500" />
             <div>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold text-ink">
                 Tùy chọn thông báo
               </h2>
-              <p className="mt-1 text-sm text-gray-400">
+              <p className="mt-1 text-sm text-ink-soft">
                 Quản lý cách bạn nhận thông báo
               </p>
             </div>
           </div>
-          <FiChevronRight className="h-5 w-5 text-gray-500" />
+          <FiChevronRight className="h-5 w-5 text-ink-soft" />
         </Link>
 
         <Link
           href="/settings/appearance"
           className="
-            mb-6 flex items-center justify-between rounded-lg border border-gray-800
-            bg-gray-950 p-6 transition-colors hover:border-gray-700 hover:bg-gray-900
+            mb-6 flex items-center justify-between rounded-lg border border-hairline
+            bg-panel p-6 transition-colors hover:border-hairline hover:bg-canvas
           "
         >
           <div className="flex items-center gap-3">
             <FiMonitor className="h-6 w-6 text-blue-500" />
             <div>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold text-ink">
                 Giao diện
               </h2>
-              <p className="mt-1 text-sm text-gray-400">
+              <p className="mt-1 text-sm text-ink-soft">
                 Tùy chỉnh giao diện toàn cục và theo từng tính năng
               </p>
             </div>
           </div>
-          <FiChevronRight className="h-5 w-5 text-gray-500" />
+          <FiChevronRight className="h-5 w-5 text-ink-soft" />
         </Link>
 
         <Link
           href="/settings/api-keys"
           className="
-            mb-6 flex items-center justify-between rounded-lg border border-gray-800
-            bg-gray-950 p-6 transition-colors hover:border-gray-700 hover:bg-gray-900
+            mb-6 flex items-center justify-between rounded-lg border border-hairline
+            bg-panel p-6 transition-colors hover:border-hairline hover:bg-canvas
           "
         >
           <div className="flex items-center gap-3">
             <FiKey className="h-6 w-6 text-blue-500" />
             <div>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold text-ink">
                 Quản lý API Keys
               </h2>
-              <p className="mt-1 text-sm text-gray-400">
+              <p className="mt-1 text-sm text-ink-soft">
                 Tạo và quản lý API key cho ứng dụng của bạn
               </p>
             </div>
           </div>
-          <FiChevronRight className="h-5 w-5 text-gray-500" />
+          <FiChevronRight className="h-5 w-5 text-ink-soft" />
         </Link>
 
-        <div className="rounded-lg border border-gray-800 bg-gray-950 p-6">
+        <div className="rounded-lg border border-hairline bg-panel p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold text-ink">
                 Xác thực hai yếu tố
               </h2>
-              <p className="mt-1 text-sm text-gray-400">
+              <p className="mt-1 text-sm text-ink-soft">
                 Thêm lớp bảo mật cho tài khoản của bạn
               </p>
             </div>
@@ -214,7 +214,7 @@ const SettingsPage = () => {
               className="
                 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white
                 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500
-                focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50
+                focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50
                 disabled:cursor-not-allowed
               "
             >
@@ -225,27 +225,27 @@ const SettingsPage = () => {
           {!twoFactorEnabled && step === "setup" && (
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-300 mb-3">
+                <p className="text-sm text-ink mb-3">
                   Bước 1: Quét mã QR hoặc nhập thủ công khóa bí mật vào ứng
                   dụng xác thực (Google Authenticator, Authy, ...)
                 </p>
-                <div className="rounded-lg bg-gray-800 p-4">
-                  <p className="text-xs text-gray-400 mb-2">Khóa bí mật:</p>
+                <div className="rounded-lg bg-panel p-4">
+                  <p className="text-xs text-ink-soft mb-2">Khóa bí mật:</p>
                   <div className="flex items-center gap-2">
-                    <code className="flex-1 rounded bg-gray-900 px-3 py-2 text-sm text-green-400 break-all">
+                    <code className="flex-1 rounded bg-canvas px-3 py-2 text-sm text-green-400 break-all">
                       {secret}
                     </code>
                     <button
                       onClick={handleCopySecret}
-                      className="rounded-lg bg-gray-700 p-2 text-gray-300 hover:bg-gray-600 hover:text-white"
+                      className="rounded-lg bg-fill p-2 text-ink hover:bg-hairline hover:text-ink"
                       title="Sao chép"
                     >
                       <FiCopy className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
-                <div className="mt-3 rounded-lg bg-gray-800 p-4">
-                  <p className="text-xs text-gray-400 mb-2">
+                <div className="mt-3 rounded-lg bg-panel p-4">
+                  <p className="text-xs text-ink-soft mb-2">
                     URIotpauth (dùng để tạo QR code):
                   </p>
                   <code className="text-xs text-blue-400 break-all block">
@@ -255,7 +255,7 @@ const SettingsPage = () => {
               </div>
 
               <div>
-                <p className="text-sm text-gray-300 mb-3">
+                <p className="text-sm text-ink mb-3">
                   Bước 2: Nhập mã xác nhận 6 chữ số từ ứng dụng
                 </p>
                 <div className="flex items-center gap-3">
@@ -266,9 +266,9 @@ const SettingsPage = () => {
                     placeholder="000000"
                     maxLength={6}
                     className="
-                      w-36 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5
-                      text-center text-lg font-mono text-white tracking-widest
-                      placeholder:text-gray-500 focus:border-blue-500 focus:outline-none
+                      w-36 rounded-lg border border-hairline bg-panel px-4 py-2.5
+                      text-center text-lg font-mono text-ink tracking-widest
+                      placeholder:text-ink-soft focus:border-blue-500 focus:outline-none
                       focus:ring-1 focus:ring-blue-500
                     "
                   />
@@ -278,7 +278,7 @@ const SettingsPage = () => {
                     className="
                       rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white
                       hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500
-                      focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50
+                      focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50
                       disabled:cursor-not-allowed
                     "
                   >
@@ -292,8 +292,8 @@ const SettingsPage = () => {
                       setToken("");
                     }}
                     className="
-                      rounded-lg bg-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300
-                      hover:bg-gray-600 hover:text-white
+                      rounded-lg bg-fill px-4 py-2.5 text-sm font-medium text-ink
+                      hover:bg-hairline hover:text-ink
                     "
                   >
                     Hủy
@@ -305,7 +305,7 @@ const SettingsPage = () => {
 
           {twoFactorEnabled && step === "idle" && (
             <div className="space-y-4">
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-ink">
                 Xác thực hai yếu tố đã được kích hoạt. Nhập mã xác nhận từ
                 ứng dụng để tắt.
               </p>
@@ -317,9 +317,9 @@ const SettingsPage = () => {
                   placeholder="000000"
                   maxLength={6}
                   className="
-                    w-36 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5
-                    text-center text-lg font-mono text-white tracking-widest
-                    placeholder:text-gray-500 focus:border-red-500 focus:outline-none
+                    w-36 rounded-lg border border-hairline bg-panel px-4 py-2.5
+                    text-center text-lg font-mono text-ink tracking-widest
+                    placeholder:text-ink-soft focus:border-red-500 focus:outline-none
                     focus:ring-1 focus:ring-red-500
                   "
                 />
@@ -329,7 +329,7 @@ const SettingsPage = () => {
                   className="
                     rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white
                     hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500
-                    focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50
+                    focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50
                     disabled:cursor-not-allowed
                   "
                 >
@@ -352,7 +352,7 @@ const SettingsPage = () => {
                   className="
                     rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white
                     hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500
-                    focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50
+                    focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50
                     disabled:cursor-not-allowed
                   "
                 >
@@ -364,8 +364,8 @@ const SettingsPage = () => {
                     setToken("");
                   }}
                   className="
-                    rounded-lg bg-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300
-                    hover:bg-gray-600 hover:text-white
+                    rounded-lg bg-fill px-4 py-2.5 text-sm font-medium text-ink
+                    hover:bg-hairline hover:text-ink
                   "
                 >
                   Hủy

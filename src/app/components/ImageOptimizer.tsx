@@ -65,7 +65,7 @@ const ImageOptimizer: React.FC<ImageOptimizerProps> = ({
         className={`flex items-center justify-center bg-gray-100 dark:bg-lightgray rounded-lg ${className}`}
         style={{ width, height }}
       >
-        <div className="flex flex-col items-center gap-2 text-gray-400">
+        <div className="flex flex-col items-center gap-2 text-ink-soft">
           <svg
             className="w-8 h-8"
             fill="none"
@@ -93,7 +93,7 @@ const ImageOptimizer: React.FC<ImageOptimizerProps> = ({
           style={{ width, height }}
         >
           <svg
-            className="w-8 h-8 text-gray-300 dark:text-gray-600 animate-spin"
+            className="w-8 h-8 text-ink dark:text-gray-600 animate-spin"
             fill="none"
             viewBox="0 0 24 24"
           >

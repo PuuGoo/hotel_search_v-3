@@ -113,17 +113,17 @@ const ReportsPage = () => {
   const selectedReport = REPORT_TYPES.find((r) => r.value === reportType);
 
   return (
-    <div className="h-full bg-gray-900 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="h-full bg-canvas px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <div className="flex items-center gap-3 mb-8">
           <FiFileText className="h-8 w-8 text-sky-500" />
-          <h1 className="text-2xl font-bold text-white">Xuất báo cáo</h1>
+          <h1 className="text-2xl font-bold text-ink">Xuất báo cáo</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-6">
-            <div className="rounded-lg border border-gray-800 bg-gray-950 p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">
+            <div className="rounded-lg border border-hairline bg-panel p-6">
+              <h2 className="text-lg font-semibold text-ink mb-4">
                 Loại báo cáo
               </h2>
               <div className="space-y-2">
@@ -139,13 +139,13 @@ const ReportsPage = () => {
                       className={`w-full flex items-start gap-3 rounded-lg p-3 text-left transition-colors ${
                         reportType === rt.value
                           ? "bg-sky-500/10 border border-sky-500/50 text-sky-400"
-                          : "bg-gray-800/50 border border-transparent text-gray-300 hover:bg-gray-800 hover:text-white"
+                          : "bg-panel/50 border border-transparent text-ink hover:bg-panel hover:text-ink"
                       }`}
                     >
                       <Icon className="h-5 w-5 mt-0.5 shrink-0" />
                       <div>
                         <div className="font-medium text-sm">{rt.label}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">
+                        <div className="text-xs text-ink-soft mt-0.5">
                           {rt.description}
                         </div>
                       </div>
@@ -155,39 +155,39 @@ const ReportsPage = () => {
               </div>
             </div>
 
-            <div className="rounded-lg border border-gray-800 bg-gray-950 p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">
+            <div className="rounded-lg border border-hairline bg-panel p-6">
+              <h2 className="text-lg font-semibold text-ink mb-4">
                 <FiCalendar className="inline mr-2 h-4 w-4" />
                 Khoảng thời gian
               </h2>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">
+                  <label className="block text-sm text-ink-soft mb-1">
                     Từ ngày
                   </label>
                   <input
                     type="date"
                     value={dateFrom}
                     onChange={(e) => setDateFrom(e.target.value)}
-                    className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    className="w-full rounded-lg border border-hairline bg-panel px-3 py-2 text-sm text-ink placeholder-ink-soft focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">
+                  <label className="block text-sm text-ink-soft mb-1">
                     Đến ngày
                   </label>
                   <input
                     type="date"
                     value={dateTo}
                     onChange={(e) => setDateTo(e.target.value)}
-                    className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    className="w-full rounded-lg border border-hairline bg-panel px-3 py-2 text-sm text-ink placeholder-ink-soft focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="rounded-lg border border-gray-800 bg-gray-950 p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">
+            <div className="rounded-lg border border-hairline bg-panel p-6">
+              <h2 className="text-lg font-semibold text-ink mb-4">
                 Định dạng
               </h2>
               <div className="flex gap-2">
@@ -198,7 +198,7 @@ const ReportsPage = () => {
                     className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                       format === f
                         ? "bg-sky-600 text-white"
-                        : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                        : "bg-panel text-ink hover:bg-fill"
                     }`}
                   >
                     {f.toUpperCase()}
@@ -209,16 +209,16 @@ const ReportsPage = () => {
           </div>
 
           <div className="lg:col-span-2">
-            <div className="rounded-lg border border-gray-800 bg-gray-950 p-6">
+            <div className="rounded-lg border border-hairline bg-panel p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-white">
+                <h2 className="text-lg font-semibold text-ink">
                   {selectedReport?.label} - Xem trước
                 </h2>
                 <div className="flex gap-2">
                   <button
                     onClick={handlePreview}
                     disabled={loadingPreview}
-                    className="flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-2 rounded-lg border border-hairline bg-panel px-4 py-2.5 text-sm font-medium text-ink hover:bg-fill hover:text-ink focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {loadingPreview ? (
                       <FiLoader className="h-4 w-4 animate-spin" />
@@ -230,7 +230,7 @@ const ReportsPage = () => {
                   <button
                     onClick={handleExport}
                     disabled={loading}
-                    className="flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {loading ? (
                       <FiLoader className="h-4 w-4 animate-spin" />
@@ -244,29 +244,29 @@ const ReportsPage = () => {
 
               {preview && preview.length > 0 && (
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-800">
+                  <table className="min-w-full divide-y divide-hairline">
                     <thead>
                       <tr>
                         {columns.map((col) => (
                           <th
                             key={col}
-                            className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-gray-800/50"
+                            className="px-4 py-3 text-left text-xs font-medium text-ink-soft uppercase tracking-wider bg-panel/50"
                           >
                             {col}
                           </th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-800/50">
+                    <tbody className="divide-y divide-hairline/50">
                       {preview.slice(0, 10).map((row, i) => (
-                        <tr key={i} className="hover:bg-gray-800/30">
-                          <td className="px-4 py-3 text-sm text-gray-300">
+                        <tr key={i} className="hover:bg-panel/30">
+                          <td className="px-4 py-3 text-sm text-ink">
                             {i + 1}
                           </td>
                           {Object.values(row).slice(0, columns.length - 1).map((val, j) => (
                             <td
                               key={j}
-                              className="px-4 py-3 text-sm text-gray-300 max-w-[200px] truncate"
+                              className="px-4 py-3 text-sm text-ink max-w-[200px] truncate"
                               title={String(val ?? "")}
                             >
                               {val != null ? String(val) : ""}
@@ -277,7 +277,7 @@ const ReportsPage = () => {
                     </tbody>
                   </table>
                   {preview.length > 10 && (
-                    <p className="text-sm text-gray-400 mt-3 text-center">
+                    <p className="text-sm text-ink-soft mt-3 text-center">
                       Hiển thị 10 / {preview.length} bản ghi
                     </p>
                   )}
@@ -285,14 +285,14 @@ const ReportsPage = () => {
               )}
 
               {preview && preview.length === 0 && (
-                <div className="text-center py-12 text-gray-400">
+                <div className="text-center py-12 text-ink-soft">
                   <FiFileText className="mx-auto h-12 w-12 mb-4 opacity-50" />
                   <p>Không có dữ liệu cho khoảng thời gian này</p>
                 </div>
               )}
 
               {!preview && (
-                <div className="text-center py-12 text-gray-400">
+                <div className="text-center py-12 text-ink-soft">
                   <FiFileText className="mx-auto h-12 w-12 mb-4 opacity-50" />
                   <p>Nhấn &quot;Xem trước&quot; để xem dữ liệu sẽ được xuất</p>
                 </div>

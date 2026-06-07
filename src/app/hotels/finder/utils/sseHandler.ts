@@ -132,7 +132,7 @@ export function createSSEHandler(
         clearSession();
       }
     } catch (err) {
-      console.warn("[FinderSSE] Failed to parse message:", err, event.data);
+      // Silently ignore unparseable SSE messages
     }
   };
 

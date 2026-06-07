@@ -182,7 +182,7 @@ export default function TemplateManager({
             type="button"
             onClick={() => setShowDropdown(!showDropdown)}
             disabled={isRunning}
-            className="w-full flex items-center justify-between px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm disabled:opacity-50"
+            className="w-full flex items-center justify-between px-3 py-2 bg-fill border border-hairline rounded-lg text-ink text-sm disabled:opacity-50"
           >
             <span className="truncate">
               {selectedTemplate ? selectedTemplate.name : "Chọn mẫu..."}
@@ -190,9 +190,9 @@ export default function TemplateManager({
             <FiChevronDown size={14} className="ml-2 shrink-0" />
           </button>
           {showDropdown && (
-            <div className="absolute z-50 top-full mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+            <div className="absolute z-50 top-full mt-1 w-full bg-fill border border-hairline rounded-lg shadow-xl max-h-48 overflow-y-auto">
               {templates.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-gray-400">
+                <div className="px-3 py-2 text-sm text-ink-soft">
                   Chưa có mẫu nào
                 </div>
               ) : (
@@ -200,11 +200,11 @@ export default function TemplateManager({
                   <button
                     key={tpl.id}
                     onClick={() => handleSelect(tpl)}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-600 transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-hairline transition-colors"
                   >
                     <FiStar
                       size={12}
-                      className={tpl.isDefault ? "text-yellow-400 fill-yellow-400" : "text-gray-500"}
+                      className={tpl.isDefault ? "text-yellow-400 fill-yellow-400" : "text-ink-soft"}
                     />
                     <span className="truncate">{tpl.name}</span>
                     {tpl.id === selectedId && (
@@ -220,7 +220,7 @@ export default function TemplateManager({
         <button
           onClick={() => setShowSaveDialog(true)}
           disabled={isRunning}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-2 text-sm text-ink hover:text-ink bg-fill hover:bg-hairline rounded-lg transition-colors disabled:opacity-50"
           title="Lưu cấu hình hiện tại"
         >
           <FiSave size={14} />
@@ -229,7 +229,7 @@ export default function TemplateManager({
 
         <button
           onClick={() => setShowManager(true)}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 text-sm text-ink hover:text-ink bg-fill hover:bg-hairline rounded-lg transition-colors"
           title="Quản lý mẫu"
         >
           <FiSettings size={14} />
@@ -246,29 +246,29 @@ export default function TemplateManager({
 
       {showSaveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-full max-w-md shadow-2xl">
+          <div className="bg-panel border border-hairline rounded-xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">Lưu mẫu cấu hình</h3>
+              <h3 className="text-lg font-semibold text-ink">Lưu mẫu cấu hình</h3>
               <button
                 onClick={() => { setShowSaveDialog(false); setNewName(""); }}
-                className="text-gray-400 hover:text-white"
+                className="text-ink-soft hover:text-ink"
               >
                 <FiX size={20} />
               </button>
             </div>
             <div className="mb-4">
-              <label className="block text-sm text-gray-400 mb-1">Tên mẫu</label>
+              <label className="block text-sm text-ink-soft mb-1">Tên mẫu</label>
               <input
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="VD: Cấu hình nhanh"
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-500"
+                className="w-full px-3 py-2 bg-fill border border-hairline rounded-lg text-ink text-sm placeholder-ink-soft"
                 autoFocus
                 onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
               />
             </div>
-            <div className="mb-4 text-xs text-gray-400 bg-gray-700/50 rounded-lg p-3">
+            <div className="mb-4 text-xs text-ink-soft bg-fill/50 rounded-lg p-3">
               <div>Số luồng: {workers}</div>
               <div>Mẫu xuất: {template}</div>
               <div>Tự động lưu: {autoSaveEnabled ? "Bật" : "Tắt"}</div>
@@ -282,7 +282,7 @@ export default function TemplateManager({
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => { setShowSaveDialog(false); setNewName(""); }}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm text-ink-soft hover:text-ink transition-colors"
               >
                 Hủy
               </button>
@@ -300,19 +300,19 @@ export default function TemplateManager({
 
       {showManager && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+          <div className="bg-panel border border-hairline rounded-xl w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between p-6 pb-4">
-              <h3 className="text-lg font-semibold text-white">Quản lý mẫu</h3>
+              <h3 className="text-lg font-semibold text-ink">Quản lý mẫu</h3>
               <button
                 onClick={() => setShowManager(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-ink-soft hover:text-ink"
               >
                 <FiX size={20} />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-6 pb-6">
               {templates.length === 0 ? (
-                <div className="text-center py-8 text-gray-400 text-sm">
+                <div className="text-center py-8 text-ink-soft text-sm">
                   Chưa có mẫu nào. Hãy lưu cấu hình hiện tại làm mẫu.
                 </div>
               ) : (
@@ -320,11 +320,11 @@ export default function TemplateManager({
                   {templates.map((tpl) => (
                     <div
                       key={tpl.id}
-                      className="flex items-center gap-3 bg-gray-700/50 rounded-lg p-3"
+                      className="flex items-center gap-3 bg-fill/50 rounded-lg p-3"
                     >
                       <FiStar
                         size={14}
-                        className={tpl.isDefault ? "text-yellow-400 fill-yellow-400" : "text-gray-500 shrink-0"}
+                        className={tpl.isDefault ? "text-yellow-400 fill-yellow-400" : "text-ink-soft shrink-0"}
                       />
                       <div className="flex-1 min-w-0">
                         {editingId === tpl.id ? (
@@ -333,7 +333,7 @@ export default function TemplateManager({
                               type="text"
                               value={editName}
                               onChange={(e) => setEditName(e.target.value)}
-                              className="flex-1 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm"
+                              className="flex-1 px-2 py-1 bg-fill border border-gray-300 rounded text-ink text-sm"
                               autoFocus
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") handleRename(tpl.id);
@@ -348,15 +348,15 @@ export default function TemplateManager({
                             </button>
                             <button
                               onClick={() => setEditingId(null)}
-                              className="text-gray-400 hover:text-white"
+                              className="text-ink-soft hover:text-ink"
                             >
                               <FiX size={14} />
                             </button>
                           </div>
                         ) : (
-                          <div className="truncate text-sm text-white">{tpl.name}</div>
+                          <div className="truncate text-sm text-ink">{tpl.name}</div>
                         )}
-                        <div className="text-xs text-gray-400 mt-0.5">
+                        <div className="text-xs text-ink-soft mt-0.5">
                           {tpl.workers} luồng · {tpl.template} · Tự động lưu: {tpl.autoSaveEnabled ? "Bật" : "Tắt"}
                         </div>
                       </div>
@@ -364,7 +364,7 @@ export default function TemplateManager({
                         {!tpl.isDefault && (
                           <button
                             onClick={() => handleSetDefault(tpl.id)}
-                            className="p-1.5 text-gray-400 hover:text-yellow-400 transition-colors"
+                            className="p-1.5 text-ink-soft hover:text-yellow-400 transition-colors"
                             title="Đặt làm mặc định"
                           >
                             <FiStar size={14} />
@@ -375,7 +375,7 @@ export default function TemplateManager({
                             setEditingId(tpl.id);
                             setEditName(tpl.name);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-sky-400 transition-colors"
+                          className="p-1.5 text-ink-soft hover:text-sky-400 transition-colors"
                           title="Đổi tên"
                         >
                           <FiEdit2 size={14} />
@@ -383,7 +383,7 @@ export default function TemplateManager({
                         {!tpl.isDefault && (
                           <button
                             onClick={() => handleDelete(tpl.id)}
-                            className="p-1.5 text-gray-400 hover:text-red-400 transition-colors"
+                            className="p-1.5 text-ink-soft hover:text-red-400 transition-colors"
                             title="Xóa mẫu"
                           >
                             <FiTrash2 size={14} />

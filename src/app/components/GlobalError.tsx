@@ -60,12 +60,12 @@ export default function GlobalError() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className="flex items-start gap-3 rounded-lg border border-red-800 bg-gray-900 p-4 shadow-xl max-w-sm animate-in slide-in-from-right"
+          className="flex items-start gap-3 rounded-lg border border-red-800 bg-canvas p-4 shadow-xl max-w-sm animate-in slide-in-from-right"
         >
           <span className="mt-0.5 text-red-400">⚠️</span>
           <div className="flex-1">
-            <p className="text-sm font-medium text-white">Lỗi hệ thống</p>
-            <p className="mt-1 text-xs text-gray-400 line-clamp-2">
+            <p className="text-sm font-medium text-ink">Lỗi hệ thống</p>
+            <p className="mt-1 text-xs text-ink-soft line-clamp-2">
               {toast.message}
             </p>
           </div>
@@ -73,7 +73,7 @@ export default function GlobalError() {
             onClick={() =>
               setToasts((prev) => prev.filter((t) => t.id !== toast.id))
             }
-            className="text-gray-500 hover:text-white transition-colors"
+            className="text-ink-soft hover:text-ink transition-colors"
           >
             ✕
           </button>

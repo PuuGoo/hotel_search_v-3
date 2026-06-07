@@ -8,11 +8,233 @@ body,
   height: 100%;
 }
 
+/* ──────────────────────────────────────────────────────────────────
+   Scrollbars. The browser default track is an opaque dark-gray bar that
+   covers the background video with an ugly hard stripe. Make the track
+   fully transparent (video shows through) and give the thumb a soft,
+   rounded, semi-transparent fill that blends with the frosted UI. */
+* {
+  scrollbar-width: thin;                               /* Firefox */
+  scrollbar-color: rgba(100, 100, 110, 0.45) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 110, 0.4);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 100, 110, 0.7);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.dark * {
+  scrollbar-color: rgba(180, 180, 190, 0.4) transparent;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(180, 180, 190, 0.35);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(180, 180, 190, 0.6);
+}
+
 @layer base {
   body {
-    @apply dark:bg-dusk;
+    @apply text-ink dark:text-gray-100;
+    background-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   App-wide frosted-glass surfaces.
+   The root layout renders a fixed background video behind everything.
+   These overrides (intentionally OUTSIDE @layer so they beat Tailwind's
+   utility layer) turn the app's opaque surfaces semi-transparent + blurred
+   so the video glows through on every page while text stays readable.
+   ────────────────────────────────────────────────────────────────── */
+/* Outer app background. The fixed video lives behind everything. We keep the
+   canvas only LIGHTLY tinted + blurred so the panda video stays clearly
+   visible, then protect any bare text sitting directly on it with a soft halo
+   (text-shadow) below. Panels (forms/tables) keep a denser frost since that's
+   where reading matters most. Login has no canvas → video at full strength. */
+:where(.bg-canvas) {
+  background-color: rgba(236, 239, 244, 0.42) !important;
+  backdrop-filter: blur(4px) saturate(112%);
+  -webkit-backdrop-filter: blur(4px) saturate(112%);
+}
+.dark :where(.bg-canvas) {
+  background-color: rgba(24, 25, 26, 0.45) !important;
+}
+/* Bare text that sits directly over the canvas/video (page headings,
+   descriptions, empty-states) gets a soft halo so it stays legible against the
+   colorful video without needing an opaque background. Panels reset the halo. */
+:where(.bg-canvas) h1,
+:where(.bg-canvas) h2,
+:where(.bg-canvas) h3,
+:where(.bg-canvas) p,
+:where(.bg-canvas) label,
+:where(.bg-canvas) span {
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9), 0 0 14px rgba(255, 255, 255, 0.65);
+}
+.dark :where(.bg-canvas) h1,
+.dark :where(.bg-canvas) h2,
+.dark :where(.bg-canvas) h3,
+.dark :where(.bg-canvas) p,
+.dark :where(.bg-canvas) label,
+.dark :where(.bg-canvas) span {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85), 0 0 14px rgba(0, 0, 0, 0.6);
+}
+/* Inside panels the surface is already opaque — kill the halo so text is crisp. */
+:where(.bg-panel) h1, :where(.bg-panel) h2, :where(.bg-panel) h3,
+:where(.bg-panel) p, :where(.bg-panel) label, :where(.bg-panel) span,
+:where(.ms-panel) h1, :where(.ms-panel) h2, :where(.ms-panel) h3,
+:where(.ms-panel) p, :where(.ms-panel) label, :where(.ms-panel) span {
+  text-shadow: none;
+}
+:where(.bg-panel),
+:where(.ms-panel) {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+.dark :where(.bg-panel),
+.dark :where(.ms-panel),
+.dark :where(.bg-dusk) {
+  background-color: rgba(36, 37, 38, 0.94) !important;
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+
+/* Accessibility: the light grays Tailwind ships (gray-400 ≈ 2.8:1, gray-500 ≈
+   4.8:1 on white) are too faint for secondary text (timestamps, previews,
+   placeholders) and fail WCAG AA. Darken them in LIGHT mode only — the `dark:`
+   variants compile to separate `.dark\:text-gray-*` classes and are untouched. */
+html:not(.dark) :where(.text-gray-400) {
+  color: #636366 !important;
+}
+html:not(.dark) :where(.text-gray-500) {
+  color: #4b4b4f !important;
+}
+html:not(.dark) :where(.placeholder\:text-gray-400)::placeholder,
+html:not(.dark) :where(input, textarea)::placeholder {
+  color: #6b6b70 !important;
+  opacity: 1;
+}
+
+@layer components {
+  /* White rounded surface used for all primary panels */
+  .ms-panel {
+    @apply bg-panel rounded-panel shadow-card border border-hairline/70 dark:bg-dusk dark:border-lightgray/40;
+  }
+
+  /* Composer — beautiful rounded input bar */
+  .ms-composer {
+    @apply flex items-end gap-2 px-3 py-2.5 rounded-[26px] bg-fill border border-hairline
+           transition-shadow duration-200 dark:bg-lightgray/60 dark:border-lightgray;
+  }
+  .ms-composer:focus-within {
+    @apply border-brand/50 bg-panel dark:bg-dusk;
+    box-shadow: 0 6px 22px -10px rgba(0, 122, 255, 0.45);
+  }
+  /* Circular tool button inside composer (attach / mic / photo / settings) */
+  .ms-tool-btn {
+    @apply flex items-center justify-center w-9 h-9 rounded-full shrink-0 text-ink-soft
+           transition-all duration-150 hover:bg-brand-soft hover:text-brand
+           hover:-translate-y-px dark:text-gray-300 dark:hover:bg-lightgray;
+  }
+  .ms-tool-btn-active {
+    @apply bg-brand-soft text-brand;
+  }
+
+  /* List row (hotels / conversations) */
+  .ms-row {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-2xl cursor-pointer
+           transition-all duration-150 hover:bg-fill dark:hover:bg-lightgray;
+  }
+  .ms-row-active {
+    @apply text-white hover:brightness-[1.02];
+    background-image: linear-gradient(135deg, #007aff, #0051d5);
+    box-shadow: 0 10px 24px -10px rgba(0, 122, 255, 0.7);
+  }
+
+  /* Circular icon button (header actions) */
+  .ms-icon-btn {
+    @apply flex items-center justify-center w-10 h-10 rounded-full
+           bg-fill text-ink-soft transition-all duration-150 hover:bg-hairline
+           hover:-translate-y-px dark:bg-lightgray dark:text-gray-300;
+  }
+  .ms-icon-btn-brand {
+    @apply bg-brand-soft text-brand hover:bg-brand hover:text-white;
+  }
+
+  /* Colored letter avatar */
+  .ms-avatar {
+    @apply flex items-center justify-center rounded-full font-semibold
+           text-white shrink-0 select-none;
+  }
+
+  /* Chat bubble — sent (gradient + tail) and received (soft fill + tail) */
+  .ms-bubble-sent {
+    @apply text-white rounded-bubble rounded-br-md;
+    background-image: linear-gradient(135deg, #007aff, #0051d5);
+    box-shadow: 0 1px 2px rgba(0, 122, 255, 0.25);
+  }
+  .ms-bubble-recv {
+    @apply bg-fill text-ink rounded-bubble rounded-bl-md shadow-bubble
+           dark:bg-lightgray dark:text-gray-100;
+  }
+
+  /* Send button — gradient pill with lift on hover */
+  .ms-send-btn {
+    @apply flex items-center justify-center rounded-full text-white
+           transition-transform duration-150 hover:-translate-y-0.5 hover:scale-[1.04];
+    background-image: linear-gradient(135deg, #007aff, #0051d5);
+    box-shadow: 0 8px 18px -6px rgba(0, 122, 255, 0.7);
+  }
+}
+
+/* Bubble entrance — gentle pop */
+@keyframes bubblePop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.ms-bubble-pop {
+  animation: bubblePop 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-bubble-pop { animation: none; }
+}
+
+/* ── Chat appearance: density (Thoáng / Gọn) ───────────────────── */
+[data-chat-density="compact"] .ms-bubble-pad { padding-top: 0.35rem; padding-bottom: 0.35rem; }
+[data-chat-density="compact"] .ms-msg-row { padding-top: 0.35rem; padding-bottom: 0.35rem; }
+[data-chat-density="cozy"] .ms-msg-row { padding-top: 0.6rem; padding-bottom: 0.6rem; }
+
+/* ── Chat appearance: accent label color ───────────────────────── */
+/* Sent bubble + send button follow the chosen accent. Defaults to brand blue. */
+[data-chat-accent] .ms-bubble-sent {
+  background-image: linear-gradient(135deg, var(--chat-accent, #007aff), var(--chat-accent-2, #0051d5));
+}
+[data-chat-accent] .ms-send-btn {
+  background-image: linear-gradient(135deg, var(--chat-accent, #007aff), var(--chat-accent-2, #0051d5));
+  box-shadow: 0 8px 18px -6px color-mix(in srgb, var(--chat-accent, #007aff) 70%, transparent);
+}
+[data-chat-accent="blue"]   { --chat-accent:#007aff; --chat-accent-2:#0051d5; }
+[data-chat-accent="purple"] { --chat-accent:#7c5fe0; --chat-accent-2:#5b3fd0; }
+[data-chat-accent="sky"]    { --chat-accent:#22b8ff; --chat-accent-2:#0a93e0; }
+[data-chat-accent="green"]  { --chat-accent:#34c759; --chat-accent-2:#1aa64b; }
+[data-chat-accent="pink"]   { --chat-accent:#ff5a87; --chat-accent-2:#e23d6d; }
 
 @keyframes highlight-flash {
   0% { background-color: rgba(56, 189, 248, 0.3); }
@@ -87,4 +309,331 @@ body,
 html {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================
+   Login / Auth screen — animated split layout
+   ============================================================ */
+
+/* Brand-side aurora: slow drifting radial blobs behind the panel. */
+@keyframes auth-aurora {
+  0%   { transform: translate3d(0,0,0) rotate(0deg);   }
+  33%  { transform: translate3d(6%,-4%,0) rotate(40deg);}
+  66%  { transform: translate3d(-4%,6%,0) rotate(-30deg);}
+  100% { transform: translate3d(0,0,0) rotate(0deg);   }
+}
+
+/* Chat bubbles floating up the brand panel. */
+@keyframes auth-float-up {
+  0%   { transform: translateY(20px); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(-26px); opacity: 0; }
+}
+
+/* Entrance: card + items rise and fade in. */
+@keyframes auth-rise {
+  0%   { transform: translateY(16px); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+/* Logo soft pulse ring. */
+@keyframes auth-ring {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  70%  { transform: scale(1.8); opacity: 0;    }
+  100% { transform: scale(1.8); opacity: 0;    }
+}
+
+/* Shimmer sweep across the primary button on hover. */
+@keyframes auth-shimmer {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(120%);  }
+}
+
+.auth-aurora {
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(40% 40% at 25% 30%, rgba(255,255,255,0.35) 0%, transparent 70%),
+    radial-gradient(45% 45% at 75% 70%, rgba(91,95,199,0.55) 0%, transparent 70%),
+    radial-gradient(40% 40% at 60% 20%, rgba(0,122,255,0.5) 0%, transparent 70%);
+  filter: blur(40px);
+  animation: auth-aurora 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+.auth-bubble {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.16);
+  backdrop-filter: blur(2px);
+  animation: auth-float-up linear infinite;
+  will-change: transform, opacity;
+}
+
+.auth-rise   { animation: auth-rise 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+.auth-rise-1 { animation-delay: 0.05s; }
+.auth-rise-2 { animation-delay: 0.13s; }
+.auth-rise-3 { animation-delay: 0.21s; }
+.auth-rise-4 { animation-delay: 0.29s; }
+.auth-rise-5 { animation-delay: 0.37s; }
+
+.auth-logo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid rgba(255,255,255,0.6);
+  animation: auth-ring 2.8s ease-out infinite;
+}
+
+.auth-shimmer-btn { position: relative; overflow: hidden; }
+.auth-shimmer-btn::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 60%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.45), transparent);
+  transform: translateX(-120%);
+}
+.auth-shimmer-btn:hover::after { animation: auth-shimmer 0.9s ease; }
+
+/* ── CSS Panda mascot (chibi, premium, perfectly centered) ─────────── */
+@keyframes panda-sway {
+  0%, 100% { transform: rotate(-2.5deg) translateY(0); }
+  50%      { transform: rotate(2.5deg) translateY(-7px); }
+}
+@keyframes panda-blink {
+  0%, 93%, 100% { transform: scaleY(1); }
+  96.5%         { transform: scaleY(0.08); }
+}
+@keyframes panda-wave {
+  0%, 100% { transform: rotate(12deg); }
+  50%      { transform: rotate(-36deg); }
+}
+@keyframes panda-ear {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+@keyframes panda-shadow {
+  0%, 100% { transform: translateX(-50%) scaleX(1);    opacity: 0.26; }
+  50%      { transform: translateX(-50%) scaleX(0.78); opacity: 0.13; }
+}
+
+.panda {
+  position: relative;
+  width: 210px;
+  height: 226px;
+  transform-origin: 50% 100%;
+  animation: panda-sway 4.2s ease-in-out infinite;
+  filter: drop-shadow(0 12px 20px rgba(0,0,0,0.2));
+  --ink: #20242f;
+  --ink-soft: #2c3242;
+  --cream: #fdfdf8;
+}
+.panda * { position: absolute; box-sizing: border-box; }
+
+/* ground shadow */
+.panda-shadow {
+  width: 150px; height: 18px;
+  left: 50%; bottom: -10px;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  filter: blur(6px);
+  animation: panda-shadow 4.2s ease-in-out infinite;
+}
+
+/* body — smaller than head for chibi ratio */
+.panda-body {
+  width: 116px; height: 96px;
+  left: 50%; bottom: 8px;
+  transform: translateX(-50%);
+  background: radial-gradient(120% 100% at 50% 16%, var(--cream) 58%, #e7ebf3 100%);
+  border-radius: 50% 50% 48% 48%;
+  box-shadow: inset 0 -6px 12px rgba(0,0,0,0.06);
+}
+/* belly patch */
+.panda-belly {
+  width: 66px; height: 56px;
+  left: 50%; bottom: 18px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 50% 32%, #f4f6fa 0%, #e6eaf1 100%);
+  border-radius: 50%;
+}
+/* legs — stubby & round */
+.panda-leg {
+  width: 46px; height: 38px;
+  bottom: 0;
+  background: radial-gradient(circle at 40% 30%, var(--ink-soft) 0%, #12161f 100%);
+  border-radius: 50% 50% 48% 48%;
+}
+.panda-leg.left  { left: calc(50% - 50px); }
+.panda-leg.right { left: calc(50% + 4px); }
+.panda-foot {
+  width: 22px; height: 15px;
+  bottom: 6px;
+  background: #eef1f6;
+  border-radius: 50%;
+}
+.panda-foot.left  { left: calc(50% - 38px); }
+.panda-foot.right { left: calc(50% + 16px); }
+.panda-foot::after {
+  content: "";
+  position: absolute;
+  width: 7px; height: 6px;
+  left: 50%; top: 3px;
+  transform: translateX(-50%);
+  background: rgba(255,150,168,0.5);
+  border-radius: 50%;
+}
+
+/* arms — chubby */
+.panda-arm {
+  width: 38px; height: 56px;
+  bottom: 38px;
+  background: radial-gradient(circle at 38% 28%, var(--ink-soft) 0%, #12161f 100%);
+  border-radius: 46% 46% 50% 50%;
+}
+.panda-arm.left {
+  left: calc(50% - 74px);
+  transform: rotate(18deg);
+}
+.panda-arm.right {
+  left: calc(50% + 36px);
+  transform-origin: 50% 8px;
+  animation: panda-wave 1.05s ease-in-out infinite;
+}
+
+/* head — large for baby-face chibi ratio */
+.panda-head {
+  width: 154px; height: 138px;
+  left: 50%; top: 0;
+  transform: translateX(-50%);
+  background: radial-gradient(120% 110% at 50% 20%, var(--cream) 56%, #e6eaf2 100%);
+  border-radius: 50%;
+  z-index: 3;
+  box-shadow: inset 0 -8px 16px rgba(0,0,0,0.05);
+}
+/* fur tufts on top */
+.panda-tuft {
+  width: 12px; height: 16px;
+  top: 4px;
+  background: var(--cream);
+  border-radius: 50% 50% 40% 40%;
+  z-index: 3;
+}
+.panda-tuft.c { left: 50%; transform: translateX(-50%); }
+.panda-tuft.l { left: calc(50% - 14px); transform: rotate(-16deg); }
+.panda-tuft.r { left: calc(50% + 2px);  transform: rotate(16deg); }
+
+/* ears — bigger, soft inner */
+.panda-ear {
+  width: 56px; height: 56px;
+  top: -10px;
+  background: radial-gradient(circle at 38% 30%, #353c4f 0%, #12161f 100%);
+  border-radius: 50%;
+  z-index: 2;
+  animation: panda-ear 4.2s ease-in-out infinite;
+}
+.panda-ear::after {
+  content: "";
+  position: absolute;
+  inset: 15px;
+  background: #3a4153;
+  border-radius: 50%;
+}
+.panda-ear.left  { left: calc(50% - 74px); }
+.panda-ear.right { left: calc(50% + 18px); }
+
+/* eye patches — teardrop */
+.panda-patch {
+  width: 50px; height: 60px;
+  top: 40px;
+  background: radial-gradient(circle at 44% 32%, #2c3242 0%, #12161f 100%);
+  border-radius: 52% 52% 50% 50% / 58% 58% 46% 46%;
+  z-index: 4;
+}
+.panda-patch.left  { left: calc(50% - 52px); transform: rotate(16deg); }
+.panda-patch.right { left: calc(50% + 2px);  transform: rotate(-16deg); }
+
+/* eyes — large, glossy, double catchlight */
+.panda-eye {
+  width: 23px; height: 23px;
+  top: 56px;
+  background: #fff;
+  border-radius: 50%;
+  z-index: 5;
+  transform-origin: 50% 50%;
+  box-shadow: inset 0 -2px 3px rgba(0,0,0,0.12);
+  animation: panda-blink 4s ease-in-out infinite;
+}
+.panda-eye::before {
+  content: "";
+  position: absolute;
+  width: 15px; height: 15px;
+  top: 5px; left: 4px;
+  background: radial-gradient(circle at 36% 30%, #3a4153 0%, #12161f 70%);
+  border-radius: 50%;
+}
+.panda-eye::after {
+  content: "";
+  position: absolute;
+  width: 5px; height: 5px;
+  top: 7px; left: 6px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 6px 5px 0 -2px rgba(255,255,255,0.85);
+  z-index: 6;
+}
+.panda-eye.left  { left: calc(50% - 33px); }
+.panda-eye.right { left: calc(50% + 10px); }
+
+/* nose — small button, soft */
+.panda-nose {
+  width: 20px; height: 13px;
+  left: 50%; top: 82px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 40% 28%, #3a4153 0%, #12161f 100%);
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  z-index: 6;
+}
+/* mouth — cute "w" smile drawn with two arcs */
+.panda-mouth {
+  width: 30px; height: 12px;
+  left: 50%; top: 95px;
+  transform: translateX(-50%);
+  z-index: 6;
+}
+.panda-mouth::before,
+.panda-mouth::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 14px; height: 12px;
+  border: 2.4px solid var(--ink);
+  border-top: 0;
+  border-radius: 0 0 14px 14px;
+}
+.panda-mouth::before { left: 0; }
+.panda-mouth::after  { right: 0; }
+
+/* cheeks — soft blush */
+.panda-cheek {
+  width: 22px; height: 13px;
+  top: 84px;
+  background: radial-gradient(circle, rgba(255,140,162,0.8) 0%, rgba(255,140,162,0) 72%);
+  border-radius: 50%;
+  z-index: 4;
+}
+.panda-cheek.left  { left: calc(50% - 62px); }
+.panda-cheek.right { left: calc(50% + 40px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-aurora,
+  .auth-bubble,
+  .auth-rise,
+  .auth-logo-ring { animation: none !important; }
+  .auth-rise { opacity: 1; transform: none; }
+  .auth-shimmer-btn:hover::after { animation: none; }
+  .panda, .panda-shadow, .panda-ear, .panda-eye, .panda-arm.right { animation: none !important; }
 }

@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     } catch {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
-    const { title, url, notes, folder, tags, hotelId } = body ?? {};
+    const { title, url, notes, folder, tags, hotelId } = (body ?? {}) as Record<string, unknown>;
 
     const normalizedUrl = normalizeUrl(url);
     if (!normalizedUrl) {
@@ -95,17 +95,11 @@ export async function GET(request: Request) {
       );
     }
 
-    const where: any = {
+    const where = {
       userId: currentUser.id,
+      ...(folder ? { folder } : {}),
+      ...(tag ? { tags: { has: tag } } : {}),
     };
-
-    if (folder) {
-      where.folder = folder;
-    }
-
-    if (tag) {
-      where.tags = { has: tag };
-    }
 
     // Run the three independent queries in parallel instead of awaiting each
     // sequentially, cutting the endpoint latency to roughly one DB round-trip.
@@ -208,7 +202,7 @@ export async function PATCH(request: Request) {
     } catch {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
-    const { id, title, notes, folder, tags } = body ?? {};
+    const { id, title, notes, folder, tags } = (body ?? {}) as Record<string, unknown>;
 
     if (!currentUser) {
       return NextResponse.json(

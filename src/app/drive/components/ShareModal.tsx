@@ -184,32 +184,32 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
       }}
     >
       {DialogElement}
-      <div className="relative w-full max-w-lg mx-4 bg-gray-900 rounded-xl flex flex-col overflow-hidden shadow-2xl max-h-[85vh]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
+      <div className="relative w-full max-w-lg mx-4 bg-canvas rounded-xl flex flex-col overflow-hidden shadow-2xl max-h-[85vh]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-hairline shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <FiLink className="text-sky-400 shrink-0" size={20} />
             <div className="min-w-0">
-              <h2 className="text-white font-semibold text-lg">Chia sẻ file</h2>
-              <p className="text-gray-400 text-sm truncate">{file.originalName}</p>
+              <h2 className="text-ink font-semibold text-lg">Chia sẻ file</h2>
+              <p className="text-ink-soft text-sm truncate">{file.originalName}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors shrink-0"
+            className="p-2 text-ink-soft hover:text-ink rounded-lg hover:bg-panel transition-colors shrink-0"
           >
             <FiX size={18} />
           </button>
         </div>
 
-        <div className="px-5 py-4 border-b border-gray-800 shrink-0">
-          <h3 className="text-sm font-medium text-gray-300 mb-3">Tạo liên kết mới</h3>
+        <div className="px-5 py-4 border-b border-hairline shrink-0">
+          <h3 className="text-sm font-medium text-ink mb-3">Tạo liên kết mới</h3>
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Thời hạn</label>
+              <label className="block text-xs text-ink-soft mb-1">Thời hạn</label>
               <select
                 value={expiry}
                 onChange={(e) => setExpiry(Number(e.target.value))}
-                className="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+                className="w-full rounded-lg bg-panel border border-hairline px-3 py-2 text-sm text-ink focus:outline-none focus:border-sky-500"
               >
                 {EXPIRY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -219,11 +219,11 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
               </select>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Số lần tải</label>
+              <label className="block text-xs text-ink-soft mb-1">Số lần tải</label>
               <select
                 value={maxDownloads}
                 onChange={(e) => setMaxDownloads(Number(e.target.value))}
-                className="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+                className="w-full rounded-lg bg-panel border border-hairline px-3 py-2 text-sm text-ink focus:outline-none focus:border-sky-500"
               >
                 {DOWNLOAD_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -243,13 +243,13 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
         </div>
 
         <div className="flex-1 overflow-auto px-5 py-4 min-h-0">
-          <h3 className="text-sm font-medium text-gray-300 mb-3">
+          <h3 className="text-sm font-medium text-ink mb-3">
             Liên kết hiện có ({links.length})
           </h3>
           {loading ? (
-            <p className="text-gray-500 text-sm text-center py-4">Đang tải...</p>
+            <p className="text-ink-soft text-sm text-center py-4">Đang tải...</p>
           ) : links.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-4">Chưa có liên kết nào</p>
+            <p className="text-ink-soft text-sm text-center py-4">Chưa có liên kết nào</p>
           ) : (
             <div className="space-y-3">
               {links.map((link) => {
@@ -261,7 +261,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
                   <div
                     key={link.id}
                     className={`rounded-lg border p-3 ${
-                      inactive ? "bg-gray-800/50 border-gray-700/50" : "bg-gray-800 border-gray-700"
+                      inactive ? "bg-panel/50 border-hairline/50" : "bg-panel border-hairline"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
@@ -269,14 +269,14 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
                         <span
                           className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                             inactive
-                              ? "bg-gray-700 text-gray-400"
+                              ? "bg-fill text-ink-soft"
                               : "bg-emerald-900/50 text-emerald-400"
                           }`}
                         >
                           {inactive ? "Đã vô hiệu" : "Đang hoạt động"}
                         </span>
                         {link.expiresAt && (
-                          <span className="flex items-center gap-1 text-xs text-gray-500">
+                          <span className="flex items-center gap-1 text-xs text-ink-soft">
                             <FiClock size={12} />
                             {expired ? "Hết hạn" : format(new Date(link.expiresAt), "dd/MM/yyyy HH:mm")}
                           </span>
@@ -284,7 +284,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
                       </div>
                       <button
                         onClick={() => handleRevoke(link.token)}
-                        className="p-1.5 text-gray-500 hover:text-rose-400 rounded transition-colors"
+                        className="p-1.5 text-ink-soft hover:text-rose-400 rounded transition-colors"
                         title="Thu hồi"
                       >
                         <FiTrash2 size={14} />
@@ -292,15 +292,15 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
                     </div>
 
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="flex-1 min-w-0 rounded bg-gray-900 px-3 py-1.5">
-                        <p className="text-xs text-gray-300 truncate font-mono">{link.token}</p>
+                      <div className="flex-1 min-w-0 rounded bg-canvas px-3 py-1.5">
+                        <p className="text-xs text-ink truncate font-mono">{link.token}</p>
                       </div>
                       <button
                         onClick={() => handleCopy(link.token)}
                         className={`p-1.5 rounded transition-colors shrink-0 ${
                           copiedToken === link.token
                             ? "text-emerald-400"
-                            : "text-gray-400 hover:text-white"
+                            : "text-ink-soft hover:text-ink"
                         }`}
                         title="Sao chép liên kết"
                       >
@@ -308,7 +308,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ file, isOpen, onClose }) => {
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <div className="flex items-center gap-3 text-xs text-ink-soft">
                       <span className="flex items-center gap-1">
                         <FiDownload size={12} />
                         {link.downloadCount}

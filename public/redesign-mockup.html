@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hotel Search — Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ---- Design tokens (lifted from tailwind.config.js, then elevated) ---- */
+  :root{
+    --canvas:#e8ebf0;
+    --panel:#ffffff;
+    --fill:#f3f4f8;
+    --ink:#1d1d1f;
+    --ink-soft:#8a8f98;
+    --hairline:#e9eaef;
+    --brand:#007aff;
+    --brand-strong:#0a6fe0;
+    --accent:#5b5fc7;
+    --online:#34c759;
+    --alert:#ff3b30;
+    --warn:#ff9500;
+    --radius-panel:18px;
+    --radius-bubble:20px;
+    --radius-pill:999px;
+    --shadow-sm:0 1px 2px rgba(20,28,46,.05);
+    --shadow-card:0 6px 24px -8px rgba(20,28,46,.16), 0 2px 6px -2px rgba(20,28,46,.08);
+    --shadow-float:0 18px 50px -16px rgba(20,28,46,.30);
+    --rail:76px; --col:336px; --right:328px;
+    --gap:14px;
+    --fs:15px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  [data-density="compact"]{ --gap:10px; --fs:14px; --radius-panel:14px; --radius-bubble:16px; }
+  [data-theme="dark"]{
+    --canvas:#0e1116; --panel:#171a21; --fill:#1f242d; --ink:#eef1f6;
+    --ink-soft:#8d94a3; --hairline:#262b35;
+    --shadow-card:0 8px 28px -10px rgba(0,0,0,.6), 0 2px 6px -2px rgba(0,0,0,.4);
+    --shadow-float:0 20px 60px -18px rgba(0,0,0,.7);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 12% -10%, rgba(0,122,255,.10), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(91,95,199,.10), transparent 55%),
+      var(--canvas);
+    color:var(--ink);
+    font-size:var(--fs);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.45;
+    overflow:hidden;
+    transition:background .4s var(--ease), color .3s var(--ease);
+  }
+  ::selection{background:color-mix(in srgb, var(--brand) 25%, transparent)}
+  .app{
+    height:100vh; padding:var(--gap);
+    display:grid;
+    grid-template-columns:var(--rail) var(--col) 1fr var(--right);
+    gap:var(--gap);
+  }
+  .surface{
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius-panel);
+    box-shadow:var(--shadow-card);
+    transition:background .3s var(--ease), border-color .3s var(--ease);
+  }
+
+  /* ---------------- RAIL ---------------- */
+  .rail{display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
+  .logo{
+    width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;
+    font-weight:800;font-size:20px;letter-spacing:-1px;margin-bottom:10px;
+    background:linear-gradient(135deg,var(--brand),var(--accent));
+    box-shadow:0 8px 20px -6px color-mix(in srgb,var(--brand) 70%, transparent);
+  }
+  .rail-group{display:flex;flex-direction:column;gap:4px;align-items:center;width:100%}
+  .rail-sep{width:28px;height:1px;background:var(--hairline);margin:8px 0}
+  .nav{
+    position:relative;width:46px;height:46px;border:none;background:transparent;border-radius:14px;
+    color:var(--ink-soft);display:grid;place-items:center;cursor:pointer;
+    transition:all .2s var(--ease);
+  }
+  .nav svg{width:22px;height:22px;stroke-width:1.9}
+  .nav:hover{background:var(--fill);color:var(--ink);transform:translateY(-1px)}
+  .nav.active{color:var(--brand);background:color-mix(in srgb,var(--brand) 12%, transparent)}
+  .nav.active::before{content:"";position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:4px;height:22px;border-radius:4px;background:var(--brand)}
+  .nav .dot{position:absolute;top:9px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--alert);border:2px solid var(--panel)}
+  .nav .tip{
+    position:absolute;left:54px;top:50%;transform:translateY(-50%) scale(.9);transform-origin:left center;
+    background:var(--ink);color:var(--panel);font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;
+    white-space:nowrap;opacity:0;pointer-events:none;transition:.16s var(--ease);z-index:30;box-shadow:var(--shadow-float)
+  }
+  .nav:hover .tip{opacity:1;transform:translateY(-50%) scale(1)}
+  .rail .me{margin-top:auto;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#ff7eb3,#ff5a87);display:grid;place-items:center;color:#fff;font-weight:700;cursor:pointer;border:2px solid var(--panel);box-shadow:var(--shadow-sm)}
+
+  /* ---------------- LIST COLUMN ---------------- */
+  .col{display:flex;flex-direction:column;overflow:hidden}
+  .col-head{padding:18px 18px 12px}
+  .col-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .col-title h1{font-size:21px;font-weight:800;letter-spacing:-.4px}
+  .icon-btn{width:34px;height:34px;border-radius:11px;border:1px solid var(--hairline);background:var(--panel);color:var(--ink-soft);display:grid;place-items:center;cursor:pointer;transition:.18s var(--ease)}
+  .icon-btn:hover{color:var(--brand);border-color:color-mix(in srgb,var(--brand) 40%, transparent);background:color-mix(in srgb,var(--brand) 8%,transparent)}
+  .icon-btn svg{width:17px;height:17px;stroke-width:2}
+  .search{position:relative;margin-bottom:12px}
+  .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--ink-soft);stroke-width:2}
+  .search input{width:100%;height:42px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:var(--fill);padding:0 16px 0 38px;font-size:14px;color:var(--ink);outline:none;transition:.2s var(--ease);font-family:inherit}
+  .search input::placeholder{color:var(--ink-soft)}
+  .search input:focus{background:var(--panel);border-color:color-mix(in srgb,var(--brand) 55%, transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 14%, transparent)}
+  .seg{display:flex;gap:6px;background:var(--fill);padding:4px;border-radius:var(--radius-pill)}
+  .seg button{flex:1;border:none;background:transparent;padding:7px 0;border-radius:var(--radius-pill);font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:.18s var(--ease);font-family:inherit}
+  .seg button.on{background:var(--panel);color:var(--ink);box-shadow:var(--shadow-sm)}
+  .list{flex:1;overflow-y:auto;padding:6px 10px 12px}
+  .list::-webkit-scrollbar{width:8px}
+  .list::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:8px;border:2px solid var(--panel)}
+  .row{display:flex;gap:12px;padding:11px;border-radius:15px;cursor:pointer;transition:.16s var(--ease);align-items:center;position:relative}
+  .row:hover{background:var(--fill)}
+  .row.active{background:linear-gradient(135deg,var(--brand),var(--brand-strong));box-shadow:0 10px 24px -10px color-mix(in srgb,var(--brand) 70%,transparent)}
+  .row.active *{color:#fff !important}
+  .row.active .sub{color:rgba(255,255,255,.82) !important}
+  .av{position:relative;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:16px;flex-shrink:0}
+  .av .on{position:absolute;right:-2px;bottom:-2px;width:13px;height:13px;border-radius:50%;background:var(--online);border:2.5px solid var(--panel)}
+  .row.active .av .on{border-color:var(--brand)}
+  .row .body{flex:1;min-width:0}
+  .row .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .row .name{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .time{font-size:11.5px;color:var(--ink-soft);flex-shrink:0}
+  .row .sub{font-size:13px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .badge{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;flex-shrink:0}
+  .row.active .badge{background:#fff;color:var(--brand)}
+
+  /* ---------------- CENTER CHAT ---------------- */
+  .chat{display:flex;flex-direction:column;overflow:hidden}
+  .chat-head{display:flex;align-items:center;gap:13px;padding:15px 20px;border-bottom:1px solid var(--hairline)}
+  .chat-head .av{width:44px;height:44px;border-radius:13px}
+  .chat-head .meta h2{font-size:16.5px;font-weight:800;letter-spacing:-.3px}
+  .chat-head .meta .st{font-size:12.5px;color:var(--online);font-weight:600;display:flex;align-items:center;gap:5px}
+  .chat-head .meta .st::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--online)}
+  .chat-head .actions{margin-left:auto;display:flex;gap:8px}
+  .msgs{flex:1;overflow-y:auto;padding:22px 24px;display:flex;flex-direction:column;gap:10px;background:
+    radial-gradient(600px 400px at 80% 0%, color-mix(in srgb,var(--brand) 4%, transparent), transparent 70%)}
+  .msgs::-webkit-scrollbar{width:8px}
+  .msgs::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:8px}
+  .divider{align-self:center;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--ink-soft);text-transform:uppercase;background:var(--fill);padding:5px 14px;border-radius:var(--radius-pill);margin:6px 0}
+  .bubble{max-width:62%;padding:11px 15px;border-radius:var(--radius-bubble);font-size:14.5px;line-height:1.5;box-shadow:var(--shadow-sm);animation:pop .35s var(--ease) both}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  .recv{align-self:flex-start;background:var(--fill);color:var(--ink);border-bottom-left-radius:6px}
+  .sent{align-self:flex-end;color:#fff;border-bottom-right-radius:6px;background:linear-gradient(135deg,var(--brand),var(--brand-strong))}
+  .tstamp{font-size:11px;color:var(--ink-soft);padding:0 6px}
+  .tstamp.r{align-self:flex-end}
+  /* embedded hotel card in chat */
+  .hcard{align-self:flex-start;max-width:74%;border:1px solid var(--hairline);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:var(--shadow-card);animation:pop .4s var(--ease) both}
+  .hcard .ph{height:128px;background:linear-gradient(135deg,#8ec5ff,#5b9dff 45%,#5b5fc7);position:relative;display:flex;align-items:flex-end;padding:12px}
+  .hcard .ph .price{background:rgba(255,255,255,.92);backdrop-filter:blur(6px);color:var(--ink);font-weight:800;font-size:14px;padding:5px 11px;border-radius:var(--radius-pill)}
+  .hcard .ph .star{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);color:#ffd23f;font-weight:700;font-size:12px;padding:4px 9px;border-radius:var(--radius-pill);display:flex;gap:4px;align-items:center}
+  .hcard .info{padding:13px 15px}
+  .hcard .info h3{font-size:15px;font-weight:800;letter-spacing:-.2px}
+  .hcard .info p{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+  .hcard .info .cta{display:flex;gap:8px;margin-top:12px}
+  .hcard .cta button{flex:1;border:none;border-radius:12px;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.18s var(--ease)}
+  .hcard .cta .p{background:var(--brand);color:#fff}
+  .hcard .cta .p:hover{background:var(--brand-strong)}
+  .hcard .cta .s{background:var(--fill);color:var(--ink)}
+  .hcard .cta .s:hover{background:var(--hairline)}
+  .typing{align-self:flex-start;display:flex;gap:4px;padding:13px 16px;background:var(--fill);border-radius:var(--radius-bubble);border-bottom-left-radius:6px}
+  .typing span{width:7px;height:7px;border-radius:50%;background:var(--ink-soft);animation:blink 1.3s infinite}
+  .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+  .composer{padding:14px 18px;border-top:1px solid var(--hairline);display:flex;align-items:center;gap:10px}
+  .composer .tools{display:flex;gap:4px}
+  .composer .tool{width:36px;height:36px;border-radius:11px;border:none;background:transparent;color:var(--ink-soft);display:grid;place-items:center;cursor:pointer;transition:.16s var(--ease)}
+  .composer .tool:hover{background:var(--fill);color:var(--brand)}
+  .composer .tool svg{width:19px;height:19px;stroke-width:2}
+  .composer .field{flex:1;height:44px;border-radius:var(--radius-pill);background:var(--fill);border:1px solid var(--hairline);display:flex;align-items:center;padding:0 16px;color:var(--ink-soft);font-size:14px}
+  .send{width:44px;height:44px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--brand),var(--brand-strong));color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 18px -6px color-mix(in srgb,var(--brand) 70%,transparent);transition:.18s var(--ease)}
+  .send:hover{transform:translateY(-2px) scale(1.04)}
+  .send svg{width:19px;height:19px}
+
+  /* ---------------- RIGHT PANEL ---------------- */
+  .right{display:flex;flex-direction:column;overflow:hidden}
+  .right .scroll{overflow-y:auto;padding:22px 18px}
+  .right .scroll::-webkit-scrollbar{width:8px}
+  .right .scroll::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:8px}
+  .hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding-bottom:16px;border-bottom:1px solid var(--hairline)}
+  .hero .big{width:84px;height:84px;border-radius:26px;background:linear-gradient(135deg,var(--accent),#7c5fe0);display:grid;place-items:center;color:#fff;font-weight:800;font-size:34px;box-shadow:var(--shadow-card)}
+  .hero h2{font-size:18px;font-weight:800;letter-spacing:-.3px;margin-top:6px}
+  .hero .loc{font-size:12.5px;color:var(--ink-soft)}
+  .hero .pill{font-size:11.5px;font-weight:700;color:var(--online);background:color-mix(in srgb,var(--online) 14%,transparent);padding:4px 12px;border-radius:var(--radius-pill);margin-top:6px}
+  .quick{display:flex;justify-content:center;gap:24px;padding:16px 0;border-bottom:1px solid var(--hairline)}
+  .quick .q{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:var(--ink-soft);transition:.16s var(--ease)}
+  .quick .q:hover{color:var(--brand)}
+  .quick .q span{width:42px;height:42px;border-radius:13px;background:var(--fill);display:grid;place-items:center;transition:.16s var(--ease)}
+  .quick .q:hover span{background:color-mix(in srgb,var(--brand) 12%,transparent)}
+  .quick .q svg{width:19px;height:19px;stroke-width:2}
+  .quick .q small{font-size:11px;font-weight:600}
+  .sec{padding:16px 0;border-bottom:1px solid var(--hairline)}
+  .sec h4{font-size:14px;font-weight:800;display:flex;justify-content:space-between;align-items:center;cursor:pointer;letter-spacing:-.2px}
+  .sec h4 svg{width:16px;height:16px;color:var(--ink-soft)}
+  .tabs{display:flex;gap:18px;margin:14px 0 12px;font-size:13px;font-weight:600}
+  .tabs .t{color:var(--ink-soft);cursor:pointer;padding-bottom:7px;border-bottom:2px solid transparent}
+  .tabs .t.on{color:var(--brand);border-color:var(--brand)}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .grid3 .ph{position:relative;aspect-ratio:1;border-radius:13px;box-shadow:var(--shadow-sm);transition:.18s var(--ease);cursor:pointer;overflow:hidden}
+  .grid3 .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.28),transparent 40%),linear-gradient(to top,rgba(10,16,30,.32),transparent 55%)}
+  .grid3 .ph svg{position:absolute;left:8px;bottom:7px;width:14px;height:14px;color:#fff;opacity:.92;z-index:2;stroke-width:2}
+  .grid3 .ph.more::before{content:"+12";position:absolute;inset:0;z-index:3;display:grid;place-items:center;color:#fff;font-weight:800;font-size:16px;background:rgba(10,16,30,.45);backdrop-filter:blur(2px)}
+  .grid3 .ph:hover{transform:scale(1.05)}
+  .kv{display:flex;justify-content:space-between;font-size:13px;padding:7px 0}
+  .kv span:first-child{color:var(--ink-soft)}
+  .kv span:last-child{font-weight:700}
+  .src{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:13px}
+  .src .d{width:9px;height:9px;border-radius:50%}
+  .src .nm{font-weight:600}
+  .src .pr{margin-left:auto;font-weight:800;color:var(--brand)}
+
+  /* ---------------- TWEAKS ---------------- */
+  .tweaks{position:fixed;bottom:18px;right:18px;z-index:60}
+  .tweaks .toggle{width:50px;height:50px;border-radius:50%;border:none;background:var(--ink);color:var(--panel);display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow-float);transition:.2s var(--ease)}
+  .tweaks .toggle:hover{transform:rotate(45deg)}
+  .tweaks .toggle svg{width:22px;height:22px}
+  .panel{position:absolute;bottom:62px;right:0;width:264px;background:var(--panel);border:1px solid var(--hairline);border-radius:18px;box-shadow:var(--shadow-float);padding:18px;opacity:0;pointer-events:none;transform:translateY(10px) scale(.96);transform-origin:bottom right;transition:.24s var(--ease)}
+  .tweaks.open .panel{opacity:1;pointer-events:auto;transform:none}
+  .panel h5{font-size:13px;font-weight:800;margin-bottom:14px;letter-spacing:-.2px}
+  .tw-row{margin-bottom:15px}
+  .tw-row label{font-size:11.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:7px}
+  .chips{display:flex;gap:7px}
+  .chips button{flex:1;border:1px solid var(--hairline);background:var(--fill);border-radius:10px;padding:7px 0;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit;transition:.16s var(--ease)}
+  .chips button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .swatches{display:flex;gap:9px}
+  .swatches button{width:30px;height:30px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:.16s var(--ease)}
+  .swatches button.on{border-color:var(--ink);transform:scale(1.12)}
+
+  @media(max-width:1200px){.app{grid-template-columns:var(--rail) var(--col) 1fr}.right{display:none}}
+  @media(max-width:860px){.app{grid-template-columns:var(--rail) 1fr}.col{display:none}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-theme="light" data-density="cozy">
+
+<div class="app">
+  <!-- RAIL -->
+  <aside class="surface rail">
+    <div class="logo">H</div>
+    <div class="rail-group">
+      <button class="nav" data-tip="Trò chuyện"><span class="dot"></span><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.8 9.8 0 01-4-.84L3 20l1.3-3.2A7.6 7.6 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span class="tip">Trò chuyện</span></button>
+      <button class="nav active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><span class="tip">Tìm kiếm</span></button>
+      <button class="nav" data-tip="Tìm hàng loạt"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg><span class="tip">Tìm hàng loạt</span></button>
+      <button class="nav"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 010 5.656l-3 3a4 4 0 11-5.656-5.656l1.5-1.5m6.656-2.828a4 4 0 00-5.656 0l-1.5 1.5"/></svg><span class="tip">Tìm URL</span></button>
+      <button class="nav"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m-6 4h6m-6 4h4M5 4h14a1 1 0 011 1v14l-3-2-3 2-3-2-3 2V5a1 1 0 011-1z"/></svg><span class="tip">So sánh</span></button>
+    </div>
+    <div class="rail-sep"></div>
+    <div class="rail-group">
+      <button class="nav"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z"/></svg><span class="tip">Người dùng</span></button>
+      <button class="nav" data-tip="Thông báo"><span class="dot"></span><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg><span class="tip">Thông báo</span></button>
+      <button class="nav"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg><span class="tip">Drive</span></button>
+      <button class="nav"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg><span class="tip">Bảng điều khiển</span></button>
+    </div>
+    <div class="me">P</div>
+  </aside>
+
+  <!-- LIST -->
+  <section class="surface col">
+    <div class="col-head">
+      <div class="col-title">
+        <h1>Khách sạn</h1>
+        <button class="icon-btn"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></button>
+      </div>
+      <div class="search">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input placeholder="Tìm khách sạn, địa điểm…" />
+      </div>
+      <div class="seg">
+        <button class="on">Tất cả</button>
+        <button>Đã lưu</button>
+        <button>Gần đây</button>
+      </div>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <!-- CHAT -->
+  <section class="surface chat">
+    <div class="chat-head">
+      <div class="av" style="background:linear-gradient(135deg,#5b5fc7,#7c5fe0)">G</div>
+      <div class="meta">
+        <h2>Grand Hyatt Tokyo</h2>
+        <div class="st">Còn phòng · phản hồi nhanh</div>
+      </div>
+      <div class="actions">
+        <button class="icon-btn"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.3a1 1 0 01.95.68l1.5 4.5a1 1 0 01-.5 1.2l-2.26 1.13a11 11 0 005 5l1.13-2.26a1 1 0 011.2-.5l4.5 1.5a1 1 0 01.68.95V19a2 2 0 01-2 2h-1C9.7 21 3 14.3 3 6V5z"/></svg></button>
+        <button class="icon-btn"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.55-2.28A1 1 0 0121 8.6v6.8a1 1 0 01-1.45.9L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></button>
+        <button class="icon-btn"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5h.01M12 12h.01M12 19h.01"/></svg></button>
+      </div>
+    </div>
+    <div class="msgs">
+      <div class="divider">Hôm nay</div>
+      <div class="bubble recv">Chào bạn 👋 Grand Hyatt Tokyo còn phòng Deluxe King cho 2 khách, nhận phòng 12/06.</div>
+      <div class="hcard">
+        <div class="ph">
+          <span class="star">★ 4.8</span>
+          <span class="price">$420 / đêm</span>
+        </div>
+        <div class="info">
+          <h3>Deluxe King · Tầng cao</h3>
+          <p>Roppongi, Tokyo · Hủy miễn phí · Bao gồm bữa sáng</p>
+          <div class="cta">
+            <button class="p">Đặt ngay</button>
+            <button class="s">So sánh giá</button>
+          </div>
+        </div>
+      </div>
+      <div class="tstamp">Grand Hyatt Tokyo · 11:00</div>
+      <div class="bubble sent">Tuyệt! Cho mình so sánh giá từ các nguồn khác nhé.</div>
+      <div class="tstamp r">Bạn · 11:02</div>
+      <div class="bubble recv">Đã tìm thấy 5 nguồn. Booking.com đang rẻ nhất — $398/đêm, giảm 8%.</div>
+      <div class="typing"><span></span><span></span><span></span></div>
+    </div>
+    <div class="composer">
+      <div class="tools">
+        <button class="tool"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20 11"/></svg></button>
+        <button class="tool"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
+      </div>
+      <div class="field">Viết tin nhắn…</div>
+      <button class="send"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </section>
+
+  <!-- RIGHT -->
+  <aside class="surface right">
+    <div class="scroll">
+      <div class="hero">
+        <div class="big">G</div>
+        <h2>Grand Hyatt Tokyo</h2>
+        <div class="loc">6 Chome-10-3 Roppongi, Minato</div>
+        <div class="pill">● Còn phòng trống</div>
+      </div>
+      <div class="quick">
+        <div class="q"><span><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.6 7.5A5 5 0 0012 5a5 5 0 00-5.6 2.5M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z"/></svg></span><small>Lưu</small></div>
+        <div class="q"><span><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1"/></svg></span><small>Báo giá</small></div>
+        <div class="q"><span><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16v12H5.2L4 17.2V4z"/></svg></span><small>Chia sẻ</small></div>
+      </div>
+      <div class="sec">
+        <h4>Ảnh &amp; phương tiện <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></h4>
+        <div class="tabs"><div class="t on">Ảnh</div><div class="t">Chi tiết</div><div class="t">Liên kết</div></div>
+        <div class="grid3">
+          <div class="ph" style="background:linear-gradient(135deg,#5b9dff,#007aff)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5"/><circle cx="9" cy="9" r="1.5"/></svg></div>
+          <div class="ph" style="background:linear-gradient(135deg,#34c759,#1aa64b)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5"/><circle cx="9" cy="9" r="1.5"/></svg></div>
+          <div class="ph" style="background:linear-gradient(135deg,#ff9500,#ff5e3a)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5"/><circle cx="9" cy="9" r="1.5"/></svg></div>
+          <div class="ph" style="background:linear-gradient(135deg,#5b5fc7,#7c5fe0)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5"/><circle cx="9" cy="9" r="1.5"/></svg></div>
+          <div class="ph" style="background:linear-gradient(135deg,#ff7eb3,#ff5a87)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5"/><circle cx="9" cy="9" r="1.5"/></svg></div>
+          <div class="ph more" style="background:linear-gradient(135deg,#22d3ee,#0ea5e9)"></div>
+        </div>
+      </div>
+      <div class="sec">
+        <h4>So sánh giá <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></h4>
+        <div style="margin-top:10px">
+          <div class="src"><span class="d" style="background:#003580"></span><span class="nm">Booking.com</span><span class="pr">$398</span></div>
+          <div class="src"><span class="d" style="background:#ff5a5f"></span><span class="nm">Agoda</span><span class="pr">$412</span></div>
+          <div class="src"><span class="d" style="background:#ff9500"></span><span class="nm">Expedia</span><span class="pr">$420</span></div>
+          <div class="src"><span class="d" style="background:#34c759"></span><span class="nm">Trip.com</span><span class="pr">$430</span></div>
+        </div>
+      </div>
+      <div class="sec" style="border:none">
+        <h4>Thông tin đặt phòng <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></h4>
+        <div style="margin-top:8px">
+          <div class="kv"><span>Nhận phòng</span><span>12/06/2026</span></div>
+          <div class="kv"><span>Trả phòng</span><span>15/06/2026</span></div>
+          <div class="kv"><span>Khách</span><span>2 người lớn</span></div>
+          <div class="kv"><span>Tổng (3 đêm)</span><span style="color:var(--brand)">$1,194</span></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- TWEAKS -->
+<div class="tweaks" id="tweaks">
+  <div class="panel">
+    <h5>Tinh chỉnh giao diện</h5>
+    <div class="tw-row">
+      <label>Chế độ</label>
+      <div class="chips" data-group="theme">
+        <button data-v="light" class="on">Sáng</button>
+        <button data-v="dark">Tối</button>
+      </div>
+    </div>
+    <div class="tw-row">
+      <label>Mật độ</label>
+      <div class="chips" data-group="density">
+        <button data-v="cozy" class="on">Thoáng</button>
+        <button data-v="compact">Gọn</button>
+      </div>
+    </div>
+    <div class="tw-row" style="margin-bottom:0">
+      <label>Màu nhấn</label>
+      <div class="swatches" id="swatches">
+        <button class="on" data-c="#007aff" style="background:#007aff"></button>
+        <button data-c="#5b5fc7" style="background:#5b5fc7"></button>
+        <button data-c="#0ea5e9" style="background:#0ea5e9"></button>
+        <button data-c="#10b981" style="background:#10b981"></button>
+        <button data-c="#f43f5e" style="background:#f43f5e"></button>
+      </div>
+    </div>
+  </div>
+  <button class="toggle" id="twToggle"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.3 4.3a2 2 0 013.4 0l.5.9a2 2 0 002 .9l1-.1a2 2 0 011.9 3l-.5.9a2 2 0 000 2.2l.5.9a2 2 0 01-1.9 3l-1-.1a2 2 0 00-2 .9l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-2-.9l-1 .1a2 2 0 01-1.9-3l.5-.9a2 2 0 000-2.2l-.5-.9a2 2 0 011.9-3l1 .1a2 2 0 002-.9l.5-.9zM12 15a3 3 0 100-6 3 3 0 000 6z"/></svg></button>
+</div>
+
+<script>
+  // ---- hotel list data ----
+  const hotels = [
+    {n:"Grand Hyatt Tokyo", s:"Booking.com rẻ nhất — $398/đêm", t:"11:02", c:"linear-gradient(135deg,#5b5fc7,#7c5fe0)", i:"G", on:true, active:true, b:2},
+    {n:"The Ritz-Carlton", s:"Đã cập nhật giá mới từ 4 nguồn", t:"10:41", c:"linear-gradient(135deg,#007aff,#0a6fe0)", i:"R", on:true, b:0},
+    {n:"Park Hyatt Kyoto", s:"Bạn: cho mình xem phòng suite", t:"09:15", c:"linear-gradient(135deg,#34c759,#1aa64b)", i:"P", b:0},
+    {n:"Mandarin Oriental", s:"Còn 3 phòng cho ngày bạn chọn", t:"Hôm qua", c:"linear-gradient(135deg,#ff9500,#ff5e3a)", i:"M", on:true, b:1},
+    {n:"Aman Tokyo", s:"Giá giảm 12% — cảnh báo giá", t:"Hôm qua", c:"linear-gradient(135deg,#ff7eb3,#ff5a87)", i:"A", b:0},
+    {n:"Conrad Osaka", s:"Đã lưu vào bộ sưu tập của bạn", t:"T2", c:"linear-gradient(135deg,#22d3ee,#0ea5e9)", i:"C", b:0},
+    {n:"Four Seasons", s:"3 nguồn đang theo dõi giá", t:"T2", c:"linear-gradient(135deg,#a855f7,#7c3aed)", i:"F", b:0},
+  ];
+  const list = document.getElementById('list');
+  list.innerHTML = hotels.map(h=>`
+    <div class="row ${h.active?'active':''}">
+      <div class="av" style="background:${h.c}">${h.i}${h.on?'<span class="on"></span>':''}</div>
+      <div class="body">
+        <div class="top"><span class="name">${h.n}</span><span class="time">${h.t}</span></div>
+        <div class="sub">${h.s}</div>
+      </div>
+      ${h.b?`<span class="badge">${h.b}</span>`:''}
+    </div>`).join('');
+  list.addEventListener('click',e=>{
+    const r=e.target.closest('.row'); if(!r)return;
+    list.querySelectorAll('.row').forEach(x=>x.classList.remove('active'));
+    r.classList.add('active');
+  });
+  // segmented + tabs
+  document.querySelectorAll('.seg').forEach(s=>s.addEventListener('click',e=>{
+    if(e.target.tagName!=='BUTTON')return;
+    s.querySelectorAll('button').forEach(b=>b.classList.remove('on'));e.target.classList.add('on');
+  }));
+  document.querySelectorAll('.tabs').forEach(s=>s.addEventListener('click',e=>{
+    if(!e.target.classList.contains('t'))return;
+    s.querySelectorAll('.t').forEach(b=>b.classList.remove('on'));e.target.classList.add('on');
+  }));
+  document.querySelectorAll('.rail .nav').forEach(n=>n.addEventListener('click',()=>{
+    document.querySelectorAll('.rail .nav').forEach(x=>x.classList.remove('active'));n.classList.add('active');
+  }));
+
+  // ---- Tweaks ----
+  const tw=document.getElementById('tweaks');
+  document.getElementById('twToggle').addEventListener('click',()=>tw.classList.toggle('open'));
+  const root=document.body;
+  function loadPref(){
+    root.dataset.theme=localStorage.getItem('rd_theme')||'light';
+    root.dataset.density=localStorage.getItem('rd_density')||'cozy';
+    const c=localStorage.getItem('rd_accent'); if(c) setAccent(c,false);
+    syncUI();
+  }
+  function syncUI(){
+    document.querySelectorAll('.chips[data-group="theme"] button').forEach(b=>b.classList.toggle('on',b.dataset.v===root.dataset.theme));
+    document.querySelectorAll('.chips[data-group="density"] button').forEach(b=>b.classList.toggle('on',b.dataset.v===root.dataset.density));
+  }
+  function setAccent(c,store=true){
+    document.documentElement.style.setProperty('--brand',c);
+    // derive a darker strong shade
+    document.documentElement.style.setProperty('--brand-strong',shade(c,-16));
+    document.querySelectorAll('#swatches button').forEach(b=>b.classList.toggle('on',b.dataset.c===c));
+    if(store)localStorage.setItem('rd_accent',c);
+  }
+  function shade(hex,p){
+    const n=parseInt(hex.slice(1),16);let r=(n>>16)+p,g=((n>>8)&255)+p,b=(n&255)+p;
+    r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));
+    return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
+  }
+  document.querySelector('.chips[data-group="theme"]').addEventListener('click',e=>{
+    if(e.target.tagName!=='BUTTON')return;root.dataset.theme=e.target.dataset.v;localStorage.setItem('rd_theme',e.target.dataset.v);syncUI();
+  });
+  document.querySelector('.chips[data-group="density"]').addEventListener('click',e=>{
+    if(e.target.tagName!=='BUTTON')return;root.dataset.density=e.target.dataset.v;localStorage.setItem('rd_density',e.target.dataset.v);syncUI();
+  });
+  document.getElementById('swatches').addEventListener('click',e=>{
+    if(e.target.tagName!=='BUTTON')return;setAccent(e.target.dataset.c);
+  });
+  loadPref();
+</script>
+</body>
+</html>

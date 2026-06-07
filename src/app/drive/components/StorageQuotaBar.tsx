@@ -33,8 +33,8 @@ export default function StorageQuotaBar({ refreshTrigger }: StorageQuotaBarProps
 
   if (loading && !quota) {
     return (
-      <div className="mb-4 rounded-lg bg-gray-800 p-3">
-        <div className="h-2 w-full animate-pulse rounded bg-gray-700" />
+      <div className="mb-4 rounded-lg bg-panel p-3">
+        <div className="h-2 w-full animate-pulse rounded bg-fill" />
       </div>
     );
   }
@@ -49,14 +49,14 @@ export default function StorageQuotaBar({ refreshTrigger }: StorageQuotaBarProps
         : "bg-emerald-500";
 
   return (
-    <div className="mb-4 rounded-lg bg-gray-800 p-3">
-      <div className="mb-1 flex items-center justify-between text-xs text-gray-400">
+    <div className="mb-4 rounded-lg bg-panel p-3">
+      <div className="mb-1 flex items-center justify-between text-xs text-ink-soft">
         <span>
           Đã dùng {formatMB(quota.used)} MB / {formatMB(quota.limit)} MB ({quota.percentage}%)
         </span>
         <span>{quota.fileCount} file</span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-700">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-fill">
         <div
           className={`h-full rounded-full transition-all duration-300 ${barColor}`}
           style={{ width: `${Math.min(quota.percentage, 100)}%` }}

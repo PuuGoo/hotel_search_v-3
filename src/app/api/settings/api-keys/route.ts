@@ -2,15 +2,17 @@ import prisma from "@/app/libs/prismadb";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import getCurrentUser from "../../../actions/getCurrentUser";
+import { hashApiKey, timingSafeEqual } from "@/app/libs/crypto";
 
 function generateApiKey(): string {
   const random = crypto.randomBytes(32).toString("hex");
   return `hs_${random}`;
 }
 
-function maskKey(key: string): string {
-  if (key.length <= 8) return "****";
-  return `****${key.slice(-4)}`;
+function maskKey(keyPrefix: string): string {
+  // We store the hash, so we can't recover the original key.
+  // Return a generic mask based on the prefix pattern.
+  return `****...****`;
 }
 
 export async function GET() {
@@ -29,7 +31,7 @@ export async function GET() {
     const masked = apiKeys.map((k) => ({
       id: k.id,
       name: k.name,
-      maskedKey: maskKey(k.key),
+      maskedKey: "****...****",
       permissions: k.permissions,
       isActive: k.isActive,
       lastUsedAt: k.lastUsedAt,
@@ -77,21 +79,24 @@ export async function POST(request: Request) {
     }
 
     const key = generateApiKey();
+    // Store only the SHA-256 hash of the key
+    const hashedKey = hashApiKey(key);
 
     const apiKey = await prisma.apiKey.create({
       data: {
         name: body.name.trim(),
-        key,
+        key: hashedKey,
         permissions,
         expiresAt,
         createdById: currentUser.id,
       },
     });
 
+    // Return the full key only once at creation time
     return NextResponse.json({
       id: apiKey.id,
       name: apiKey.name,
-      key: apiKey.key,
+      key, // Full key returned only now — never again
       permissions: apiKey.permissions,
       expiresAt: apiKey.expiresAt,
       createdAt: apiKey.createdAt,

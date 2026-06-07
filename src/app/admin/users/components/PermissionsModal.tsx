@@ -62,18 +62,18 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({
         className="absolute inset-0 bg-black/60"
         onClick={saving ? undefined : onClose}
       />
-      <div className="relative w-full max-w-md rounded-lg bg-gray-800 p-6 shadow-xl">
+      <div className="relative w-full max-w-md rounded-lg bg-panel p-6 shadow-xl">
         <div className="flex items-start justify-between">
           <div className="min-w-0">
-            <h3 className="text-lg font-semibold text-white">Quyền chức năng</h3>
-            <p className="truncate text-sm text-gray-400">
+            <h3 className="text-lg font-semibold text-ink">Quyền chức năng</h3>
+            <p className="truncate text-sm text-ink-soft">
               {user.email ?? user.name}
             </p>
           </div>
           <button
             onClick={onClose}
             aria-label="Đóng"
-            className="rounded p-1 text-gray-400 hover:bg-gray-700 hover:text-white"
+            className="rounded p-1 text-ink-soft hover:bg-fill hover:text-ink"
           >
             <FiX className="h-5 w-5" />
           </button>
@@ -84,13 +84,13 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({
             type="checkbox"
             checked={restricted}
             onChange={(e) => setRestricted(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-600 bg-gray-700"
+            className="h-4 w-4 rounded border-hairline bg-fill"
           />
           <span className="text-sm text-gray-200">
             Giới hạn chức năng được phép dùng
           </span>
         </label>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-ink-soft">
           Bỏ chọn = cho phép tất cả chức năng.
         </p>
 
@@ -100,8 +100,8 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({
               key={feature}
               className={`flex items-center gap-3 rounded-lg border p-3 ${
                 restricted
-                  ? "border-gray-700 bg-gray-900"
-                  : "border-gray-700/50 bg-gray-900/40 opacity-50"
+                  ? "border-hairline bg-canvas"
+                  : "border-hairline/50 bg-canvas/40 opacity-50"
               }`}
             >
               <input
@@ -109,9 +109,9 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({
                 disabled={!restricted}
                 checked={!restricted || selected.has(feature)}
                 onChange={() => toggle(feature)}
-                className="h-4 w-4 rounded border-gray-600 bg-gray-700"
+                className="h-4 w-4 rounded border-hairline bg-fill"
               />
-              <span className="text-sm text-white">
+              <span className="text-sm text-ink">
                 {FEATURE_LABELS[feature]}
               </span>
             </label>
@@ -122,7 +122,7 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({
           <button
             onClick={onClose}
             disabled={saving}
-            className="rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 disabled:opacity-50"
+            className="rounded-lg bg-fill px-4 py-2 text-sm text-gray-200 hover:bg-hairline disabled:opacity-50"
           >
             Hủy
           </button>

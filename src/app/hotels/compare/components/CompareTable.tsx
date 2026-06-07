@@ -85,7 +85,7 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
   return (
     <div className="relative">
       {/* Mobile scroll hint */}
-      <p className="md:hidden text-xs text-gray-500 mb-2 flex items-center gap-1">
+      <p className="md:hidden text-xs text-ink-soft mb-2 flex items-center gap-1">
         👆 Kéo ngang để xem thêm
       </p>
       <div
@@ -101,22 +101,22 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
         <caption className="sr-only">So sánh khách sạn</caption>
         <thead>
           <tr>
-            <th scope="col" className="sticky left-0 z-10 bg-gray-800 p-3 text-left text-sm font-medium text-gray-400 w-36 min-w-[144px] border-b border-gray-700" />
+            <th scope="col" className="sticky left-0 z-10 bg-panel p-3 text-left text-sm font-medium text-ink-soft w-36 min-w-[144px] border-b border-hairline" />
             {hotels.map((hotel) => (
               <th
                 scope="col"
                 key={hotel.id}
-                className="p-3 text-center min-w-[220px] border-b border-gray-700"
+                className="p-3 text-center min-w-[220px] border-b border-hairline"
               >
                 <div className="flex flex-col items-center gap-2">
                   <button
                     onClick={() => onRemove(hotel.id)}
-                    className="self-end p-1 text-gray-400 hover:text-red-400 transition-colors"
+                    className="self-end p-1 text-ink-soft hover:text-red-400 transition-colors"
                     title="Xóa khỏi so sánh"
                   >
                     <FiX className="w-4 h-4" />
                   </button>
-                  <span className="text-sm font-semibold text-white">
+                  <span className="text-sm font-semibold text-ink">
                     {hotel.name}
                   </span>
                 </div>
@@ -126,45 +126,45 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
         </thead>
         <tbody>
           <tr>
-            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-panel p-3 text-sm font-medium text-ink-soft border-b border-hairline">
               Tên
             </th>
             {hotels.map((hotel) => (
               <td
                 key={hotel.id}
-                className="p-3 text-center text-sm text-white border-b border-gray-700"
+                className="p-3 text-center text-sm text-ink border-b border-hairline"
               >
                 {hotel.name}
               </td>
             ))}
           </tr>
           <tr>
-            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-panel p-3 text-sm font-medium text-ink-soft border-b border-hairline">
               Địa chỉ
             </th>
             {hotels.map((hotel) => (
               <td
                 key={hotel.id}
-                className="p-3 text-center text-sm text-gray-300 border-b border-gray-700"
+                className="p-3 text-center text-sm text-ink border-b border-hairline"
               >
                 {hotel.address}
               </td>
             ))}
           </tr>
           <tr>
-            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-panel p-3 text-sm font-medium text-ink-soft border-b border-hairline">
               Đánh giá
             </th>
             {hotels.map((hotel) => (
               <td
                 key={hotel.id}
-                className="p-3 text-center border-b border-gray-700"
+                className="p-3 text-center border-b border-hairline"
               >
                 <span
                   className={`inline-flex items-center gap-1 text-sm ${
                     hotel.rating === maxRating && hotels.length > 1
                       ? "text-green-400 font-semibold"
-                      : "text-gray-300"
+                      : "text-ink"
                   }`}
                 >
                   <StarRating rating={hotel.rating} />
@@ -173,19 +173,19 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
             ))}
           </tr>
           <tr>
-            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-panel p-3 text-sm font-medium text-ink-soft border-b border-hairline">
               Khoảng giá
             </th>
             {hotels.map((hotel, idx) => (
               <td
                 key={hotel.id}
-                className="p-3 text-center border-b border-gray-700"
+                className="p-3 text-center border-b border-hairline"
               >
                 <span
                   className={`text-sm ${
                     prices[idx] === minPrice && hotels.length > 1
                       ? "text-green-400 font-semibold"
-                      : "text-gray-300"
+                      : "text-ink"
                   }`}
                 >
                   {hotel.priceRange}
@@ -194,26 +194,26 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
             ))}
           </tr>
           <tr>
-            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-panel p-3 text-sm font-medium text-ink-soft border-b border-hairline">
               Mô tả
             </th>
             {hotels.map((hotel) => (
               <td
                 key={hotel.id}
-                className="p-3 text-center text-sm text-gray-300 border-b border-gray-700 max-w-[240px]"
+                className="p-3 text-center text-sm text-ink border-b border-hairline max-w-[240px]"
               >
                 <p className="line-clamp-3">{hotel.description}</p>
               </td>
             ))}
           </tr>
           <tr>
-            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400 border-b border-gray-700">
+            <th scope="row" className="sticky left-0 z-10 bg-panel p-3 text-sm font-medium text-ink-soft border-b border-hairline">
               URL
             </th>
             {hotels.map((hotel) => (
               <td
                 key={hotel.id}
-                className="p-3 text-center border-b border-gray-700"
+                className="p-3 text-center border-b border-hairline"
               >
                 {safeHref(hotel.url) ? (
                   <a
@@ -226,13 +226,13 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
                     Xem thêm
                   </a>
                 ) : (
-                  <span className="text-sm text-gray-500">Không có</span>
+                  <span className="text-sm text-ink-soft">Không có</span>
                 )}
               </td>
             ))}
           </tr>
           <tr>
-            <th scope="row" className="sticky left-0 z-10 bg-gray-800 p-3 text-sm font-medium text-gray-400">
+            <th scope="row" className="sticky left-0 z-10 bg-panel p-3 text-sm font-medium text-ink-soft">
               Hình ảnh
             </th>
             {hotels.map((hotel) => (
@@ -247,7 +247,7 @@ const CompareTable: React.FC<CompareTableProps> = ({ hotels, onRemove }) => {
                     className="w-full h-32 object-cover rounded-lg"
                   />
                 ) : (
-                  <span className="text-sm text-gray-500">Không có</span>
+                  <span className="text-sm text-ink-soft">Không có</span>
                 )}
               </td>
             ))}

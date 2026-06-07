@@ -68,13 +68,15 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
     .map((user) => user.name)
     .join(", ");
 
-  const container = clsx("flex gap-3 p-4", isOwn && "justify-end");
+  const container = clsx("ms-msg-row flex gap-3 px-4 py-2.5", isOwn && "justify-end");
   const avatar = clsx(isOwn && "order-2");
   const body = clsx("flex flex-col gap-2 group", isOwn && "items-end");
   const message = clsx(
-    "text-sm w-fit overflow-hidden",
-    isOwn ? "bg-sky-500 text-white" : "bg-gray-100  dark:bg-lightgray",
-    data.image ? "rounded-md p-0" : "rounded-full py-2 px-3"
+    "text-sm w-fit overflow-hidden ms-bubble-pop",
+    isOwn
+      ? "ms-bubble-sent"
+      : "ms-bubble-recv",
+    data.image ? "rounded-2xl p-0" : "py-2 px-3.5"
   );
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -211,13 +213,13 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
             showTouchActions && "!opacity-100"
           )}
         >
-          {!isOwn && <div className="text-sm text-gray-500">{data.sender.name}</div>}
-          <div className="text-xs text-gray-400">{format(new Date(data.createdAt), "p")}</div>
+          {!isOwn && <div className="text-sm text-ink-soft">{data.sender.name}</div>}
+          <div className="text-xs text-ink-soft">{format(new Date(data.createdAt), "p")}</div>
           {onReply && (
             <button
               onClick={() => onReply(data)}
               className={clsx(
-                "text-gray-400 hover:text-sky-500 transition-colors touch-target",
+                "text-ink-soft hover:text-sky-500 transition-colors touch-target",
                 showTouchActions ? "opacity-100" : "opacity-0 group-hover:opacity-100"
               )}
               title="Trả lời"
@@ -228,7 +230,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
             <div className={clsx("relative", showTouchActions ? "opacity-100" : "opacity-0 group-hover:opacity-100")}>
             <button
               onClick={() => setShowReactionPicker(!showReactionPicker)}
-              className="text-gray-400 hover:text-sky-500 transition-colors touch-target"
+              className="text-ink-soft hover:text-sky-500 transition-colors touch-target"
               title="Phản ứng"
             >
               <HiFaceSmile size={16} />
@@ -256,7 +258,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
               "text-xs rounded-lg px-3 py-1.5 mb-1 max-w-xs border-l-2",
               isOwn
                 ? "bg-sky-500/15 border-sky-300 text-sky-100"
-                : "bg-gray-100 dark:bg-gray-700/50 border-gray-300 dark:border-gray-500 text-gray-500 dark:text-gray-400"
+                : "bg-gray-100 dark:bg-gray-700/50 border-gray-300 dark:border-gray-500 text-ink-soft dark:text-gray-400"
             )}
           >
             <div className="font-semibold text-[11px] mb-0.5">
@@ -341,7 +343,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
                     <div
                       className={clsx(
                         "text-xs",
-                        isOwn ? "text-sky-200" : "text-gray-400"
+                        isOwn ? "text-sky-200" : "text-ink-soft"
                       )}
                     >
                       {formatFileSize(data.fileSize)}
@@ -368,7 +370,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
                     "flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors",
                     isOwn
                       ? "text-sky-200 hover:text-white hover:bg-sky-500/20"
-                      : "text-gray-500 hover:text-sky-500 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      : "text-ink-soft hover:text-sky-500 hover:bg-gray-200 dark:hover:bg-gray-700"
                   )}
                 >
                   <HiClipboard size={14} />
@@ -386,7 +388,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
                     "flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors",
                     isOwn
                       ? "text-sky-200 hover:text-white hover:bg-sky-500/20"
-                      : "text-gray-500 hover:text-sky-500 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      : "text-ink-soft hover:text-sky-500 hover:bg-gray-200 dark:hover:bg-gray-700"
                   )}
                 >
                   <HiArrowDownTray size={14} />
@@ -405,7 +407,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
                     "flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors",
                     isOwn
                       ? "text-sky-200 hover:text-white hover:bg-sky-500/20"
-                      : "text-gray-500 hover:text-sky-500 hover:bg-gray-200 dark:hover:bg-gray-700",
+                      : "text-ink-soft hover:text-sky-500 hover:bg-gray-200 dark:hover:bg-gray-700",
                     saving && "opacity-50 cursor-not-allowed"
                   )}
                 >
@@ -476,7 +478,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast, onReply, isHighli
             className="
             text-xs 
             font-light 
-            text-gray-500
+            text-ink-soft
             "
           >
             {`Đã xem bởi ${seenList}`}

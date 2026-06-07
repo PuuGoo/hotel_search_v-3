@@ -78,7 +78,7 @@ function getFileIcon(mimeType: string | null) {
 }
 
 function getFileIconColor(mimeType: string | null) {
-  if (!mimeType) return "text-gray-400";
+  if (!mimeType) return "text-ink-soft";
   if (mimeType.startsWith("image/")) return "text-pink-400";
   if (mimeType.startsWith("video/")) return "text-purple-400";
   if (mimeType.startsWith("audio/")) return "text-yellow-400";
@@ -87,7 +87,7 @@ function getFileIconColor(mimeType: string | null) {
     return "text-green-400";
   if (mimeType.includes("json") || mimeType.includes("javascript") || mimeType.includes("xml"))
     return "text-sky-400";
-  return "text-gray-400";
+  return "text-ink-soft";
 }
 
 export default function DrivePage() {
@@ -175,12 +175,12 @@ export default function DrivePage() {
 
   return (
     <FeatureThemeProvider feature="drive">
-      <div className="h-full bg-gray-900 overflow-y-auto">
+      <div className="h-full bg-canvas overflow-y-auto">
       {DialogElement}
       <div className="max-w-6xl mx-auto px-4 py-8">
         <header className="mb-6">
-          <h1 className="text-3xl font-bold text-white mb-2">Drive</h1>
-          <p className="text-gray-400">Quản lý file đã lưu</p>
+          <h1 className="text-3xl font-bold text-ink mb-2">Drive</h1>
+          <p className="text-ink-soft">Quản lý file đã lưu</p>
         </header>
 
         <QuotaWarning refreshTrigger={refreshTrigger} />
@@ -195,8 +195,8 @@ export default function DrivePage() {
                   onClick={() => setFolder(f.key)}
                   className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                     folder === f.key
-                      ? "bg-gray-800 text-white"
-                      : "text-gray-400 hover:text-white hover:bg-gray-800/50"
+                      ? "bg-panel text-ink"
+                      : "text-ink-soft hover:text-ink hover:bg-panel/50"
                   }`}
                 >
                   <FiFolder size={16} />
@@ -209,19 +209,19 @@ export default function DrivePage() {
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap gap-3 mb-4">
               <div className="relative flex-1 min-w-[200px]">
-                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-soft" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Tìm file..."
-                  className="w-full rounded-lg bg-gray-800 border border-gray-700 pl-10 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-sky-500"
+                  className="w-full rounded-lg bg-panel border border-hairline pl-10 pr-3 py-2 text-sm text-ink placeholder-ink-soft focus:outline-none focus:border-sky-500"
                 />
               </div>
 
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortKey)}
-                className="rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+                className="rounded-lg bg-panel border border-hairline px-3 py-2 text-sm text-ink focus:outline-none focus:border-sky-500"
               >
                 <option value="date-desc">Mới nhất</option>
                 <option value="date-asc">Cũ nhất</option>
@@ -231,16 +231,16 @@ export default function DrivePage() {
                 <option value="size-asc">Nhỏ nhất</option>
               </select>
 
-              <div className="flex rounded-lg border border-gray-700 overflow-hidden">
+              <div className="flex rounded-lg border border-hairline overflow-hidden">
                 <button
                   onClick={() => setView("grid")}
-                  className={`p-2 ${view === "grid" ? "bg-gray-700 text-white" : "bg-gray-800 text-gray-400 hover:text-white"}`}
+                  className={`p-2 ${view === "grid" ? "bg-fill text-ink" : "bg-panel text-ink-soft hover:text-ink"}`}
                 >
                   <FiGrid size={16} />
                 </button>
                 <button
                   onClick={() => setView("list")}
-                  className={`p-2 ${view === "list" ? "bg-gray-700 text-white" : "bg-gray-800 text-gray-400 hover:text-white"}`}
+                  className={`p-2 ${view === "list" ? "bg-fill text-ink" : "bg-panel text-ink-soft hover:text-ink"}`}
                 >
                   <FiList size={16} />
                 </button>
@@ -255,8 +255,8 @@ export default function DrivePage() {
                     onClick={() => setFolder(f.key)}
                     className={`shrink-0 px-3 py-1.5 rounded-lg text-xs transition-colors ${
                       folder === f.key
-                        ? "bg-gray-800 text-white"
-                        : "text-gray-400 hover:text-white bg-gray-800/50"
+                        ? "bg-panel text-ink"
+                        : "text-ink-soft hover:text-ink bg-panel/50"
                     }`}
                   >
                     {f.label}
@@ -266,9 +266,9 @@ export default function DrivePage() {
             )}
 
             {loading ? (
-              <p className="text-gray-400 py-12 text-center">Đang tải...</p>
+              <p className="text-ink-soft py-12 text-center">Đang tải...</p>
             ) : sorted.length === 0 ? (
-              <div className="text-center py-16 text-gray-400">
+              <div className="text-center py-16 text-ink-soft">
                 <FiInbox className="mx-auto h-12 w-12 mb-4 opacity-50" />
                 <p className="text-lg">Chưa có file nào</p>
                 <p className="text-sm mt-2">File sẽ xuất hiện khi bạn lưu từ các tính năng khác</p>
@@ -282,15 +282,15 @@ export default function DrivePage() {
                     <div
                       key={file.id}
                       onClick={() => setPreviewFile(file)}
-                      className="bg-gray-800 rounded-lg p-4 flex flex-col items-center text-center group hover:bg-gray-750 transition-colors cursor-pointer"
+                      className="bg-panel rounded-lg p-4 flex flex-col items-center text-center group hover:bg-fill transition-colors cursor-pointer"
                     >
                       <Icon className={`h-10 w-10 mb-2 ${iconColor}`} />
-                      <p className="text-white text-sm font-medium truncate w-full" title={file.originalName}>
+                      <p className="text-ink text-sm font-medium truncate w-full" title={file.originalName}>
                         {file.originalName}
                       </p>
-                      <p className="text-gray-500 text-xs mt-1">{formatFileSize(file.fileSize)}</p>
+                      <p className="text-ink-soft text-xs mt-1">{formatFileSize(file.fileSize)}</p>
                       {file.folder && (
-                        <span className="text-xs rounded bg-gray-700 px-1.5 py-0.5 text-gray-300 mt-1.5">
+                        <span className="text-xs rounded bg-fill px-1.5 py-0.5 text-ink mt-1.5">
                           {file.folder}
                         </span>
                       )}
@@ -303,7 +303,7 @@ export default function DrivePage() {
                             e.stopPropagation();
                             setPreviewFile(file);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-emerald-400 rounded"
+                          className="p-1.5 text-ink-soft hover:text-emerald-400 rounded"
                           title="Xem trước"
                         >
                           <FiEye size={14} />
@@ -313,7 +313,7 @@ export default function DrivePage() {
                             e.stopPropagation();
                             handleDownload(file);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-sky-400 rounded"
+                          className="p-1.5 text-ink-soft hover:text-sky-400 rounded"
                           title="Tải xuống"
                         >
                           <FiDownload size={14} />
@@ -323,7 +323,7 @@ export default function DrivePage() {
                             e.stopPropagation();
                             setShareModalFile(file);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-violet-400 rounded"
+                          className="p-1.5 text-ink-soft hover:text-violet-400 rounded"
                           title="Chia sẻ"
                         >
                           <FiShare2 size={14} />
@@ -333,7 +333,7 @@ export default function DrivePage() {
                             e.stopPropagation();
                             setVersionHistoryFile(file);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-amber-400 rounded"
+                          className="p-1.5 text-ink-soft hover:text-amber-400 rounded"
                           title="Lịch sử"
                         >
                           <FiClock size={14} />
@@ -344,7 +344,7 @@ export default function DrivePage() {
                             e.stopPropagation();
                             handleDelete(file);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-rose-400 rounded disabled:opacity-50"
+                          className="p-1.5 text-ink-soft hover:text-rose-400 rounded disabled:opacity-50"
                           title="Xóa"
                         >
                           <FiTrash2 size={14} />
@@ -363,18 +363,18 @@ export default function DrivePage() {
                     <div
                       key={file.id}
                       onClick={() => setPreviewFile(file)}
-                      className="bg-gray-800 rounded-lg px-4 py-3 flex items-center gap-3 group hover:bg-gray-750 transition-colors cursor-pointer"
+                      className="bg-panel rounded-lg px-4 py-3 flex items-center gap-3 group hover:bg-fill transition-colors cursor-pointer"
                     >
                       <Icon className={`h-5 w-5 shrink-0 ${iconColor}`} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-white text-sm truncate">{file.originalName}</p>
+                        <p className="text-ink text-sm truncate">{file.originalName}</p>
                       </div>
                       {file.folder && (
-                        <span className="hidden sm:inline text-xs rounded bg-gray-700 px-1.5 py-0.5 text-gray-300 shrink-0">
+                        <span className="hidden sm:inline text-xs rounded bg-fill px-1.5 py-0.5 text-ink shrink-0">
                           {file.folder}
                         </span>
                       )}
-                      <span className="text-gray-500 text-xs shrink-0 w-20 text-right">
+                      <span className="text-ink-soft text-xs shrink-0 w-20 text-right">
                         {formatFileSize(file.fileSize)}
                       </span>
                       <span className="text-gray-600 text-xs shrink-0 w-24 text-right">
@@ -386,7 +386,7 @@ export default function DrivePage() {
                             e.stopPropagation();
                             setPreviewFile(file);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-emerald-400 rounded"
+                          className="p-1.5 text-ink-soft hover:text-emerald-400 rounded"
                           title="Xem trước"
                         >
                           <FiEye size={14} />
@@ -396,7 +396,7 @@ export default function DrivePage() {
                             e.stopPropagation();
                             handleDownload(file);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-sky-400 rounded"
+                          className="p-1.5 text-ink-soft hover:text-sky-400 rounded"
                           title="Tải xuống"
                         >
                           <FiDownload size={14} />
@@ -406,7 +406,7 @@ export default function DrivePage() {
                             e.stopPropagation();
                             setShareModalFile(file);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-violet-400 rounded"
+                          className="p-1.5 text-ink-soft hover:text-violet-400 rounded"
                           title="Chia sẻ"
                         >
                           <FiShare2 size={14} />
@@ -416,7 +416,7 @@ export default function DrivePage() {
                             e.stopPropagation();
                             setVersionHistoryFile(file);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-amber-400 rounded"
+                          className="p-1.5 text-ink-soft hover:text-amber-400 rounded"
                           title="Lịch sử"
                         >
                           <FiClock size={14} />
@@ -427,7 +427,7 @@ export default function DrivePage() {
                             e.stopPropagation();
                             handleDelete(file);
                           }}
-                          className="p-1.5 text-gray-400 hover:text-rose-400 rounded disabled:opacity-50"
+                          className="p-1.5 text-ink-soft hover:text-rose-400 rounded disabled:opacity-50"
                           title="Xóa"
                         >
                           <FiTrash2 size={14} />

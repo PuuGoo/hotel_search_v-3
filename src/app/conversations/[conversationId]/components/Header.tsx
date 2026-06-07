@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { lazy, Suspense, useMemo, useState } from "react";
 import { HiChevronLeft } from "react-icons/hi";
 import { HiEllipsisHorizontal } from "react-icons/hi2";
@@ -43,17 +44,17 @@ const Header: React.FC<HeaderProps> = ({ conversation }) => {
       </Suspense>
       <div
         className="
-        bg-white 
+        bg-panel 
         w-full 
         flex 
         border-b-[1px] 
+        border-hairline
         sm:px-4 
         py-3 
         px-4 
         lg:px-6 
         justify-between 
         items-center 
-        shadow-sm
         dark:bg-dusk
         dark:border-lightgray
       "
@@ -64,8 +65,8 @@ const Header: React.FC<HeaderProps> = ({ conversation }) => {
             className="
             lg:hidden 
             block 
-            text-sky-500 
-            hover:text-sky-600 
+            text-brand 
+            hover:text-brand-dark 
             transition 
             cursor-pointer
           "
@@ -79,33 +80,37 @@ const Header: React.FC<HeaderProps> = ({ conversation }) => {
           )}
 
           <div className="flex flex-col dark:text-gray-200">
-            <div>{conversation.name || otherUser?.name || "Người dùng đã xóa"}</div>
-            <div className="text-sm font-light text-neutral-500 dark:text-gray-400">
+            <div className="font-semibold text-ink dark:text-gray-100">
+              {conversation.name || otherUser?.name || "Người dùng đã xóa"}
+            </div>
+            <div
+              className={clsx(
+                "text-[13px] font-light",
+                isActive && !conversation.isGroup
+                  ? "text-online"
+                  : "text-ink-soft dark:text-gray-400"
+              )}
+            >
               {statusText}
             </div>
           </div>
         </div>
-        <button
-          onClick={() => document.dispatchEvent(new CustomEvent("toggle-message-search"))}
-          className="
-          text-sky-500
-          cursor-pointer
-          hover:text-sky-600
-          transition
-        "
-        >
-          <FiSearch size={22} />
-        </button>
-        <HiEllipsisHorizontal
-          size={32}
-          onClick={() => setDrawerOpen(true)}
-          className="
-          text-sky-500
-          cursor-pointer
-          hover:text-sky-600
-          transition
-        "
-        />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => document.dispatchEvent(new CustomEvent("toggle-message-search"))}
+            className="ms-icon-btn ms-icon-btn-brand"
+            title="Tìm kiếm tin nhắn"
+          >
+            <FiSearch size={18} />
+          </button>
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="ms-icon-btn"
+            title="Tùy chọn"
+          >
+            <HiEllipsisHorizontal size={20} />
+          </button>
+        </div>
       </div>
     </>
   );

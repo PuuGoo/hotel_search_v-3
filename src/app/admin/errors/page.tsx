@@ -74,7 +74,7 @@ export default function AdminErrorsPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white">Thống kê lỗi</h2>
+        <h2 className="text-xl font-bold text-ink">Thống kê lỗi</h2>
         <button
           onClick={handleClear}
           className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
@@ -85,24 +85,24 @@ export default function AdminErrorsPage() {
 
       {stats && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-lg border border-gray-700 bg-gray-800 p-4">
-            <p className="text-sm text-gray-400">Tổng lỗi</p>
-            <p className="mt-1 text-2xl font-bold text-white">{stats.total}</p>
+          <div className="rounded-lg border border-hairline bg-panel p-4">
+            <p className="text-sm text-ink-soft">Tổng lỗi</p>
+            <p className="mt-1 text-2xl font-bold text-ink">{stats.total}</p>
           </div>
-          <div className="rounded-lg border border-gray-700 bg-gray-800 p-4">
-            <p className="text-sm text-gray-400">Critical</p>
+          <div className="rounded-lg border border-hairline bg-panel p-4">
+            <p className="text-sm text-ink-soft">Critical</p>
             <p className="mt-1 text-2xl font-bold text-red-400">
               {stats.byLevel.critical}
             </p>
           </div>
-          <div className="rounded-lg border border-gray-700 bg-gray-800 p-4">
-            <p className="text-sm text-gray-400">Error</p>
+          <div className="rounded-lg border border-hairline bg-panel p-4">
+            <p className="text-sm text-ink-soft">Error</p>
             <p className="mt-1 text-2xl font-bold text-orange-400">
               {stats.byLevel.error}
             </p>
           </div>
-          <div className="rounded-lg border border-gray-700 bg-gray-800 p-4">
-            <p className="text-sm text-gray-400">Warning</p>
+          <div className="rounded-lg border border-hairline bg-panel p-4">
+            <p className="text-sm text-ink-soft">Warning</p>
             <p className="mt-1 text-2xl font-bold text-yellow-400">
               {stats.byLevel.warning}
             </p>
@@ -111,17 +111,17 @@ export default function AdminErrorsPage() {
       )}
 
       {stats && stats.topMessages.length > 0 && (
-        <div className="rounded-lg border border-gray-700 bg-gray-800 p-5">
-          <h3 className="mb-3 text-sm font-semibold text-gray-300">
+        <div className="rounded-lg border border-hairline bg-panel p-5">
+          <h3 className="mb-3 text-sm font-semibold text-ink">
             Lỗi phổ biến
           </h3>
           <div className="space-y-2">
             {stats.topMessages.map((item, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between rounded bg-gray-900 px-3 py-2"
+                className="flex items-center justify-between rounded bg-canvas px-3 py-2"
               >
-                <span className="text-sm text-gray-300 font-mono truncate max-w-[70%]">
+                <span className="text-sm text-ink font-mono truncate max-w-[70%]">
                   {item.message}
                 </span>
                 <span className="text-xs font-medium text-sky-400">
@@ -134,7 +134,7 @@ export default function AdminErrorsPage() {
       )}
 
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-400">Mức độ:</span>
+        <span className="text-sm text-ink-soft">Mức độ:</span>
         {["all", "critical", "error", "warning", "info"].map((level) => (
           <button
             key={level}
@@ -142,7 +142,7 @@ export default function AdminErrorsPage() {
             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               filter === level
                 ? "bg-sky-500 text-white"
-                : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                : "bg-panel text-ink-soft hover:bg-fill"
             }`}
           >
             {level === "all" ? "Tất cả" : level.charAt(0).toUpperCase() + level.slice(1)}
@@ -150,23 +150,23 @@ export default function AdminErrorsPage() {
         ))}
       </div>
 
-      <div className="rounded-lg border border-gray-700 bg-gray-800">
-        <div className="border-b border-gray-700 px-5 py-3">
-          <h3 className="text-sm font-semibold text-gray-300">
+      <div className="rounded-lg border border-hairline bg-panel">
+        <div className="border-b border-hairline px-5 py-3">
+          <h3 className="text-sm font-semibold text-ink">
             Lỗi gần đây
           </h3>
         </div>
         {loading ? (
-          <div className="p-8 text-center text-gray-500">Đang tải...</div>
+          <div className="p-8 text-center text-ink-soft">Đang tải...</div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-ink-soft">
             Không có lỗi nào
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-700 text-gray-400">
+                <tr className="border-b border-hairline text-ink-soft">
                   <th className="px-5 py-3 font-medium">Thời gian</th>
                   <th className="px-5 py-3 font-medium">Mức độ</th>
                   <th className="px-5 py-3 font-medium">Tin nhắn</th>
@@ -178,27 +178,27 @@ export default function AdminErrorsPage() {
                 {filtered.map((err, i) => (
                   <tr
                     key={i}
-                    className="border-b border-gray-700/50 hover:bg-gray-700/30 transition-colors"
+                    className="border-b border-hairline/50 hover:bg-fill/30 transition-colors"
                   >
-                    <td className="whitespace-nowrap px-5 py-3 text-gray-300">
+                    <td className="whitespace-nowrap px-5 py-3 text-ink">
                       {formatTime(err.timestamp)}
                     </td>
                     <td className="px-5 py-3">
                       <span
                         className={`inline-block rounded-full px-2.5 py-0.5 text-xs ${
-                          LEVEL_STYLES[err.level] || "bg-gray-700 text-gray-300"
+                          LEVEL_STYLES[err.level] || "bg-fill text-ink"
                         }`}
                       >
                         {err.level}
                       </span>
                     </td>
-                    <td className="max-w-xs truncate px-5 py-3 text-gray-300 font-mono text-xs">
+                    <td className="max-w-xs truncate px-5 py-3 text-ink font-mono text-xs">
                       {err.message}
                     </td>
-                    <td className="max-w-xs truncate px-5 py-3 text-gray-500 font-mono text-xs">
+                    <td className="max-w-xs truncate px-5 py-3 text-ink-soft font-mono text-xs">
                       {err.context ? JSON.stringify(err.context) : "—"}
                     </td>
-                    <td className="max-w-xs truncate px-5 py-3 text-gray-500 text-xs">
+                    <td className="max-w-xs truncate px-5 py-3 text-ink-soft text-xs">
                       {err.url}
                     </td>
                   </tr>

@@ -178,13 +178,13 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
   return (
     <>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+        <h3 className="text-sm font-medium text-ink flex items-center gap-2">
           <FiCalendar className="text-sky-400" />
           Lịch chạy tự động
         </h3>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-ink hover:text-ink bg-fill hover:bg-hairline rounded-lg transition-colors"
         >
           <FiPlus size={14} />
           Tạo lịch mới
@@ -192,7 +192,7 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
       </div>
 
       {jobs.length === 0 && !showForm && (
-        <p className="text-xs text-gray-500 text-center py-4">
+        <p className="text-xs text-ink-soft text-center py-4">
           Chưa có lịch chạy tự động nào
         </p>
       )}
@@ -204,8 +204,8 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
               key={job.id}
               className={`flex items-center gap-3 rounded-lg p-3 transition-colors ${
                 job.isActive
-                  ? "bg-gray-700/50"
-                  : "bg-gray-700/20 opacity-60"
+                  ? "bg-fill/50"
+                  : "bg-fill/20 opacity-60"
               }`}
             >
               <div
@@ -215,14 +215,14 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-white truncate">{job.name}</span>
+                  <span className="text-sm text-ink truncate">{job.name}</span>
                   {job.template && (
                     <span className="text-[10px] px-1.5 py-0.5 bg-sky-900/50 text-sky-400 rounded shrink-0">
                       {job.template.name}
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 mt-0.5 text-[11px] text-gray-500">
+                <div className="flex items-center gap-3 mt-0.5 text-[11px] text-ink-soft">
                   <span className="flex items-center gap-1">
                     <FiClock size={10} />
                     {describeCron(job.cronExpression)}
@@ -233,7 +233,7 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   onClick={() => handleRunNow(job)}
-                  className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
+                  className="p-1.5 text-ink-soft hover:text-green-400 transition-colors"
                   title="Chạy ngay"
                 >
                   <FiPlay size={14} />
@@ -242,8 +242,8 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
                   onClick={() => handleToggle(job)}
                   className={`p-1.5 transition-colors ${
                     job.isActive
-                      ? "text-gray-400 hover:text-yellow-400"
-                      : "text-gray-400 hover:text-green-400"
+                      ? "text-ink-soft hover:text-yellow-400"
+                      : "text-ink-soft hover:text-green-400"
                   }`}
                   title={job.isActive ? "Tạm dừng" : "Kích hoạt"}
                 >
@@ -251,7 +251,7 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
                 </button>
                 <button
                   onClick={() => handleDelete(job.id)}
-                  className="p-1.5 text-gray-400 hover:text-red-400 transition-colors"
+                  className="p-1.5 text-ink-soft hover:text-red-400 transition-colors"
                   title="Xóa"
                 >
                   <FiTrash2 size={14} />
@@ -263,9 +263,9 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
       )}
 
       {showForm && (
-        <div className="mt-3 p-4 bg-gray-700/30 rounded-lg border border-gray-600">
+        <div className="mt-3 p-4 bg-fill/30 rounded-lg border border-hairline">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-white">Tạo lịch mới</span>
+            <span className="text-sm font-medium text-ink">Tạo lịch mới</span>
             <button
               onClick={() => {
                 setShowForm(false);
@@ -274,7 +274,7 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
                 setCronPreset("0 8 * * *");
                 setCustomCron("");
               }}
-              className="text-gray-400 hover:text-white"
+              className="text-ink-soft hover:text-ink"
             >
               <FiX size={16} />
             </button>
@@ -282,23 +282,23 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Tên lịch</label>
+              <label className="block text-xs text-ink-soft mb-1">Tên lịch</label>
               <input
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="VD: Tìm URL hàng tuần"
-                className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm placeholder-gray-500"
+                className="w-full px-3 py-2 bg-fill border border-gray-300 rounded-lg text-ink text-sm placeholder-ink-soft"
                 autoFocus
               />
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Mẫu cấu hình</label>
+              <label className="block text-xs text-ink-soft mb-1">Mẫu cấu hình</label>
               <select
                 value={newTemplateId}
                 onChange={(e) => setNewTemplateId(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm"
+                className="w-full px-3 py-2 bg-fill border border-gray-300 rounded-lg text-ink text-sm"
               >
                 <option value="">Không dùng mẫu</option>
                 {templates.map((tpl) => (
@@ -310,7 +310,7 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Lịch trình</label>
+              <label className="block text-xs text-ink-soft mb-1">Lịch trình</label>
               <div className="grid grid-cols-2 gap-2 mb-2">
                 {CRON_PRESETS.map((preset) => (
                   <button
@@ -319,7 +319,7 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
                     className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
                       cronPreset === preset.value
                         ? "bg-sky-600 border-sky-500 text-white"
-                        : "bg-gray-600 border-gray-500 text-gray-300 hover:bg-gray-500"
+                        : "bg-fill border-gray-300 text-ink hover:bg-gray-500"
                     }`}
                   >
                     {preset.label}
@@ -332,11 +332,11 @@ export default function ScheduleManager({ onRunNow }: ScheduleManagerProps) {
                   value={customCron}
                   onChange={(e) => setCustomCron(e.target.value)}
                   placeholder="VD: 0 8 * * 1-5"
-                  className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm placeholder-gray-500 font-mono text-xs"
+                  className="w-full px-3 py-2 bg-fill border border-gray-300 rounded-lg text-ink text-sm placeholder-ink-soft font-mono text-xs"
                 />
               )}
               {selectedCron && (
-                <p className="text-[11px] text-gray-500 mt-1">
+                <p className="text-[11px] text-ink-soft mt-1">
                   Cron: <code className="text-sky-400">{selectedCron}</code>
                   {" → "}
                   {describeCron(selectedCron)}

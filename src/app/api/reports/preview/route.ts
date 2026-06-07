@@ -41,7 +41,7 @@ export async function POST(request: Request) {
 
     const hasDateFilter = Object.keys(dateFilter).length > 0;
 
-    let rows: any[] = [];
+    let rows: Record<string, unknown>[] = [];
 
     switch (type) {
       case "search": {

@@ -100,7 +100,7 @@ const Lightbox: React.FC<LightboxProps> = ({ images, initialIndex, isOpen, onClo
       </button>
 
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
-        <span className="text-white/80 text-sm font-medium">
+        <span className="text-ink/80 text-sm font-medium">
           {currentIndex + 1} / {images.length}
         </span>
       </div>
@@ -113,7 +113,7 @@ const Lightbox: React.FC<LightboxProps> = ({ images, initialIndex, isOpen, onClo
         >
           <FiZoomOut size={18} />
         </button>
-        <span className="text-white/60 text-xs min-w-[40px] text-center">
+        <span className="text-ink/60 text-xs min-w-[40px] text-center">
           {Math.round(zoom * 100)}%
         </span>
         <button

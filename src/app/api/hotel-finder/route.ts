@@ -216,9 +216,9 @@ export async function POST(request: Request) {
       status: job.status,
       queue_position: job.status === "queued" ? getQueuePosition(jobId) : 0,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[HOTEL_FINDER_UPLOAD]", error);
-    return NextResponse.json({ error: error.message || "Upload failed" }, { status: 500 });
+    return new NextResponse("Internal server error", { status: 500 });
   }
 }
 

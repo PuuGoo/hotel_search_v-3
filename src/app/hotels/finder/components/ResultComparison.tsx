@@ -140,25 +140,25 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-gray-800 rounded-xl w-full max-w-6xl mx-4 shadow-2xl border border-gray-700 max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-700">
-          <h2 className="text-white font-semibold text-lg">So sánh kết quả</h2>
+      <div className="bg-panel rounded-xl w-full max-w-6xl mx-4 shadow-2xl border border-hairline max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
+          <h2 className="text-ink font-semibold text-lg">So sánh kết quả</h2>
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700 transition-colors"
+            className="p-1 text-ink-soft hover:text-ink rounded-lg hover:bg-fill transition-colors"
           >
             <FiX size={18} />
           </button>
         </div>
 
-        <div className="px-5 py-4 border-b border-gray-700">
+        <div className="px-5 py-4 border-b border-hairline">
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Chạy A (gốc)</label>
+              <label className="block text-sm text-ink-soft mb-1">Chạy A (gốc)</label>
               <select
                 value={selectedA}
                 onChange={(e) => setSelectedA(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                className="w-full px-3 py-2 bg-fill border border-hairline rounded-lg text-ink text-sm"
               >
                 <option value="">-- Chọn kết quả A --</option>
                 {runs.map((r) => (
@@ -169,11 +169,11 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Chạy B (so sánh)</label>
+              <label className="block text-sm text-ink-soft mb-1">Chạy B (so sánh)</label>
               <select
                 value={selectedB}
                 onChange={(e) => setSelectedB(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                className="w-full px-3 py-2 bg-fill border border-hairline rounded-lg text-ink text-sm"
               >
                 <option value="">-- Chọn kết quả B --</option>
                 {runs.map((r) => (
@@ -189,23 +189,23 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2 text-sm">
                 <span className="w-3 h-3 rounded-full bg-green-500" />
-                <span className="text-gray-300">{stats.added} thêm</span>
+                <span className="text-ink">{stats.added} thêm</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="w-3 h-3 rounded-full bg-red-500" />
-                <span className="text-gray-300">{stats.removed} xóa</span>
+                <span className="text-ink">{stats.removed} xóa</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="w-3 h-3 rounded-full bg-yellow-500" />
-                <span className="text-gray-300">{stats.changed} thay đổi</span>
+                <span className="text-ink">{stats.changed} thay đổi</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="w-3 h-3 rounded-full bg-gray-500" />
-                <span className="text-gray-300">{stats.same} giống</span>
+                <span className="text-ink">{stats.same} giống</span>
               </div>
               <button
                 onClick={handleExport}
-                className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
+                className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-xs bg-fill hover:bg-hairline text-ink rounded-lg transition-colors"
               >
                 <FiDownload size={12} />
                 Xuất JSON
@@ -216,9 +216,9 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
 
         <div className="flex-1 overflow-y-auto px-5 py-3">
           {!runA || !runB ? (
-            <p className="text-gray-500 text-center py-12">Chọn 2 kết quả để so sánh</p>
+            <p className="text-ink-soft text-center py-12">Chọn 2 kết quả để so sánh</p>
           ) : filteredDiffs.length === 0 ? (
-            <p className="text-gray-500 text-center py-12">Không có khác biệt</p>
+            <p className="text-ink-soft text-center py-12">Không có khác biệt</p>
           ) : (
             <div className="space-y-2">
               <div className="flex gap-2 mb-3" role="group" aria-label="Lọc theo loại khác biệt">
@@ -236,9 +236,9 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
                           : t === "changed"
                           ? "bg-yellow-600 text-white"
                           : t === "same"
-                          ? "bg-gray-600 text-white"
+                          ? "bg-fill text-ink"
                           : "bg-sky-600 text-white"
-                        : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+                        : "bg-fill text-ink-soft hover:bg-hairline"
                     }`}
                   >
                     {t === "all" ? "Tất cả" : t === "new" ? "Thêm" : t === "removed" ? "Xóa" : t === "changed" ? "Thay đổi" : "Giống"}
@@ -256,7 +256,7 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
                       ? "bg-red-900/20 border-red-700/50"
                       : d.type === "changed"
                       ? "bg-yellow-900/20 border-yellow-700/50"
-                      : "bg-gray-700/30 border-gray-600/50"
+                      : "bg-fill/30 border-hairline/50"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -265,7 +265,7 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
                         {d.type === "new" && <FiCheckCircle className="text-green-400 shrink-0" size={14} />}
                         {d.type === "removed" && <FiXCircle className="text-red-400 shrink-0" size={14} />}
                         {d.type === "changed" && <FiClock className="text-yellow-400 shrink-0" size={14} />}
-                        <span className="text-white font-medium text-sm truncate">{d.hotel_name}</span>
+                        <span className="text-ink font-medium text-sm truncate">{d.hotel_name}</span>
                         <span
                           className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                             d.type === "new"
@@ -274,17 +274,17 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
                               ? "bg-red-600 text-white"
                               : d.type === "changed"
                               ? "bg-yellow-600 text-white"
-                              : "bg-gray-600 text-white"
+                              : "bg-fill text-ink"
                           }`}
                         >
                           {d.type === "new" ? "Mới" : d.type === "removed" ? "Đã xóa" : d.type === "changed" ? "Thay đổi" : "Giống"}
                         </span>
                       </div>
-                      <p className="text-gray-400 text-xs truncate">{d.hotel_address}</p>
+                      <p className="text-ink-soft text-xs truncate">{d.hotel_address}</p>
                       {d.type === "changed" && (
                         <div className="mt-2 flex flex-col gap-1">
                           <div className="text-xs">
-                            <span className="text-gray-500">A: </span>
+                            <span className="text-ink-soft">A: </span>
                             {safeHref(d.runA?.url) ? (
                               <a
                                 href={safeHref(d.runA?.url)!}
@@ -295,11 +295,11 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
                                 {d.runA?.url?.replace(/^https?:\/\//, "").slice(0, 50)}
                               </a>
                             ) : (
-                              <span className="text-gray-500">-</span>
+                              <span className="text-ink-soft">-</span>
                             )}
                           </div>
                           <div className="text-xs">
-                            <span className="text-gray-500">B: </span>
+                            <span className="text-ink-soft">B: </span>
                             {safeHref(d.runB?.url) ? (
                               <a
                                 href={safeHref(d.runB?.url)!}
@@ -310,7 +310,7 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
                                 {d.runB?.url?.replace(/^https?:\/\//, "").slice(0, 50)}
                               </a>
                             ) : (
-                              <span className="text-gray-500">-</span>
+                              <span className="text-ink-soft">-</span>
                             )}
                           </div>
                         </div>
@@ -327,7 +327,7 @@ export default function ResultComparison({ runs, isOpen, onClose }: ResultCompar
                               {(d.runA?.url || d.runB?.url)?.replace(/^https?:\/\//, "").slice(0, 50)}
                             </a>
                           ) : (
-                            <span className="text-gray-500">-</span>
+                            <span className="text-ink-soft">-</span>
                           )}
                         </div>
                       )}

@@ -92,14 +92,14 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, isOpen, onClo
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="relative w-full h-full max-w-5xl max-h-[90vh] mx-4 bg-gray-900 rounded-xl flex flex-col overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
+      <div className="relative w-full h-full max-w-5xl max-h-[90vh] mx-4 bg-canvas rounded-xl flex flex-col overflow-hidden shadow-2xl">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-hairline shrink-0">
           <div className="min-w-0 flex-1">
-            <p className="text-white font-medium truncate">{file.originalName}</p>
-            <div className="flex items-center gap-3 text-xs text-gray-400 mt-0.5">
+            <p className="text-ink font-medium truncate">{file.originalName}</p>
+            <div className="flex items-center gap-3 text-xs text-ink-soft mt-0.5">
               <span>{formatFileSize(file.fileSize)}</span>
               {file.mimeType && <span>{file.mimeType}</span>}
-              {file.folder && <span className="rounded bg-gray-700 px-1.5 py-0.5">{file.folder}</span>}
+              {file.folder && <span className="rounded bg-fill px-1.5 py-0.5">{file.folder}</span>}
             </div>
           </div>
           <div className="flex items-center gap-2 ml-4 shrink-0">
@@ -107,15 +107,15 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, isOpen, onClo
               <>
                 <button
                   onClick={() => setZoom((z) => Math.max(0.25, z - 0.25))}
-                  className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
+                  className="p-2 text-ink-soft hover:text-ink rounded-lg hover:bg-panel transition-colors"
                   title="Thu nhỏ"
                 >
                   <FiZoomOut size={16} />
                 </button>
-                <span className="text-xs text-gray-400 min-w-[40px] text-center">{Math.round(zoom * 100)}%</span>
+                <span className="text-xs text-ink-soft min-w-[40px] text-center">{Math.round(zoom * 100)}%</span>
                 <button
                   onClick={() => setZoom((z) => Math.min(5, z + 0.25))}
-                  className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
+                  className="p-2 text-ink-soft hover:text-ink rounded-lg hover:bg-panel transition-colors"
                   title="Phóng to"
                 >
                   <FiZoomIn size={16} />
@@ -124,7 +124,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, isOpen, onClo
             )}
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
+              className="p-2 text-ink-soft hover:text-ink rounded-lg hover:bg-panel transition-colors"
               title="Đóng"
             >
               <FiX size={18} />
@@ -151,7 +151,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, isOpen, onClo
           {isPdf && (
             <iframe
               src={fileUrl}
-              className="w-full h-full min-h-[60vh] rounded border border-gray-700"
+              className="w-full h-full min-h-[60vh] rounded border border-hairline"
               title={file.originalName}
             />
           )}
@@ -159,9 +159,9 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, isOpen, onClo
           {isText && (
             <div className="w-full h-full overflow-auto">
               {loadingText ? (
-                <p className="text-gray-400 text-center py-8">Đang tải nội dung...</p>
+                <p className="text-ink-soft text-center py-8">Đang tải nội dung...</p>
               ) : (
-                <pre className="bg-gray-950 rounded-lg p-4 text-sm text-gray-200 font-mono whitespace-pre-wrap break-words overflow-auto max-h-[70vh] leading-relaxed">
+                <pre className="bg-panel rounded-lg p-4 text-sm text-gray-200 font-mono whitespace-pre-wrap break-words overflow-auto max-h-[70vh] leading-relaxed">
                   {textContent}
                 </pre>
               )}
@@ -181,7 +181,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, isOpen, onClo
 
           {isAudio && (
             <div className="flex flex-col items-center gap-6 py-8">
-              <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center">
+              <div className="w-24 h-24 rounded-full bg-panel flex items-center justify-center">
                 <FiAudioIcon />
               </div>
               <audio src={fileUrl} controls className="w-full max-w-md" preload="metadata" />
@@ -190,22 +190,22 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, isOpen, onClo
 
           {!isImage && !isPdf && !isText && !isVideo && !isAudio && (
             <div className="flex flex-col items-center gap-4 text-center">
-              <div className="w-20 h-20 rounded-full bg-gray-800 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-panel flex items-center justify-center">
                 <FiFileIcon mimeType={mime} />
               </div>
-              <p className="text-white font-medium">{file.originalName}</p>
-              <p className="text-gray-400 text-sm">{formatFileSize(file.fileSize)}</p>
-              <p className="text-gray-500 text-sm">Không có bản xem trước cho loại file này</p>
+              <p className="text-ink font-medium">{file.originalName}</p>
+              <p className="text-ink-soft text-sm">{formatFileSize(file.fileSize)}</p>
+              <p className="text-ink-soft text-sm">Không có bản xem trước cho loại file này</p>
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-4 py-3 border-t border-gray-800 shrink-0">
+        <div className="flex items-center justify-end gap-3 px-4 py-3 border-t border-hairline shrink-0">
           <a
             href={fileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors text-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-panel text-ink hover:text-ink hover:bg-fill transition-colors text-sm"
           >
             <FiExternalLink size={14} />
             Mở trong tab mới
@@ -240,7 +240,7 @@ function FiFileIcon({ mimeType }: { mimeType: string }) {
       </svg>
     );
   return (
-    <svg className="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <svg className="w-10 h-10 text-ink-soft" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
     </svg>
   );

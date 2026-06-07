@@ -39,12 +39,12 @@ export default function ShortcutsDialog() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-gray-900 rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
-          <h2 className="text-lg font-semibold text-white">Phím tắt</h2>
+      <div className="bg-canvas rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-hairline">
+          <h2 className="text-lg font-semibold text-ink">Phím tắt</h2>
           <button
             onClick={() => setIsOpen(false)}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-ink-soft hover:text-ink transition-colors"
           >
             <IoClose className="h-5 w-5" />
           </button>
@@ -52,14 +52,14 @@ export default function ShortcutsDialog() {
         <div className="px-6 py-4 space-y-6 max-h-[60vh] overflow-y-auto">
           {grouped.map(({ key, label, items }) => (
             <div key={key}>
-              <h3 className="text-sm font-medium text-gray-400 mb-3">{label}</h3>
+              <h3 className="text-sm font-medium text-ink-soft mb-3">{label}</h3>
               <div className="space-y-2">
                 {items.map((shortcut) => (
                   <div
                     key={shortcut.action}
                     className="flex items-center justify-between"
                   >
-                    <span className="text-sm text-gray-300">
+                    <span className="text-sm text-ink">
                       {shortcut.description}
                     </span>
                     <div className="flex gap-1">
@@ -68,7 +68,7 @@ export default function ShortcutsDialog() {
                         .map((part, i) => (
                           <kbd
                             key={i}
-                            className="inline-flex items-center justify-center min-w-[24px] px-2 py-0.5 text-xs font-mono text-gray-200 bg-gray-700 rounded"
+                            className="inline-flex items-center justify-center min-w-[24px] px-2 py-0.5 text-xs font-mono text-gray-200 bg-fill rounded"
                           >
                             {part}
                           </kbd>
@@ -80,10 +80,10 @@ export default function ShortcutsDialog() {
             </div>
           ))}
         </div>
-        <div className="px-6 py-3 border-t border-gray-700 text-right">
+        <div className="px-6 py-3 border-t border-hairline text-right">
           <button
             onClick={() => setIsOpen(false)}
-            className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+            className="px-4 py-2 text-sm text-ink-soft hover:text-ink transition-colors"
           >
             Đóng
           </button>

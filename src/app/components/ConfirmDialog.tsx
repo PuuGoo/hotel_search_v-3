@@ -61,7 +61,7 @@ export function ConfirmDialog({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-sm rounded-xl bg-gray-800 p-6 shadow-2xl ring-1 ring-gray-700">
+              <Dialog.Panel className="w-full max-w-sm rounded-xl bg-panel p-6 shadow-2xl ring-1 ring-hairline">
                 <div className="flex items-start gap-3">
                   {variant === "danger" && (
                     <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-500/20">
@@ -69,10 +69,10 @@ export function ConfirmDialog({
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <Dialog.Title className="text-lg font-semibold text-white">
+                    <Dialog.Title className="text-lg font-semibold text-ink">
                       {title}
                     </Dialog.Title>
-                    <p className="mt-2 text-sm text-gray-300">{message}</p>
+                    <p className="mt-2 text-sm text-ink">{message}</p>
                   </div>
                 </div>
 
@@ -80,7 +80,7 @@ export function ConfirmDialog({
                   <button
                     ref={cancelRef}
                     onClick={onCancel}
-                    className="rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-sm font-medium text-gray-200 hover:bg-gray-600 transition-colors"
+                    className="rounded-lg border border-hairline bg-fill px-4 py-2 text-sm font-medium text-gray-200 hover:bg-hairline transition-colors"
                   >
                     {cancelLabel}
                   </button>

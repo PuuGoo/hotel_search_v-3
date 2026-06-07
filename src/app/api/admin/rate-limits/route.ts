@@ -18,7 +18,7 @@ export async function PUT(request: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
-  let body: unknown;
+  let body: any;
   try {
     body = await request.json();
   } catch {

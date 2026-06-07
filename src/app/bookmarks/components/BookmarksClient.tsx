@@ -97,7 +97,7 @@ const BookmarksClient = () => {
   });
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-900">
+    <div className="h-full overflow-y-auto bg-canvas">
       {DialogElement}
       <div className="max-w-5xl mx-auto px-4 py-8">
         <header className="mb-6 flex items-center gap-3">
@@ -105,8 +105,8 @@ const BookmarksClient = () => {
             <FiBookmark className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Đã lưu</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-2xl font-bold text-ink">Đã lưu</h1>
+            <p className="text-sm text-ink-soft">
               {data ? `${data.total} mục` : "Đang tải..."}
             </p>
           </div>
@@ -115,23 +115,23 @@ const BookmarksClient = () => {
         {/* Filters */}
         <div className="mb-6 flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-soft" />
             <input
               value={term}
               onChange={(e) => setTerm(e.target.value)}
               placeholder="Lọc theo tiêu đề, URL, ghi chú"
-              className="w-full rounded-lg bg-gray-800 border border-gray-700 pl-10 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-sky-500"
+              className="w-full rounded-lg bg-panel border border-hairline pl-10 pr-3 py-2 text-sm text-ink placeholder-ink-soft focus:outline-none focus:border-sky-500"
             />
           </div>
           <div className="relative">
-            <FiFolder className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <FiFolder className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-soft" />
             <select
               value={folder}
               onChange={(e) => {
                 setFolder(e.target.value);
                 setPage(1);
               }}
-              className="rounded-lg bg-gray-800 border border-gray-700 pl-10 pr-8 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+              className="rounded-lg bg-panel border border-hairline pl-10 pr-8 py-2 text-sm text-ink focus:outline-none focus:border-sky-500"
             >
               <option value="">Tất cả thư mục</option>
               {(data?.folders ?? []).map((f) => (
@@ -145,9 +145,9 @@ const BookmarksClient = () => {
 
         {/* List */}
         {loading ? (
-          <p className="text-gray-400 py-12 text-center">Đang tải...</p>
+          <p className="text-ink-soft py-12 text-center">Đang tải...</p>
         ) : visible.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
+          <div className="text-center py-16 text-ink-soft">
             <FiBookmark className="mx-auto h-12 w-12 mb-4 opacity-50" />
             <p className="text-lg">Chưa có mục nào được lưu</p>
             <p className="text-sm mt-2">
@@ -163,15 +163,15 @@ const BookmarksClient = () => {
             {visible.map((b) => (
               <div
                 key={b.id}
-                className="bg-gray-800 rounded-lg p-4 flex items-start justify-between gap-4"
+                className="bg-panel rounded-lg p-4 flex items-start justify-between gap-4"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-white font-medium truncate">
+                    <h3 className="text-ink font-medium truncate">
                       {b.title || "Không có tiêu đề"}
                     </h3>
                     {b.folder ? (
-                      <span className="text-xs rounded bg-gray-700 px-1.5 py-0.5 text-gray-300">
+                      <span className="text-xs rounded bg-fill px-1.5 py-0.5 text-ink">
                         {b.folder}
                       </span>
                     ) : null}
@@ -187,7 +187,7 @@ const BookmarksClient = () => {
                     </a>
                   ) : null}
                   {b.notes ? (
-                    <p className="text-sm text-gray-400 mt-1 line-clamp-2">{b.notes}</p>
+                    <p className="text-sm text-ink-soft mt-1 line-clamp-2">{b.notes}</p>
                   ) : null}
                   {b.tags?.length ? (
                     <div className="mt-2 flex flex-wrap gap-1">
@@ -212,7 +212,7 @@ const BookmarksClient = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="Mở liên kết"
-                      className="p-2 text-gray-400 hover:text-sky-400"
+                      className="p-2 text-ink-soft hover:text-sky-400"
                     >
                       <FiExternalLink />
                     </a>
@@ -221,7 +221,7 @@ const BookmarksClient = () => {
                     disabled={busyId === b.id}
                     onClick={() => remove(b)}
                     aria-label="Xóa"
-                    className="p-2 text-gray-400 hover:text-rose-400 disabled:opacity-50"
+                    className="p-2 text-ink-soft hover:text-rose-400 disabled:opacity-50"
                   >
                     <FiTrash2 />
                   </button>
@@ -237,17 +237,17 @@ const BookmarksClient = () => {
             <button
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="flex items-center gap-1 rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 disabled:opacity-40"
+              className="flex items-center gap-1 rounded-lg bg-panel px-3 py-2 text-sm text-ink hover:bg-fill disabled:opacity-40"
             >
               <FiChevronLeft className="h-4 w-4" /> Trước
             </button>
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-ink-soft">
               Trang {data.page} / {data.totalPages}
             </span>
             <button
               disabled={page >= data.totalPages}
               onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
-              className="flex items-center gap-1 rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 disabled:opacity-40"
+              className="flex items-center gap-1 rounded-lg bg-panel px-3 py-2 text-sm text-ink hover:bg-fill disabled:opacity-40"
             >
               Sau <FiChevronRight className="h-4 w-4" />
             </button>

@@ -3,6 +3,8 @@ import getMessages from "../../actions/getMessages";
 import EmptyState from "../../components/EmptyState";
 import ConversationContent from "./components/ConversationContent";
 import Header from "./components/Header";
+import InfoPanel from "./components/InfoPanel";
+import AppearanceSettings from "./components/AppearanceSettings";
 import FeatureThemeProvider from "../../components/theme/FeatureThemeProvider";
 
 interface IParams {
@@ -32,10 +34,17 @@ const ConversationId = async ({ params }: { params: IParams }) => {
   return (
     <FeatureThemeProvider feature="chat">
       <div className="lg:pl-80 h-full">
-        <div className="h-full flex flex-col">
-          <Header conversation={conversation} />
-          <ConversationContent initialMessages={messages} />
+        <div className="h-full flex min-h-0">
+          {/* Center column: chat */}
+          <div className="flex flex-col flex-1 min-w-0 min-h-0">
+            <Header conversation={conversation} />
+            <ConversationContent initialMessages={messages} />
+          </div>
+          {/* Right column: details */}
+          <InfoPanel conversation={conversation} messages={messages} />
         </div>
+        {/* Floating appearance settings button */}
+        <AppearanceSettings />
       </div>
     </FeatureThemeProvider>
   );

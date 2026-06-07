@@ -60,8 +60,9 @@ const MobileFooter: React.FC<MobileFooterProps> = memo(({ currentUser }) => {
         z-40 
         flex 
         items-center
-        bg-white 
+        bg-panel 
         border-t-[1px] 
+        border-hairline
         lg:hidden
         dark:bg-dusk
         dark:border-lightgray
@@ -86,7 +87,7 @@ const MobileFooter: React.FC<MobileFooterProps> = memo(({ currentUser }) => {
                 onClick={toggleMenu}
                 className="
                   flex items-center justify-center p-2
-                  text-gray-500 hover:text-black
+                  text-ink-soft hover:text-black
                   dark:hover:text-gray-100
                   transition-colors
                 "

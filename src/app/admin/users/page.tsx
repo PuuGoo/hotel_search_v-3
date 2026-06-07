@@ -26,7 +26,7 @@ const AdminUsersPage = async ({
 
   if (!data || !currentUser) {
     return (
-      <p className="text-gray-400">Bạn không có quyền truy cập dữ liệu này.</p>
+      <p className="text-ink-soft">Bạn không có quyền truy cập dữ liệu này.</p>
     );
   }
 

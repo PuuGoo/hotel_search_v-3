@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       return new NextResponse("Invalid JSON body", { status: 400 });
     }
 
-    const { driveFileId, expiresInHours, maxDownloads } = body;
+    const { driveFileId, expiresInHours, maxDownloads } = body as { driveFileId: string; expiresInHours: number; maxDownloads: number };
 
     if (!driveFileId) {
       return new NextResponse("Thiếu thông tin file", { status: 400 });
@@ -82,13 +82,10 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const driveFileId = searchParams.get("driveFileId");
 
-    const where: any = {
+    const where = {
       createdById: currentUser.id,
+      ...(driveFileId ? { driveFileId } : {}),
     };
-
-    if (driveFileId) {
-      where.driveFileId = driveFileId;
-    }
 
     const links = await prisma.shareLink.findMany({
       where,

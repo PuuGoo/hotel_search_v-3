@@ -68,18 +68,18 @@ export default function BulkSearchPage() {
 
   return (
     <FeatureThemeProvider feature="bulk">
-    <div className="h-full bg-gray-900 overflow-y-auto">
+    <div className="h-full overflow-y-auto">
       {DialogElement}
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Tìm kiếm khách sạn hàng loạt</h1>
-          <p className="text-gray-400">Upload file Excel và tìm kiếm hàng loạt với Tavily</p>
+          <h1 className="text-3xl font-bold text-ink mb-2">Tìm kiếm khách sạn hàng loạt</h1>
+          <p className="text-ink-soft">Upload file Excel và tìm kiếm hàng loạt với Tavily</p>
         </div>
 
         {/* Upload Section */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+        <div className="bg-panel rounded-lg p-6 mb-6">
+          <h2 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
             <FiZap className="text-sky-400" />
             Tải lên Excel
           </h2>
@@ -137,7 +137,7 @@ export default function BulkSearchPage() {
             {state.results.length > 0 && !state.isRunning && (
               <button
                 onClick={handleClear}
-                className="flex items-center gap-2 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-fill hover:bg-hairline text-ink rounded-lg transition-colors"
               >
                 <FiTrash2 />
                 Xóa kết quả
@@ -172,7 +172,7 @@ export default function BulkSearchPage() {
 
         {/* Progress */}
         {(state.isRunning || state.currentIndex > 0) && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-6">
+          <div className="bg-panel rounded-lg p-6 mb-6">
             <ProgressBar
               current={state.currentIndex}
               total={state.totalRows}
@@ -181,7 +181,7 @@ export default function BulkSearchPage() {
               isRunning={state.isRunning}
               isPaused={state.isPaused}
             />
-            {restoredFileName && <p className="text-gray-500 text-sm mt-2">File: {restoredFileName}</p>}
+            {restoredFileName && <p className="text-ink-soft text-sm mt-2">File: {restoredFileName}</p>}
           </div>
         )}
 
@@ -200,9 +200,9 @@ export default function BulkSearchPage() {
         {/* Results */}
         {state.isRunning && state.results.length === 0 && (
           <div className="mb-6">
-            <div className="bg-gray-800 rounded-lg p-6">
+            <div className="bg-panel rounded-lg p-6">
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-sm text-gray-400 animate-pulse">Đang tìm kiếm kết quả...</span>
+                <span className="text-sm text-ink-soft animate-pulse">Đang tìm kiếm kết quả...</span>
               </div>
               <BulkResultsSkeleton rows={6} />
             </div>
@@ -212,15 +212,15 @@ export default function BulkSearchPage() {
 
         {/* Empty State */}
         {state.results.length === 0 && !state.isRunning && rows.length === 0 && (
-          <div className="text-center py-16 text-gray-400">
+          <div className="text-center py-16 text-ink-soft">
             <FiZap className="mx-auto h-12 w-12 mb-4 opacity-50" />
             <p className="text-lg">Upload file Excel để bắt đầu</p>
             <p className="text-sm mt-2">Hỗ trợ tìm kiếm hàng loạt khách sạn với Tavily</p>
             <div className="mt-6 text-xs text-gray-600 max-w-md mx-auto">
-              <p className="font-medium text-gray-500 mb-2">Định dạng Excel:</p>
+              <p className="font-medium text-ink-soft mb-2">Định dạng Excel:</p>
               <table className="mx-auto text-left">
                 <thead>
-                  <tr className="text-gray-500">
+                  <tr className="text-ink-soft">
                     <th className="px-2 py-1">No</th>
                     <th className="px-2 py-1">Hotel Name</th>
                     <th className="px-2 py-1">Address</th>

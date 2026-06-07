@@ -81,7 +81,7 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
                           <div className="ml-3 flex h-7 items-center">
                             <button
                               type="button"
-                              className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-dusk"
+                              className="rounded-md bg-white text-ink-soft hover:text-ink-soft focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-dusk"
                               onClick={onClose}
                             >
                               <span className="sr-only">Đóng bảng</span>
@@ -100,7 +100,7 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
                             )}
                           </div>
                           <div>{title}</div>
-                          <div className="text-sm text-gray-500 dark:text-white">{statusText}</div>
+                          <div className="text-sm text-ink-soft dark:text-white">{statusText}</div>
                           <div className="flex gap-10 my-8">
                             <div
                               onClick={() => setConfirmOpen(true)}
@@ -122,7 +122,7 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
                                     className="
                                       text-sm 
                                       font-medium 
-                                      text-gray-500 
+                                      text-ink-soft 
                                       sm:w-40 
                                       sm:flex-shrink-0
                                       dark:text-gray-200
@@ -149,7 +149,7 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
                                     className="
                                       text-sm 
                                       font-medium 
-                                      text-gray-500 
+                                      text-ink-soft 
                                       sm:w-40 
                                       sm:flex-shrink-0
                                       dark:text-gray-200
@@ -178,7 +178,7 @@ const ChatDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, data }) => 
                                       className="
                                         text-sm 
                                         font-medium 
-                                        text-gray-500 
+                                        text-ink-soft 
                                         sm:w-40 
                                         sm:flex-shrink-0
                                         dark:text-gray-200

@@ -38,15 +38,16 @@ const MessageInput: React.FC<MessageInputProps> = ({
         onPaste={handlePaste}
         placeholder={placeholder}
         className="
-          text-black
-          font-light
-          py-2
-          px-4
-          bg-neutral-100
-          dark:bg-lightgray
+          text-ink
+          font-normal
+          py-1.5
+          px-2
+          bg-transparent
           w-full
-          rounded-full
+          border-0
           focus:outline-none
+          focus:ring-0
+          placeholder:text-ink-soft
           dark:text-white
         "
       />

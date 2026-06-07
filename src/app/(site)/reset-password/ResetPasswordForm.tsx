@@ -92,7 +92,7 @@ const ResetPasswordForm = () => {
                 Đặt lại mật khẩu
               </Button>
             </form>
-            <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+            <div className="mt-6 text-center text-sm text-ink-soft dark:text-gray-400">
               <Link href="/" className="underline">
                 Quay lại đăng nhập
               </Link>

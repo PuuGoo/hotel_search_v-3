@@ -9,6 +9,7 @@ import { getUserWithTimeout } from "@/app/libs/getUserWithTimeout";
 import { sanitizeQuery, isSupportedEngine, SUPPORTED_ENGINES, SearchEngine } from "./searchValidation";
 import { PRICE_KEYWORDS, COUNTRY_KEYWORDS } from "@/app/libs/filterKeywords";
 import type { User } from "@prisma/client";
+import { verifyCsrfRequest } from "@/app/libs/csrf";
 
 interface SearchRequestBody {
   query?: string;
@@ -33,6 +34,12 @@ function searchFeatureDenied(currentUser: User | null): boolean {
 
 export async function POST(request: Request) {
   try {
+    // CSRF protection: verify the request origin matches our host.
+    // Skip in development to ease testing with tools like curl/Postman.
+    if (process.env.NODE_ENV === "production" && !verifyCsrfRequest(request)) {
+      return NextResponse.json({ error: "Forbidden: invalid origin" }, { status: 403 });
+    }
+
     // Get user with timeout (continues anonymously on failure/timeout)
     const currentUser = await getUserWithTimeout();
 
@@ -215,13 +222,15 @@ export async function POST(request: Request) {
             duration,
             userId: currentUser?.id,
             results: {
-              create: results.map((result, index) => ({
+              createMany: {
+              data: results.map((result, index) => ({
                 title: result.title,
                 url: result.url,
                 snippet: result.snippet,
                 position: index + 1,
                 score: result.score,
               })),
+              },
             },
           },
         });

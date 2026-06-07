@@ -130,25 +130,25 @@ const AuditLogPage = () => {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <FiEye className="h-6 w-6 text-sky-400" />
-        <h2 className="text-xl font-semibold text-white">
+        <h2 className="text-xl font-semibold text-ink">
           Nhật ký hoạt động
         </h2>
       </div>
 
-      <div className="rounded-lg bg-gray-800 p-4 space-y-4">
-        <div className="flex items-center gap-2 text-gray-300">
+      <div className="rounded-lg bg-panel p-4 space-y-4">
+        <div className="flex items-center gap-2 text-ink">
           <FiFilter className="h-4 w-4" />
           <span className="text-sm font-medium">Bộ lọc</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs text-gray-400 mb-1">
+            <label className="block text-xs text-ink-soft mb-1">
               Hành động
             </label>
             <select
               value={actionFilter}
               onChange={(e) => setActionFilter(e.target.value)}
-              className="w-full rounded-md bg-gray-700 border border-gray-600 text-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="w-full rounded-md bg-fill border border-hairline text-ink px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
             >
               {ACTION_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -158,7 +158,7 @@ const AuditLogPage = () => {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">
+            <label className="block text-xs text-ink-soft mb-1">
               Email người thực hiện
             </label>
             <input
@@ -166,11 +166,11 @@ const AuditLogPage = () => {
               value={actorEmail}
               onChange={(e) => setActorEmail(e.target.value)}
               placeholder="Tìm theo email..."
-              className="w-full rounded-md bg-gray-700 border border-gray-600 text-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="w-full rounded-md bg-fill border border-hairline text-ink px-3 py-2 text-sm placeholder:text-ink-soft focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">
+            <label className="block text-xs text-ink-soft mb-1">
               Email đối tượng
             </label>
             <input
@@ -178,27 +178,27 @@ const AuditLogPage = () => {
               value={targetEmail}
               onChange={(e) => setTargetEmail(e.target.value)}
               placeholder="Tìm theo email..."
-              className="w-full rounded-md bg-gray-700 border border-gray-600 text-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="w-full rounded-md bg-fill border border-hairline text-ink px-3 py-2 text-sm placeholder:text-ink-soft focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Từ ngày</label>
+            <label className="block text-xs text-ink-soft mb-1">Từ ngày</label>
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="w-full rounded-md bg-gray-700 border border-gray-600 text-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="w-full rounded-md bg-fill border border-hairline text-ink px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">
+            <label className="block text-xs text-ink-soft mb-1">
               Đến ngày
             </label>
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="w-full rounded-md bg-gray-700 border border-gray-600 text-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="w-full rounded-md bg-fill border border-hairline text-ink px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
           </div>
           <div className="flex items-end gap-2">
@@ -210,7 +210,7 @@ const AuditLogPage = () => {
             </button>
             <button
               onClick={handleReset}
-              className="rounded-md bg-gray-700 px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-600 transition-colors"
+              className="rounded-md bg-fill px-4 py-2 text-sm font-medium text-ink hover:bg-hairline transition-colors"
             >
               Đặt lại
             </button>
@@ -218,11 +218,11 @@ const AuditLogPage = () => {
         </div>
       </div>
 
-      <div className="rounded-lg bg-gray-800 overflow-hidden">
+      <div className="rounded-lg bg-panel overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-700 text-left text-gray-400">
+              <tr className="border-b border-hairline text-left text-ink-soft">
                 <th className="px-4 py-3 font-medium">Thời gian</th>
                 <th className="px-4 py-3 font-medium">Hành động</th>
                 <th className="px-4 py-3 font-medium">Người thực hiện</th>
@@ -233,13 +233,13 @@ const AuditLogPage = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-ink-soft">
                     Đang tải...
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-ink-soft">
                     Không có bản ghi nào
                   </td>
                 </tr>
@@ -263,7 +263,7 @@ const AuditLogPage = () => {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-ink-soft">
             Hiển thị {(page - 1) * ITEMS_PER_PAGE + 1}–
             {Math.min(page * ITEMS_PER_PAGE, total)} / {total} bản ghi
           </p>
@@ -271,17 +271,17 @@ const AuditLogPage = () => {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="rounded-md bg-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="rounded-md bg-fill px-3 py-1.5 text-sm text-ink hover:bg-hairline disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Trước
             </button>
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-ink-soft">
               Trang {page} / {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="rounded-md bg-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="rounded-md bg-fill px-3 py-1.5 text-sm text-ink hover:bg-hairline disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Sau
             </button>
@@ -308,21 +308,21 @@ function AuditRow({
 
   return (
     <>
-      <tr className="border-b border-gray-700/50 hover:bg-gray-700/30 transition-colors">
-        <td className="px-4 py-3 text-gray-300 whitespace-nowrap">
+      <tr className="border-b border-hairline/50 hover:bg-fill/30 transition-colors">
+        <td className="px-4 py-3 text-ink whitespace-nowrap">
           {formatDate(log.createdAt)}
         </td>
         <td className="px-4 py-3">
-          <span className="inline-block rounded-full bg-gray-700 px-2.5 py-0.5 text-xs font-medium text-gray-200">
+          <span className="inline-block rounded-full bg-fill px-2.5 py-0.5 text-xs font-medium text-gray-200">
             {ACTION_LABELS[log.action] || log.action}
           </span>
         </td>
-        <td className="px-4 py-3 text-gray-300">{actorName}</td>
-        <td className="px-4 py-3 text-gray-300">{target}</td>
+        <td className="px-4 py-3 text-ink">{actorName}</td>
+        <td className="px-4 py-3 text-ink">{target}</td>
         <td className="px-4 py-3">
           <button
             onClick={onToggle}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-ink-soft hover:text-ink transition-colors"
           >
             {expanded ? (
               <FiChevronUp className="h-4 w-4" />
@@ -333,35 +333,35 @@ function AuditRow({
         </td>
       </tr>
       {expanded && (
-        <tr className="bg-gray-900/50">
+        <tr className="bg-canvas/50">
           <td colSpan={5} className="px-4 py-4">
             <div className="space-y-2">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                 <div>
-                  <span className="text-gray-500">ID: </span>
-                  <span className="text-gray-300 font-mono">{log.id}</span>
+                  <span className="text-ink-soft">ID: </span>
+                  <span className="text-ink font-mono">{log.id}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Loại đối tượng: </span>
-                  <span className="text-gray-300">{log.targetType || "—"}</span>
+                  <span className="text-ink-soft">Loại đối tượng: </span>
+                  <span className="text-ink">{log.targetType || "—"}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500">ID đối tượng: </span>
-                  <span className="text-gray-300 font-mono">
+                  <span className="text-ink-soft">ID đối tượng: </span>
+                  <span className="text-ink font-mono">
                     {log.targetId || "—"}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Actor ID: </span>
-                  <span className="text-gray-300 font-mono">
+                  <span className="text-ink-soft">Actor ID: </span>
+                  <span className="text-ink font-mono">
                     {log.actorId || "—"}
                   </span>
                 </div>
               </div>
               {log.metadata && (
                 <div>
-                  <span className="text-xs text-gray-500">Metadata:</span>
-                  <pre className="mt-1 rounded-md bg-gray-800 p-3 text-xs text-gray-300 overflow-x-auto">
+                  <span className="text-xs text-ink-soft">Metadata:</span>
+                  <pre className="mt-1 rounded-md bg-panel p-3 text-xs text-ink overflow-x-auto">
                     {JSON.stringify(log.metadata, null, 2)}
                   </pre>
                 </div>

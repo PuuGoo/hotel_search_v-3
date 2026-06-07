@@ -34,7 +34,7 @@ export async function sendEmail(
       }
     }
 
-    console.log(`[EMAIL_SENT] to=${to} subject="${subject}" type=${type}`);
+
     return log;
   } catch (error) {
     console.error("[EMAIL_SEND_ERROR]", error);

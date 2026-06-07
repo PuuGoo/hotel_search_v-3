@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { FiSearch, FiZap, FiFilter } from "react-icons/fi";
+import { FiSearch, FiZap, FiFilter, FiMap, FiBookmark } from "react-icons/fi";
 import { useSearchParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { SearchFilters as SearchFiltersType } from "./components/SearchFilters";
@@ -45,10 +45,25 @@ function dedupResults(results: SearchResult[]): SearchResult[] {
 
 const RESULTS_PER_PAGE = 20;
 
+/** Extract a numeric price (in USD) from a snippet text like "$120", "120 USD", "1,200,000 VND", etc. */
+function extractPrice(result: SearchResult): number | null {
+  const text = `${result.title || ""} ${result.snippet || ""}`;
+  // Match common price patterns: $120, US$120, 120 USD, 120.50
+  const usdMatch = text.match(/\$\s*([\d,]+(?:\.\d{1,2})?)/);
+  if (usdMatch) return parseFloat(usdMatch[1].replace(/,/g, ""));
+  // Match patterns like "120 USD" or "120usd"
+  const usdSuffix = text.match(/([\d,]+(?:\.\d{1,2})?)\s*(?:USD|usd)/);
+  if (usdSuffix) return parseFloat(usdSuffix[1].replace(/,/g, ""));
+  // Match VND and convert (roughly: 25,000 VND ≈ 1 USD)
+  const vndMatch = text.match(/([\d,]+(?:\.\d{1,2})?)\s*(?:VND|vnd|₫)/);
+  if (vndMatch) return parseFloat(vndMatch[1].replace(/,/g, "")) / 25000;
+  return null;
+}
+
 const HotelSearchContent = () => {
   const [query, setQuery] = useState("");
   const [selectedEngines, setSelectedEngines] = useState<string[]>(["tavily"]);
-  const [sortBy, setSortBy] = useState<"score" | "az" | "za">("score");
+  const [sortBy, setSortBy] = useState<"score" | "az" | "za" | "price-low" | "price-high">("score");
   const [results, setResults] = useState<Search | null>(null);
   const [loading, setLoading] = useState(false);
   const [cacheHit, setCacheHit] = useState(false);
@@ -57,10 +72,15 @@ const HotelSearchContent = () => {
     minRating: 0,
     priceRange: "",
     country: "",
+    checkIn: "",
+    checkOut: "",
+    adults: 2,
+    rooms: 1,
   });
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [priceAlertHotel, setPriceAlertHotel] = useState<{ name: string; url?: string } | null>(null);
   const [showEnginesPanel, setShowEnginesPanel] = useState(false);
+  const [savedSearches, setSavedSearches] = useState<Array<{ query: string; engines: string[]; filters: SearchFiltersType; savedAt: string }>>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -139,6 +159,33 @@ const HotelSearchContent = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  // Load saved searches from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("saved-searches") || "[]");
+      if (Array.isArray(stored)) setSavedSearches(stored);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const handleSaveSearch = useCallback(() => {
+    if (!query.trim()) {
+      toast.error("Vui lòng nhập từ khóa trước khi lưu");
+      return;
+    }
+    const entry = {
+      query: query.trim(),
+      engines: [...selectedEngines],
+      filters: { ...filters },
+      savedAt: new Date().toISOString(),
+    };
+    const updated = [entry, ...savedSearches.filter((s) => s.query !== entry.query || s.engines.join(",") !== entry.engines.join(","))].slice(0, 20);
+    setSavedSearches(updated);
+    localStorage.setItem("saved-searches", JSON.stringify(updated));
+    toast.success("Đã lưu tìm kiếm");
+  }, [query, selectedEngines, filters, savedSearches]);
+
   const availableEngines: EngineInfo[] = [
     { id: "tavily", name: "Tavily", available: true, description: "Tìm kiếm AI-powered với kết quả chất lượng cao" },
     { id: "google", name: "Google", available: true, description: "Tìm kiếm Google Custom Search" },
@@ -164,7 +211,9 @@ const HotelSearchContent = () => {
     const hasActiveFilters =
       filters.minRating > 0 ||
       filters.priceRange !== "" ||
-      filters.country !== "";
+      filters.country !== "" ||
+      sortBy === "price-low" ||
+      sortBy === "price-high";
 
     if (!hasActiveFilters && sortBy === "score") return stableResults;
 
@@ -200,6 +249,15 @@ const HotelSearchContent = () => {
       }
       if (sortBy === "za") {
         return (b.title || "").localeCompare(a.title || "");
+      }
+      if (sortBy === "price-low" || sortBy === "price-high") {
+        const priceA = extractPrice(a);
+        const priceB = extractPrice(b);
+        // Items with no price go to the end
+        if (priceA === null && priceB === null) return 0;
+        if (priceA === null) return 1;
+        if (priceB === null) return -1;
+        return sortBy === "price-low" ? priceA - priceB : priceB - priceA;
       }
       // score desc (default)
       return (b.score ?? 0) - (a.score ?? 0);
@@ -379,14 +437,14 @@ const HotelSearchContent = () => {
 
   return (
     <FeatureThemeProvider feature="search">
-      <main className="h-full bg-gray-900">
+      <main className="h-full">
         <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <header className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-ink mb-2">
             Tìm kiếm khách sạn
           </h1>
-          <p className="text-gray-400">
+          <p className="text-ink-soft">
             Tìm kiếm thông tin khách sạn với nhiều nguồn khác nhau
           </p>
         </header>
@@ -396,7 +454,7 @@ const HotelSearchContent = () => {
         <form onSubmit={handleSearch} className="mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-ink-soft" />
               <input
                 ref={inputRef}
                 type="text"
@@ -415,7 +473,7 @@ const HotelSearchContent = () => {
                   }, 150);
                 }}
                 placeholder="Nhập tên khách sạn hoặc địa điểm..."
-                className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                className="w-full pl-12 pr-4 py-3 bg-panel border border-hairline rounded-lg text-ink placeholder-ink-soft focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                 disabled={loading}
                 maxLength={500}
                 aria-label="Tìm kiếm khách sạn"
@@ -439,9 +497,9 @@ const HotelSearchContent = () => {
               type="button"
               onClick={() => setFiltersOpen(true)}
               className={`flex items-center justify-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
-                filters.minRating > 0 || filters.priceRange || filters.country
+                filters.minRating > 0 || filters.priceRange || filters.country || filters.checkIn || filters.checkOut || filters.adults !== 2 || filters.rooms !== 1
                   ? "bg-sky-500/20 border-sky-500 text-sky-400"
-                  : "bg-gray-800 border-gray-700 text-gray-400 hover:text-white hover:border-gray-600"
+                  : "bg-panel border-hairline text-ink-soft hover:text-ink hover:border-gray-300"
               }`}
               aria-label="Bộ lọc tìm kiếm"
             >
@@ -454,7 +512,7 @@ const HotelSearchContent = () => {
               className={`flex items-center justify-center gap-2 px-4 py-3 border rounded-lg transition-colors ${
                 selectedEngines.length > 1
                   ? "bg-sky-500/20 border-sky-500 text-sky-400"
-                  : "bg-gray-800 border-gray-700 text-gray-400 hover:text-white hover:border-gray-600"
+                  : "bg-panel border-hairline text-ink-soft hover:text-ink hover:border-gray-300"
               }`}
               aria-label="Chọn nguồn tìm kiếm"
             >
@@ -464,9 +522,19 @@ const HotelSearchContent = () => {
               </span>
             </button>
             <button
+              type="button"
+              onClick={handleSaveSearch}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-panel border border-hairline text-ink-soft rounded-lg hover:text-ink hover:border-gray-300 transition-colors"
+              aria-label="Lưu tìm kiếm"
+              title="Lưu tìm kiếm"
+            >
+              <FiBookmark className="w-4 h-4" />
+              <span className="hidden sm:inline">Lưu</span>
+            </button>
+            <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3 bg-sky-500 text-white rounded-lg hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-8 py-3 bg-sky-500 text-white rounded-lg hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -503,7 +571,7 @@ const HotelSearchContent = () => {
             showEnginesPanel ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
+          <div className="p-4 bg-panel rounded-lg border border-hairline">
             <EngineSelector
               selected={selectedEngines}
               onChange={setSelectedEngines}
@@ -531,7 +599,7 @@ const HotelSearchContent = () => {
         {loading && !filteredResults && (
           <div className="space-y-4" aria-live="polite" role="status">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-sm text-gray-400 animate-pulse">Đang tìm kiếm...</span>
+              <span className="text-sm text-ink-soft animate-pulse">Đang tìm kiếm...</span>
             </div>
             {Array.from({ length: 5 }).map((_, i) => (
               <ResultCardSkeleton key={i} />
@@ -540,7 +608,7 @@ const HotelSearchContent = () => {
         )}
         {filteredResults && (
           <div className="space-y-4" aria-live="polite" aria-atomic="false">
-            <div className="flex items-center justify-between flex-wrap gap-2 text-sm text-gray-400 mb-4">
+            <div className="flex items-center justify-between flex-wrap gap-2 text-sm text-ink-soft mb-4">
               <span className="flex items-center gap-2" role="status">
                 Tìm thấy {filteredResults.resultCount} kết quả trong{" "}
                 {filteredResults.duration ? `${filteredResults.duration}ms` : "..."}
@@ -550,7 +618,7 @@ const HotelSearchContent = () => {
                     Cache
                   </span>
                 )}
-                {(filters.minRating > 0 || filters.priceRange || filters.country) && (
+                {(filters.minRating > 0 || filters.priceRange || filters.country || filters.checkIn || filters.checkOut || filters.adults !== 2 || filters.rooms !== 1) && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-900/50 text-sky-400 rounded text-xs">
                     <FiFilter className="w-3 h-3" />
                     Đã lọc
@@ -562,13 +630,25 @@ const HotelSearchContent = () => {
                 <select
                   id="sort-select"
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as "score" | "az" | "za")}
-                  className="bg-gray-800 border border-gray-700 text-gray-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-sky-500"
+                  onChange={(e) => setSortBy(e.target.value as "score" | "az" | "za" | "price-low" | "price-high")}
+                  className="bg-panel border border-hairline text-ink text-xs rounded px-2 py-1 focus:outline-none focus:border-sky-500"
                 >
                   <option value="score">Điểm cao nhất</option>
                   <option value="az">A → Z</option>
                   <option value="za">Z → A</option>
+                  <option value="price-low">Giá thấp → cao</option>
+                  <option value="price-high">Giá cao → thấp</option>
                 </select>
+                <button
+                  type="button"
+                  onClick={() => toast("Tính năng bản đồ đang phát triển", { icon: "🗺️" })}
+                  className="flex items-center gap-1 px-2 py-1 bg-panel border border-hairline text-ink-soft text-xs rounded hover:text-ink hover:border-gray-300 transition-colors"
+                  aria-label="Xem bản đồ"
+                  title="Xem bản đồ"
+                >
+                  <FiMap className="w-3 h-3" />
+                  Bản đồ
+                </button>
                 <span aria-label={`Nguồn: ${(filteredResults.engines || [filteredResults.engine]).join(", ").toUpperCase()}`}>
                 Nguồn: {(filteredResults.engines || [filteredResults.engine]).join(", ").toUpperCase()}
                 </span>
@@ -583,13 +663,13 @@ const HotelSearchContent = () => {
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs ${
                       stat.error
                         ? "bg-red-900/30 text-red-400 border border-red-800/50"
-                        : "bg-gray-800 text-gray-300 border border-gray-700"
+                        : "bg-panel text-ink border border-hairline"
                     }`}
                   >
                     <span className="font-medium">{stat.engine.toUpperCase()}</span>
-                    <span className="text-gray-500">|</span>
+                    <span className="text-ink-soft">|</span>
                     <span>{stat.resultCount} kết quả</span>
-                    <span className="text-gray-500">|</span>
+                    <span className="text-ink-soft">|</span>
                     <span>{stat.duration}ms</span>
                     {stat.cached && (
                       <FiZap className="w-3 h-3 text-green-400" />
@@ -603,7 +683,7 @@ const HotelSearchContent = () => {
             )}
 
             {filteredResults.results.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">
+              <div className="text-center py-12 text-ink-soft">
                 Không tìm thấy kết quả nào phù hợp với bộ lọc
               </div>
             ) : (
@@ -624,7 +704,7 @@ const HotelSearchContent = () => {
                     <button
                       type="button"
                       onClick={() => setDisplayCount((prev) => prev + RESULTS_PER_PAGE)}
-                      className="px-6 py-2.5 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 hover:text-white transition-colors text-sm"
+                      className="px-6 py-2.5 bg-fill text-ink rounded-lg hover:bg-hairline hover:text-ink transition-colors text-sm"
                     >
                       Xem thêm ({filteredResults.results.length - displayCount} kết quả)
                     </button>
@@ -637,13 +717,13 @@ const HotelSearchContent = () => {
 
         {/* Empty State */}
         {!results && !loading && (
-          <div className="text-center py-16 text-gray-400">
+          <div className="text-center py-16 text-ink-soft">
             <FiSearch className="mx-auto h-12 w-12 mb-4 opacity-50" />
             <p className="text-lg">Nhập từ khóa để bắt đầu tìm kiếm</p>
             <p className="text-sm mt-2">
               Hỗ trợ tìm kiếm khách sạn, địa điểm, và nhiều hơn nữa
             </p>
-            <p className="text-xs mt-4 text-gray-500">
+            <p className="text-xs mt-4 text-ink-soft">
               Multi-key rotation • Circuit breaker • LRU Cache • Rate limiting
             </p>
           </div>

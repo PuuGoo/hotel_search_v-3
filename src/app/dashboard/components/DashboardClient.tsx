@@ -91,13 +91,13 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
   }, [fetchStats]);
 
   return (
-    <div className="h-full bg-gray-900">
+    <div className="h-full bg-canvas">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-ink">
             Xin chào, {user.name || "User"}!
           </h1>
-          <p className="text-gray-400 mt-2">
+          <p className="text-ink-soft mt-2">
             Đây là tổng quan về hoạt động hệ thống
           </p>
         </div>
@@ -108,7 +108,7 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
               <p className="text-red-400 text-sm">Không tải được thống kê hệ thống</p>
               <button
                 onClick={fetchStats}
-                className="flex items-center gap-2 rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-600 transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-fill px-3 py-1.5 text-sm text-gray-200 hover:bg-hairline transition-colors"
               >
                 <FiRefreshCw className="h-3.5 w-3.5" />
                 Thử lại
@@ -126,14 +126,14 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8" id="recent-searches">
           <ActivityFeed initialActivities={initialActivities} />
 
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-panel rounded-lg p-6">
             <div className="flex items-center justify-between mb-6 cursor-pointer lg:cursor-default" onClick={() => setRecentOpen(!recentOpen)}>
-              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              <h2 className="text-xl font-semibold text-ink flex items-center gap-2">
                 <FiClock />
                 Tìm kiếm gần đây
               </h2>
               <div className="flex items-center gap-2">
-              <button className="lg:hidden text-gray-400 hover:text-white transition-colors">
+              <button className="lg:hidden text-ink-soft hover:text-ink transition-colors">
                 <FiChevronDown className={`w-5 h-5 transition-transform ${recentOpen ? "rotate-180" : ""}`} />
               </button>
               <Link
@@ -153,7 +153,7 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
             >
               <div className="overflow-hidden">
                 {recentSearches.length === 0 ? (
-                  <p className="text-gray-400 text-center py-8">
+                  <p className="text-ink-soft text-center py-8">
                     Chưa có tìm kiếm nào
                   </p>
                 ) : (
@@ -161,16 +161,16 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
                     {recentSearches.map((search) => (
                       <div
                         key={search.id}
-                        className="flex items-center justify-between p-3 bg-gray-700 rounded-lg"
+                        className="flex items-center justify-between p-3 bg-fill rounded-lg"
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-white truncate">{search.query}</p>
-                          <p className="text-sm text-gray-400">
+                          <p className="text-ink truncate">{search.query}</p>
+                          <p className="text-sm text-ink-soft">
                             {search.engine.toUpperCase()} •{" "}
                             {search.resultCount} kết quả
                           </p>
                         </div>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-ink-soft">
                           {format(new Date(search.createdAt), "HH:mm dd/MM")}
                         </span>
                       </div>
@@ -183,13 +183,13 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8" id="top-queries">
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-panel rounded-lg p-6">
             <div className="flex items-center justify-between mb-6 cursor-pointer lg:cursor-default" onClick={() => setTopQueriesOpen(!topQueriesOpen)}>
-              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              <h2 className="text-xl font-semibold text-ink flex items-center gap-2">
                 <FiTrendingUp />
                 Tìm kiếm phổ biến
               </h2>
-              <button className="lg:hidden text-gray-400 hover:text-white transition-colors">
+              <button className="lg:hidden text-ink-soft hover:text-ink transition-colors">
                 <FiChevronDown className={`w-5 h-5 transition-transform ${topQueriesOpen ? "rotate-180" : ""}`} />
               </button>
             </div>
@@ -201,7 +201,7 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
             >
               <div className="overflow-hidden">
                 {stats.topQueries.length === 0 ? (
-                  <p className="text-gray-400 text-center py-8">
+                  <p className="text-ink-soft text-center py-8">
                     Chưa có dữ liệu
                   </p>
                 ) : (
@@ -209,14 +209,14 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
                     {stats.topQueries.map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-4 p-3 bg-gray-700 rounded-lg"
+                        className="flex items-center gap-4 p-3 bg-fill rounded-lg"
                       >
                         <span className="text-2xl font-bold text-sky-400 w-8">
                           {index + 1}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-white truncate">{item.query}</p>
-                          <p className="text-sm text-gray-400">
+                          <p className="text-ink truncate">{item.query}</p>
+                          <p className="text-sm text-ink-soft">
                             {item.count} lần tìm kiếm
                           </p>
                         </div>
@@ -228,13 +228,13 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
             </div>
           </div>
 
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-white mb-6">
+          <div className="bg-panel rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-ink mb-6">
               Thống kê theo Engine
             </h2>
 
             {stats.engineUsage.length === 0 ? (
-              <p className="text-gray-400 text-center py-8">
+              <p className="text-ink-soft text-center py-8">
                 Chưa có dữ liệu
               </p>
             ) : (
@@ -246,23 +246,23 @@ const DashboardClient: React.FC<DashboardClientProps> = ({
                   return (
                     <div
                       key={item.engine}
-                      className="p-4 bg-gray-700 rounded-lg"
+                      className="p-4 bg-fill rounded-lg"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white font-medium">
+                        <span className="text-ink font-medium">
                           {item.engine.toUpperCase()}
                         </span>
-                        <span className="text-sm text-gray-400">
+                        <span className="text-sm text-ink-soft">
                           {percentage}%
                         </span>
                       </div>
-                      <div className="w-full bg-gray-600 rounded-full h-2">
+                      <div className="w-full bg-fill rounded-full h-2">
                         <div
                           className="bg-sky-500 rounded-full h-2 transition-all"
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
-                      <p className="text-sm text-gray-400 mt-2">
+                      <p className="text-sm text-ink-soft mt-2">
                         {item.count} lần sử dụng
                       </p>
                     </div>

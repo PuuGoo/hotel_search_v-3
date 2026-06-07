@@ -34,7 +34,7 @@ export default function ProgressBar({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-sm">
-        <span className="text-gray-300">
+        <span className="text-ink">
           {isRunning ? (
             isPaused ? (
               <span className="text-yellow-400">Tạm dừng</span>
@@ -46,7 +46,7 @@ export default function ProgressBar({
           )}
           {" "}{current}/{total}
         </span>
-        <span className="text-gray-400">
+        <span className="text-ink-soft">
           {percentage}%
           {eta !== null && isRunning && !isPaused && (
             <span className="ml-2">ETA: {formatEta(eta)}</span>
@@ -54,7 +54,7 @@ export default function ProgressBar({
         </span>
       </div>
 
-      <div className="w-full bg-gray-700 rounded-full h-2.5">
+      <div className="w-full bg-fill rounded-full h-2.5">
         <div
           className={`h-2.5 rounded-full transition-all duration-300 ${
             isPaused ? "bg-yellow-500" : isRunning ? "bg-sky-500" : "bg-green-500"

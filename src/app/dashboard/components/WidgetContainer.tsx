@@ -95,21 +95,21 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({
           onDragEnd={handleDragEnd}
           className={`
             ${getWidgetSizeClass(widget.size)}
-            bg-gray-800 rounded-lg overflow-hidden transition-all
+            bg-panel rounded-lg overflow-hidden transition-all
             ${draggedIndex === index ? "opacity-50" : ""}
             ${dragOverIndex === index ? "ring-2 ring-sky-500" : ""}
           `}
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-hairline">
             <div className="flex items-center gap-2">
-              <FiMenu className="h-4 w-4 text-gray-400 cursor-grab active:cursor-grabbing" />
-              <span className="text-sm font-medium text-white">
+              <FiMenu className="h-4 w-4 text-ink-soft cursor-grab active:cursor-grabbing" />
+              <span className="text-sm font-medium text-ink">
                 {widget.title}
               </span>
             </div>
             <button
               onClick={() => onRemove(widget.id)}
-              className="p-1 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded transition-colors"
+              className="p-1 text-ink-soft hover:text-red-400 hover:bg-fill rounded transition-colors"
             >
               <FiX className="h-4 w-4" />
             </button>

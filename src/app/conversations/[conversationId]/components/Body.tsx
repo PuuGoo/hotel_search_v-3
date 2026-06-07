@@ -129,7 +129,7 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [], onReply }) => {
   }, [conversationId, scrollToBottom]);
 
   return (
-    <div ref={containerRef} className="flex-1 overflow-y-auto">
+    <div ref={containerRef} className="flex-1 overflow-y-auto bg-canvas dark:bg-dusk">
       {showSearch && (
         <Suspense fallback={null}>
           <MessageSearch

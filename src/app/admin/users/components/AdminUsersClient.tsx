@@ -103,12 +103,12 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
       {DialogElement}
       <form onSubmit={onSearch} className="flex gap-2">
         <div className="relative flex-1">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-soft" />
           <input
             value={term}
             onChange={(e) => setTerm(e.target.value)}
             placeholder="Tìm theo tên hoặc email"
-            className="w-full rounded-lg bg-gray-800 border border-gray-700 pl-10 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-sky-500"
+            className="w-full rounded-lg bg-panel border border-hairline pl-10 pr-3 py-2 text-sm text-ink placeholder-ink-soft focus:outline-none focus:border-sky-500"
           />
         </div>
         <button
@@ -119,14 +119,14 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
         </button>
       </form>
 
-      <p className="text-sm text-gray-400">
+      <p className="text-sm text-ink-soft">
         {data.total} người dùng
         {data.search ? ` khớp với "${data.search}"` : ""}
       </p>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-700">
+      <div className="overflow-x-auto rounded-lg border border-hairline">
         <table className="w-full text-sm">
-          <thead className="bg-gray-800 text-gray-400">
+          <thead className="bg-panel text-ink-soft">
             <tr>
               <th className="px-4 py-3 text-left font-medium">Người dùng</th>
               <th className="px-4 py-3 text-left font-medium">Vai trò</th>
@@ -137,16 +137,16 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
               <th className="px-4 py-3 text-right font-medium">Thao tác</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody className="divide-y divide-hairline">
             {data.users.map((user) => {
               const isSelf = user.id === currentUserId;
               const isAdminRole = user.role === "admin";
               const busy = pendingId === user.id;
               return (
-                <tr key={user.id} className="bg-gray-900 hover:bg-gray-800/60">
+                <tr key={user.id} className="bg-canvas hover:bg-panel/60">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-700">
+                      <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-fill">
                         <Image
                           fill
                           sizes="36px"
@@ -156,13 +156,13 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
                         />
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-white">
+                        <p className="truncate text-ink">
                           {user.name || "—"}
                           {isSelf ? (
                             <span className="ml-2 text-xs text-sky-400">(bạn)</span>
                           ) : null}
                         </p>
-                        <p className="truncate text-gray-400">{user.email}</p>
+                        <p className="truncate text-ink-soft">{user.email}</p>
                       </div>
                     </div>
                   </td>
@@ -171,7 +171,7 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
                       className={
                         isAdminRole
                           ? "inline-flex items-center gap-1 rounded-full bg-purple-500/20 px-2 py-0.5 text-xs font-medium text-purple-300"
-                          : "inline-flex items-center gap-1 rounded-full bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-300"
+                          : "inline-flex items-center gap-1 rounded-full bg-fill px-2 py-0.5 text-xs font-medium text-ink"
                       }
                     >
                       {isAdminRole ? (
@@ -184,9 +184,9 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
                   </td>
                   <td className="px-4 py-3">
                     {isAdminRole ? (
-                      <span className="text-xs text-gray-500">Toàn quyền</span>
+                      <span className="text-xs text-ink-soft">Toàn quyền</span>
                     ) : user.permissions.length === 0 ? (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-ink-soft">
                         Tất cả chức năng
                       </span>
                     ) : (
@@ -202,19 +202,19 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-300">
+                  <td className="px-4 py-3 text-right text-ink">
                     {user.searchCount}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-300">
+                  <td className="px-4 py-3 text-right text-ink">
                     {user.bookmarkCount}
                   </td>
-                  <td className="px-4 py-3 text-gray-400">
+                  <td className="px-4 py-3 text-ink-soft">
                     {format(new Date(user.createdAt), "dd/MM/yyyy")}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
                       {isSelf ? (
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-ink-soft">
                           Không thể tự sửa
                         </span>
                       ) : (
@@ -223,7 +223,7 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
                             <button
                               disabled={busy}
                               onClick={() => changeRole(user, "user")}
-                              className="rounded-md bg-gray-700 px-3 py-1.5 text-xs font-medium text-gray-200 hover:bg-gray-600 disabled:opacity-50"
+                              className="rounded-md bg-fill px-3 py-1.5 text-xs font-medium text-gray-200 hover:bg-hairline disabled:opacity-50"
                             >
                               Thu hồi admin
                             </button>
@@ -263,7 +263,7 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
             })}
             {data.users.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={7} className="px-4 py-10 text-center text-ink-soft">
                   Không có người dùng nào
                 </td>
               </tr>
@@ -277,17 +277,17 @@ const AdminUsersClient: React.FC<AdminUsersClientProps> = ({
           <button
             disabled={data.page <= 1}
             onClick={() => navigate({ page: data.page - 1 })}
-            className="flex items-center gap-1 rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 disabled:opacity-40"
+            className="flex items-center gap-1 rounded-lg bg-panel px-3 py-2 text-sm text-ink hover:bg-fill disabled:opacity-40"
           >
             <FiChevronLeft className="h-4 w-4" /> Trước
           </button>
-          <span className="text-sm text-gray-400">
+          <span className="text-sm text-ink-soft">
             Trang {data.page} / {data.totalPages}
           </span>
           <button
             disabled={data.page >= data.totalPages}
             onClick={() => navigate({ page: data.page + 1 })}
-            className="flex items-center gap-1 rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 disabled:opacity-40"
+            className="flex items-center gap-1 rounded-lg bg-panel px-3 py-2 text-sm text-ink hover:bg-fill disabled:opacity-40"
           >
             Sau <FiChevronRight className="h-4 w-4" />
           </button>

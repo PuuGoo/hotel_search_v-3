@@ -19,7 +19,7 @@ export default function Skeleton({
 
   return (
     <div
-      className={`bg-gray-700/50 animate-pulse ${radius} ${width} ${height} ${className}`}
+      className={`bg-fill/50 animate-pulse ${radius} ${width} ${height} ${className}`}
       aria-hidden="true"
     />
   );

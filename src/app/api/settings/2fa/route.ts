@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import getCurrentUser from "../../../actions/getCurrentUser";
 import { generateSecret, generateOtpauthUri, verifyTOTP } from "@/app/libs/totp";
+import { encryptSecret, decryptSecret, isEncrypted } from "@/app/libs/crypto";
 
 const ISSUER = "HotelSearch";
 
@@ -21,11 +22,15 @@ export async function POST() {
     const secret = generateSecret();
     const otpauthUri = generateOtpauthUri(secret, currentUser.email!, ISSUER);
 
+    // Encrypt the secret before storing in DB
+    const encryptedSecret = encryptSecret(secret);
+
     await prisma.user.update({
       where: { id: currentUser.id },
-      data: { twoFactorSecret: secret },
+      data: { twoFactorSecret: encryptedSecret },
     });
 
+    // Return the plaintext secret to the user (only time it's visible)
     return NextResponse.json({ secret, otpauthUri });
   } catch (error) {
     console.error("[2FA_GENERATE_ERROR]", error);
@@ -60,7 +65,12 @@ export async function PUT(request: Request) {
       return new NextResponse("Chưa tạo mã bí mật", { status: 400 });
     }
 
-    const isValid = verifyTOTP(currentUser.twoFactorSecret, body.token);
+    // Decrypt the secret for verification
+    const secret = isEncrypted(currentUser.twoFactorSecret)
+      ? decryptSecret(currentUser.twoFactorSecret)
+      : currentUser.twoFactorSecret;
+
+    const isValid = verifyTOTP(secret, body.token);
 
     if (!isValid) {
       return new NextResponse("Mã xác nhận không đúng", { status: 400 });
@@ -105,7 +115,12 @@ export async function DELETE(request: Request) {
       return new NextResponse("Chưa tạo mã bí mật", { status: 400 });
     }
 
-    const isValid = verifyTOTP(currentUser.twoFactorSecret, body.token);
+    // Decrypt the secret for verification
+    const secret = isEncrypted(currentUser.twoFactorSecret)
+      ? decryptSecret(currentUser.twoFactorSecret)
+      : currentUser.twoFactorSecret;
+
+    const isValid = verifyTOTP(secret, body.token);
 
     if (!isValid) {
       return new NextResponse("Mã xác nhận không đúng", { status: 400 });

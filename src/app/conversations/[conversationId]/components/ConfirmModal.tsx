@@ -74,7 +74,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, onClose }) => {
             Xóa cuộc trò chuyện
           </Dialog.Title>
           <div className="mt-2">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-ink-soft dark:text-gray-400">
               Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác.
             </p>
           </div>

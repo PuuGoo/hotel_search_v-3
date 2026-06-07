@@ -24,8 +24,9 @@ export async function DELETE() {
     }
 
     return NextResponse.json({ success: true, message: "No cache to clear" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[CLEAR_CACHE]", error);
-    return NextResponse.json({ error: error.message || "Failed to clear cache" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Failed to clear cache";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

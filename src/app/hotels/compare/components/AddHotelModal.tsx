@@ -158,7 +158,7 @@ const AddHotelModal: React.FC<AddHotelModalProps> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
+          <div className="fixed inset-0 bg-canvas bg-opacity-75 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -172,11 +172,11 @@ const AddHotelModal: React.FC<AddHotelModalProps> = ({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-gray-800 px-4 pb-4 pt-5 text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-panel px-4 pb-4 pt-5 text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                 <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block z-10">
                   <button
                     type="button"
-                    className="rounded-md bg-gray-800 text-gray-400 hover:text-gray-300 focus:outline-none"
+                    className="rounded-md bg-panel text-ink-soft hover:text-ink focus:outline-none"
                     onClick={onClose}
                   >
                     <span className="sr-only">Đóng</span>
@@ -184,22 +184,22 @@ const AddHotelModal: React.FC<AddHotelModalProps> = ({
                   </button>
                 </div>
 
-                <Dialog.Title className="text-lg font-semibold text-white mb-4">
+                <Dialog.Title className="text-lg font-semibold text-ink mb-4">
                   Tìm kiếm khách sạn
                 </Dialog.Title>
 
                 <div className="relative mb-4">
-                  <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-ink-soft" />
                   <input
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Nhập tên khách sạn, địa điểm..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-sky-500 text-sm"
+                    className="w-full pl-10 pr-4 py-2.5 bg-fill border border-hairline rounded-lg text-ink placeholder-ink-soft focus:outline-none focus:border-sky-500 text-sm"
                     autoFocus
                   />
                   {loading && (
-                    <FiLoader className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 animate-spin" />
+                    <FiLoader className="absolute right-3 top-1/2 transform -translate-y-1/2 text-ink-soft animate-spin" />
                   )}
                 </div>
 
@@ -215,15 +215,15 @@ const AddHotelModal: React.FC<AddHotelModalProps> = ({
                       </button>
                     </div>
                   ) : loading ? (
-                    <p className="text-center text-gray-400 py-6 text-sm">
+                    <p className="text-center text-ink-soft py-6 text-sm">
                       Đang tìm kiếm...
                     </p>
                   ) : !searched ? (
-                    <p className="text-center text-gray-400 py-6 text-sm">
+                    <p className="text-center text-ink-soft py-6 text-sm">
                       Nhập từ khóa để tìm kiếm khách sạn
                     </p>
                   ) : filtered.length === 0 ? (
-                    <p className="text-center text-gray-400 py-6 text-sm">
+                    <p className="text-center text-ink-soft py-6 text-sm">
                       {search
                         ? "Không tìm thấy khách sạn phù hợp"
                         : "Nhập từ khóa để tìm kiếm"}
@@ -232,14 +232,14 @@ const AddHotelModal: React.FC<AddHotelModalProps> = ({
                     filtered.map((hotel) => (
                       <div
                         key={hotel.id}
-                        className="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-650 transition-colors"
+                        className="flex items-center justify-between p-3 bg-fill rounded-lg hover:bg-hairline transition-colors"
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">
+                          <p className="text-sm font-medium text-ink truncate">
                             {hotel.name}
                           </p>
                           {hotel.description && (
-                            <p className="text-xs text-gray-400 line-clamp-2 mt-1">
+                            <p className="text-xs text-ink-soft line-clamp-2 mt-1">
                               {hotel.description}
                             </p>
                           )}

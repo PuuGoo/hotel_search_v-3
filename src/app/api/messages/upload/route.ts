@@ -49,6 +49,10 @@ export async function POST(request: Request) {
       return new NextResponse("Không có file", { status: 400 });
     }
 
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return new NextResponse("Loại file không được phép", { status: 400 });
+    }
+
     if (file.size > MAX_FILE_SIZE) {
       return new NextResponse("File quá lớn (tối đa 50MB)", { status: 400 });
     }

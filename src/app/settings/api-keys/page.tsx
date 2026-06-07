@@ -158,17 +158,17 @@ const ApiKeysPage = () => {
   };
 
   return (
-    <div className="h-full bg-gray-900 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="h-full bg-canvas px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8 flex items-center gap-3">
           <Link
             href="/settings"
-            className="rounded-lg p-2 text-gray-400 hover:bg-gray-800 hover:text-white"
+            className="rounded-lg p-2 text-ink-soft hover:bg-panel hover:text-ink"
           >
             <FiArrowLeft className="h-5 w-5" />
           </Link>
           <FiKey className="h-8 w-8 text-blue-500" />
-          <h1 className="text-2xl font-bold text-white">Quản lý API Keys</h1>
+          <h1 className="text-2xl font-bold text-ink">Quản lý API Keys</h1>
         </div>
 
         {createdKey && (
@@ -176,17 +176,17 @@ const ApiKeysPage = () => {
             <h3 className="mb-2 text-sm font-semibold text-green-400">
               API Key đã được tạo thành công
             </h3>
-            <p className="mb-3 text-xs text-gray-400">
+            <p className="mb-3 text-xs text-ink-soft">
               Hãy sao chép và lưu trữ key ở nơi an toàn. Key sẽ chỉ hiển thị
               một lần duy nhất.
             </p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 rounded-lg bg-gray-900 px-4 py-3 text-sm text-green-400 break-all">
+              <code className="flex-1 rounded-lg bg-canvas px-4 py-3 text-sm text-green-400 break-all">
                 {createdKey.key}
               </code>
               <button
                 onClick={() => handleCopyKey(createdKey.key)}
-                className="rounded-lg bg-gray-700 p-3 text-gray-300 hover:bg-gray-600 hover:text-white"
+                className="rounded-lg bg-fill p-3 text-ink hover:bg-hairline hover:text-ink"
               >
                 {copied ? (
                   <FiCheck className="h-4 w-4 text-green-400" />
@@ -197,7 +197,7 @@ const ApiKeysPage = () => {
             </div>
             <button
               onClick={() => setCreatedKey(null)}
-              className="mt-3 text-xs text-gray-400 hover:text-white"
+              className="mt-3 text-xs text-ink-soft hover:text-ink"
             >
               Đã lưu, đóng thông báo
             </button>
@@ -205,7 +205,7 @@ const ApiKeysPage = () => {
         )}
 
         <div className="mb-6 flex items-center justify-between">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-ink-soft">
             {apiKeys.length} API key
           </p>
           <button
@@ -214,7 +214,7 @@ const ApiKeysPage = () => {
               flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5
               text-sm font-medium text-white hover:bg-blue-500
               focus:outline-none focus:ring-2 focus:ring-blue-500
-              focus:ring-offset-2 focus:ring-offset-gray-900
+              focus:ring-offset-2 focus:ring-offset-white
             "
           >
             <FiPlus className="h-4 w-4" />
@@ -223,13 +223,13 @@ const ApiKeysPage = () => {
         </div>
 
         {showForm && (
-          <div className="mb-6 rounded-lg border border-gray-800 bg-gray-950 p-6">
-            <h3 className="mb-4 text-lg font-semibold text-white">
+          <div className="mb-6 rounded-lg border border-hairline bg-panel p-6">
+            <h3 className="mb-4 text-lg font-semibold text-ink">
               Tạo API Key mới
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="mb-1 block text-sm text-gray-400">
+                <label className="mb-1 block text-sm text-ink-soft">
                   Tên API Key
                 </label>
                 <input
@@ -238,15 +238,15 @@ const ApiKeysPage = () => {
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="VD: MyApp Backend"
                   className="
-                    w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5
-                    text-sm text-white placeholder:text-gray-500
+                    w-full rounded-lg border border-hairline bg-panel px-4 py-2.5
+                    text-sm text-ink placeholder:text-ink-soft
                     focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500
                   "
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-gray-400">
+                <label className="mb-2 block text-sm text-ink-soft">
                   Quyền hạn
                 </label>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -259,7 +259,7 @@ const ApiKeysPage = () => {
                         ${
                           formPermissions.includes(key)
                             ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                            : "border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600"
+                            : "border-hairline bg-panel text-ink hover:border-gray-300"
                         }
                       `}
                     >
@@ -275,7 +275,7 @@ const ApiKeysPage = () => {
                           ${
                             formPermissions.includes(key)
                               ? "border-blue-500 bg-blue-500"
-                              : "border-gray-600"
+                              : "border-hairline"
                           }
                         `}
                       >
@@ -290,7 +290,7 @@ const ApiKeysPage = () => {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-gray-400">
+                <label className="mb-2 block text-sm text-ink-soft">
                   Thời hạn
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -303,7 +303,7 @@ const ApiKeysPage = () => {
                         ${
                           formExpiry === opt.days
                             ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                            : "border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600"
+                            : "border-hairline bg-panel text-ink hover:border-gray-300"
                         }
                       `}
                     >
@@ -320,7 +320,7 @@ const ApiKeysPage = () => {
                   className="
                     rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white
                     hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500
-                    focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50
+                    focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50
                     disabled:cursor-not-allowed
                   "
                 >
@@ -334,8 +334,8 @@ const ApiKeysPage = () => {
                     setFormExpiry(0);
                   }}
                   className="
-                    rounded-lg bg-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300
-                    hover:bg-gray-600 hover:text-white
+                    rounded-lg bg-fill px-4 py-2.5 text-sm font-medium text-ink
+                    hover:bg-hairline hover:text-ink
                   "
                 >
                   Hủy
@@ -350,38 +350,38 @@ const ApiKeysPage = () => {
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
           </div>
         ) : apiKeys.length === 0 ? (
-          <div className="rounded-lg border border-gray-800 bg-gray-950 p-12 text-center">
+          <div className="rounded-lg border border-hairline bg-panel p-12 text-center">
             <FiKey className="mx-auto mb-4 h-12 w-12 text-gray-600" />
-            <p className="text-gray-400">Chưa có API key nào</p>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="text-ink-soft">Chưa có API key nào</p>
+            <p className="mt-1 text-sm text-ink-soft">
               Nhấn &quot;Tạo key mới&quot; để bắt đầu
             </p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-gray-800 bg-gray-950">
+          <div className="overflow-hidden rounded-lg border border-hairline bg-panel">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-gray-800 bg-gray-900/50">
-                    <th className="px-4 py-3 font-medium text-gray-400">
+                  <tr className="border-b border-hairline bg-canvas/50">
+                    <th className="px-4 py-3 font-medium text-ink-soft">
                       Tên
                     </th>
-                    <th className="px-4 py-3 font-medium text-gray-400">
+                    <th className="px-4 py-3 font-medium text-ink-soft">
                       Key
                     </th>
-                    <th className="px-4 py-3 font-medium text-gray-400">
+                    <th className="px-4 py-3 font-medium text-ink-soft">
                       Quyền hạn
                     </th>
-                    <th className="px-4 py-3 font-medium text-gray-400">
+                    <th className="px-4 py-3 font-medium text-ink-soft">
                       Trạng thái
                     </th>
-                    <th className="px-4 py-3 font-medium text-gray-400">
+                    <th className="px-4 py-3 font-medium text-ink-soft">
                       Lần dùng cuối
                     </th>
-                    <th className="px-4 py-3 font-medium text-gray-400">
+                    <th className="px-4 py-3 font-medium text-ink-soft">
                       Hết hạn
                     </th>
-                    <th className="px-4 py-3 font-medium text-gray-400">
+                    <th className="px-4 py-3 font-medium text-ink-soft">
                       Hành động
                     </th>
                   </tr>
@@ -392,13 +392,13 @@ const ApiKeysPage = () => {
                     return (
                       <tr
                         key={key.id}
-                        className="border-b border-gray-800 last:border-0 hover:bg-gray-900/30"
+                        className="border-b border-hairline last:border-0 hover:bg-canvas/30"
                       >
-                        <td className="px-4 py-3 font-medium text-white">
+                        <td className="px-4 py-3 font-medium text-ink">
                           {key.name}
                         </td>
                         <td className="px-4 py-3">
-                          <code className="text-xs text-gray-400">
+                          <code className="text-xs text-ink-soft">
                             {key.maskedKey}
                           </code>
                         </td>
@@ -407,7 +407,7 @@ const ApiKeysPage = () => {
                             {key.permissions.map((p) => (
                               <span
                                 key={p}
-                                className="rounded bg-gray-800 px-2 py-0.5 text-xs text-gray-300"
+                                className="rounded bg-panel px-2 py-0.5 text-xs text-ink"
                               >
                                 {PERMISSION_LABELS[p] || p}
                               </span>
@@ -425,24 +425,24 @@ const ApiKeysPage = () => {
                               Hoạt động
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-gray-500/10 px-2 py-0.5 text-xs text-gray-400 ring-1 ring-inset ring-gray-500/20">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-gray-500/10 px-2 py-0.5 text-xs text-ink-soft ring-1 ring-inset ring-gray-500/20">
                               Vô hiệu
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-gray-400">
+                        <td className="px-4 py-3 text-ink-soft">
                           <div className="flex items-center gap-1">
                             <FiClock className="h-3 w-3" />
                             {formatDate(key.lastUsedAt)}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-gray-400">
+                        <td className="px-4 py-3 text-ink-soft">
                           {formatDate(key.expiresAt)}
                         </td>
                         <td className="px-4 py-3">
                           <button
                             onClick={() => setDeleteId(key.id)}
-                            className="rounded-lg p-2 text-gray-400 hover:bg-red-500/10 hover:text-red-400"
+                            className="rounded-lg p-2 text-ink-soft hover:bg-red-500/10 hover:text-red-400"
                             title="Xóa"
                           >
                             <FiTrash2 className="h-4 w-4" />
@@ -459,11 +459,11 @@ const ApiKeysPage = () => {
 
         {deleteId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="mx-4 w-full max-w-md rounded-lg border border-gray-800 bg-gray-950 p-6">
-              <h3 className="mb-2 text-lg font-semibold text-white">
+            <div className="mx-4 w-full max-w-md rounded-lg border border-hairline bg-panel p-6">
+              <h3 className="mb-2 text-lg font-semibold text-ink">
                 Xác nhận xóa
               </h3>
-              <p className="mb-6 text-sm text-gray-400">
+              <p className="mb-6 text-sm text-ink-soft">
                 Bạn có chắc chắn muốn xóa API key này? Hành động này không thể
                 hoàn tác.
               </p>
@@ -471,8 +471,8 @@ const ApiKeysPage = () => {
                 <button
                   onClick={() => setDeleteId(null)}
                   className="
-                    rounded-lg bg-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300
-                    hover:bg-gray-600 hover:text-white
+                    rounded-lg bg-fill px-4 py-2.5 text-sm font-medium text-ink
+                    hover:bg-hairline hover:text-ink
                   "
                 >
                   Hủy
@@ -483,7 +483,7 @@ const ApiKeysPage = () => {
                   className="
                     rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white
                     hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500
-                    focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50
+                    focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50
                     disabled:cursor-not-allowed
                   "
                 >

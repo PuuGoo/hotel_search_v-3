@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       )
     );
     return NextResponse.json(serialized);
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Unique constraint violation = email already registered.
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&

@@ -23,7 +23,7 @@ export default function ScrollToTop() {
   return (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-6 right-6 z-50 p-3 bg-sky-500 hover:bg-sky-600 text-white rounded-full shadow-lg transition-all duration-300 ease-in-out hover:scale-110 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+      className="fixed bottom-6 right-6 z-50 p-3 bg-sky-500 hover:bg-sky-600 text-white rounded-full shadow-lg transition-all duration-300 ease-in-out hover:scale-110 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 focus:ring-offset-white"
       title="Cuộn lên đầu"
       aria-label="Cuộn lên đầu trang"
     >

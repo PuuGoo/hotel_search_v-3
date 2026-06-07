@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
     // For JSON format - always return current rows (even during running)
     if (format === "json") {
-      const data = job.rows.map((r: any) => ({
+      const data = job.rows.map((r) => ({
         no: r.no,
         hotel_name: r.hotel_name,
         hotel_address: r.hotel_address,
@@ -45,8 +45,8 @@ export async function GET(request: Request) {
       let fileBuffer: Buffer;
       try {
         fileBuffer = await fs.promises.readFile(job.output);
-      } catch (err: any) {
-        if (err?.code === "ENOENT") {
+      } catch (err: unknown) {
+        if (err instanceof Error && "code" in err && (err as { code: string }).code === "ENOENT") {
           return NextResponse.json({ error: "Output file not found" }, { status: 404 });
         }
         throw err;
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
       // Dynamic import to avoid loading xlsx library unless needed
       const XLSX = await import("xlsx");
       
-      const rows = job.rows.map((r: any, idx: number) => ({
+      const rows = job.rows.map((r, idx: number) => ({
         "#": idx + 1,
         "No": r.no,
         "Hotel Name": r.hotel_name,

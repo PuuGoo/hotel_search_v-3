@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 
+const isDev = process.env.NODE_ENV !== "production";
+
 // Baseline security response headers applied to every route. These are the
 // broadly-compatible set that hardens the app without risking breakage:
 //   - HSTS: force HTTPS for a year (incl. subdomains). Browsers ignore it on
@@ -29,7 +31,21 @@ const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   {
     key: "Content-Security-Policy",
-    value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' wss: https:; frame-ancestors 'self';",
+    // In development, Next.js React Refresh (HMR) evaluates code via eval(),
+    // which requires 'unsafe-eval'. Never strip it in dev or login/HMR break.
+    // Google Fonts needs fonts.googleapis.com (stylesheet) + fonts.gstatic.com
+    // (font files) allowed in style-src/font-src.
+    value: [
+      "default-src 'self'",
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://upload-widget.cloudinary.com https://widget.cloudinary.com`,
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "img-src 'self' data: blob: https:",
+      "media-src 'self' blob:",
+      "font-src 'self' data: https://fonts.gstatic.com",
+      "connect-src 'self' wss: https:",
+      "frame-src 'self' https://upload-widget.cloudinary.com https://widget.cloudinary.com",
+      "frame-ancestors 'self'",
+    ].join("; ") + ";",
   },
 ];
 

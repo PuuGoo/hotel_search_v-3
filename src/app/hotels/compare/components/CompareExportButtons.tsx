@@ -123,7 +123,7 @@ export default function CompareExportButtons({ hotels }: CompareExportButtonsPro
       </button>
       <button
         onClick={() => downloadCSV(hotels)}
-        className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg text-sm transition-colors"
+        className="flex items-center gap-2 px-3 py-2 bg-fill hover:bg-hairline text-gray-200 rounded-lg text-sm transition-colors"
       >
         <FiFileText />
         CSV

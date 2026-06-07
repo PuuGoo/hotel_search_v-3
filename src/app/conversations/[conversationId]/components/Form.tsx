@@ -246,7 +246,7 @@ const Form: React.FC<FormProps> = ({ replyTo, onClearReply }) => {
               <div className="text-[11px] font-semibold text-sky-600 dark:text-sky-400">
                 Trả lời {replyTo.sender.name}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              <div className="text-xs text-ink-soft dark:text-gray-400 truncate">
                 {replyTo.body
                   ? replyTo.body.length > 50
                     ? replyTo.body.slice(0, 50) + "..."
@@ -258,7 +258,7 @@ const Form: React.FC<FormProps> = ({ replyTo, onClearReply }) => {
             </div>
             <button
               onClick={onClearReply}
-              className="text-gray-400 hover:text-red-500 transition-colors touch-target"
+              className="text-ink-soft hover:text-red-500 transition-colors touch-target"
             >
               <HiXMark size={16} />
             </button>
@@ -273,13 +273,13 @@ const Form: React.FC<FormProps> = ({ replyTo, onClearReply }) => {
               <div className="text-sm text-black dark:text-white truncate">
                 {pendingFile.file.name}
               </div>
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-ink-soft">
                 {formatFileSize(pendingFile.file.size)}
               </div>
             </div>
             <button
               onClick={removePendingFile}
-              className="text-gray-400 hover:text-red-500 transition-colors touch-target"
+              className="text-ink-soft hover:text-red-500 transition-colors touch-target"
             >
               <HiXMark size={16} />
             </button>
@@ -295,12 +295,9 @@ const Form: React.FC<FormProps> = ({ replyTo, onClearReply }) => {
           z-30
           py-3
           px-4
-          bg-white
+          bg-panel
           border-t
-          flex
-          items-center
-          gap-2
-          lg:gap-4
+          border-hairline
           w-full
           dark:bg-dusk
           dark:border-lightgray
@@ -320,51 +317,57 @@ const Form: React.FC<FormProps> = ({ replyTo, onClearReply }) => {
           onChange={handleFileSelect}
           accept="*/*"
         />
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="text-sky-500 hover:text-sky-600 transition-colors"
-          title="Đính kèm file"
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="ms-composer w-full"
         >
-          <HiPaperClip size={28} />
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowVoiceRecorder(!showVoiceRecorder)}
-          className={`transition-colors ${showVoiceRecorder ? "text-sky-500" : "text-sky-500 hover:text-sky-600"}`}
-          title="Ghi âm"
-        >
-          <HiMicrophone size={28} />
-        </button>
-        <CldUploadButton
-          options={{ maxFiles: 1 }}
-          onUpload={handleUpload}
-          uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_NAME}
-        >
-          <HiPhoto size={30} className="text-sky-500" />
-        </CldUploadButton>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex items-center gap-2 lg:gap-4 w-full">
-          <MessageInput
-            id="message"
-            register={register}
-            errors={errors}
-            required={!pendingFile}
-            placeholder={pendingFile ? "Thêm tin nhắn (tùy chọn)" : "Viết tin nhắn"}
-            onPasteFile={handlePasteFile}
-          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="ms-tool-btn"
+            title="Đính kèm file"
+          >
+            <HiPaperClip size={20} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowVoiceRecorder(!showVoiceRecorder)}
+            className={`ms-tool-btn ${showVoiceRecorder ? "ms-tool-btn-active" : ""}`}
+            title="Ghi âm"
+          >
+            <HiMicrophone size={20} />
+          </button>
+          <CldUploadButton
+            options={{ maxFiles: 1 }}
+            onUpload={handleUpload}
+            uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_NAME}
+          >
+            <span className="ms-tool-btn" title="Gửi ảnh">
+              <HiPhoto size={20} />
+            </span>
+          </CldUploadButton>
+          <div className="flex-1 min-w-0">
+            <MessageInput
+              id="message"
+              register={register}
+              errors={errors}
+              required={!pendingFile}
+              placeholder={pendingFile ? "Thêm tin nhắn (tùy chọn)" : "Viết tin nhắn..."}
+              onPasteFile={handlePasteFile}
+            />
+          </div>
           <button
             type="submit"
             disabled={uploading}
             className="
-              rounded-full 
-              p-2 
-              bg-sky-500 
+              ms-send-btn
+              w-10 h-10
+              shrink-0
               cursor-pointer 
-              hover:bg-sky-600 
-              transition
               disabled:opacity-50
               disabled:cursor-not-allowed
             "
+            title="Gửi"
           >
             <HiPaperAirplane size={18} className="text-white" />
           </button>

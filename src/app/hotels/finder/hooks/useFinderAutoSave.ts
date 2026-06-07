@@ -58,7 +58,6 @@ export function useFinderAutoSave(
           try {
             await axios.delete(`/api/drive/${autoSaveRef.current.fileId}`);
           } catch (err) {
-            console.warn('[FinderAutoSave] Failed to delete previous auto-save file:', err);
           }
         }
 

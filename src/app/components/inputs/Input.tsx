@@ -50,7 +50,7 @@ const Input: React.FC<InputProps> = ({
             ring-1 
             ring-inset 
             ring-gray-300 
-            placeholder:text-gray-400 
+            placeholder:text-ink-soft 
             focus:ring-2 
             focus:ring-inset 
             focus:ring-sky-600 
