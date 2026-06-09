@@ -68,6 +68,13 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
             <span className="panda-cheek right" />
             <span className="panda-eye left" />
             <span className="panda-eye right" />
+            <span className="panda-glasses">
+              <span className="panda-glasses-lens left" />
+              <span className="panda-glasses-bridge" />
+              <span className="panda-glasses-lens right" />
+              <span className="panda-glasses-arm left" />
+              <span className="panda-glasses-arm right" />
+            </span>
             <span className="panda-nose" />
             <span className="panda-mouth">
               <span className="panda-smile-big" />

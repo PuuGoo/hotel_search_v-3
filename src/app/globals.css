@@ -709,6 +709,62 @@ html {
 .panda-eye.left  { left: calc(50% - 33px); }
 .panda-eye.right { left: calc(50% + 10px); }
 
+/* ── Glasses (kính cận) ─────────────────────────────────────────── */
+/* Each piece positioned directly over panda-head, same scheme as the eyes.
+   Frame color is dark brown #1a1a2e for contrast against both the dark
+   eye patches AND the cream face. Lenses have a visible blue tint. */
+.panda-glasses {
+  width: 100%; height: 100%;
+  left: 0; top: 0;
+  z-index: 7;
+  pointer-events: none;
+}
+.panda-glasses-lens {
+  width: 40px; height: 34px;
+  border: 3.5px solid #1a1a2e;
+  border-radius: 50%;
+  background: rgba(120, 180, 255, 0.22);
+  box-shadow: inset 0 0 6px rgba(120, 180, 255, 0.3),
+              0 1px 3px rgba(0,0,0,0.3);
+}
+/* Position each lens centered over its eye patch */
+.panda-glasses-lens.left  { left: calc(50% - 42px); top: 48px; }
+.panda-glasses-lens.right { left: calc(50% + 2px);  top: 48px; }
+/* Lens shine highlight */
+.panda-glasses-lens::after {
+  content: "";
+  position: absolute;
+  width: 10px; height: 6px;
+  top: 5px; left: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  transform: rotate(-25deg);
+}
+/* Bridge connects the two lenses across the nose bridge */
+.panda-glasses-bridge {
+  width: 16px; height: 10px;
+  left: calc(50% - 8px); top: 55px;
+  border-top: 3.5px solid #1a1a2e;
+  border-radius: 0 0 50% 50%;
+}
+/* Temple arms extend from each lens toward the ears */
+.panda-glasses-arm {
+  width: 24px; height: 3px;
+  top: 60px;
+  background: #1a1a2e;
+  border-radius: 2px;
+}
+.panda-glasses-arm.left {
+  left: calc(50% - 52px);
+  transform: rotate(14deg);
+  transform-origin: right center;
+}
+.panda-glasses-arm.right {
+  left: calc(50% + 28px);
+  transform: rotate(-14deg);
+  transform-origin: left center;
+}
+
 /* nose — small button, soft */
 .panda-nose {
   width: 20px; height: 13px;
