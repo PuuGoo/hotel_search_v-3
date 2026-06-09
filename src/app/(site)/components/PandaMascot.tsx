@@ -84,6 +84,31 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
 
           <span className="panda-arm right" />
         </div>
+
+        {/* 3 baby pandas orbiting around the big panda */}
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="baby-panda-orbit"
+            style={{ "--delay": `${i * -2.8}s` } as React.CSSProperties}
+          >
+            <div className="baby-panda">
+              <span className="baby-panda-body" />
+              <span className="baby-panda-head">
+                <span className="baby-panda-ear left" />
+                <span className="baby-panda-ear right" />
+                <span className="baby-panda-patch left" />
+                <span className="baby-panda-patch right" />
+                <span className="baby-panda-eye left" />
+                <span className="baby-panda-eye right" />
+                <span className="baby-panda-cheek left" />
+                <span className="baby-panda-cheek right" />
+                <span className="baby-panda-nose" />
+                <span className="baby-panda-mouth" />
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

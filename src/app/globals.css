@@ -917,6 +917,158 @@ html {
   75%      { transform: translateX(7px) rotate(2deg); }
 }
 
+/* ── Baby pandas orbiting the big panda ─────────────────────────────── */
+/* The orbit container rotates around the panda centre; the baby inside
+   counter-rotates so it always stays upright. `--delay` offsets each baby
+   by 120° so the three are evenly spaced. */
+@keyframes baby-orbit {
+  from { transform: rotate(0deg)   translateX(140px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(140px) rotate(-360deg); }
+}
+@keyframes baby-bob {
+  0%, 100% { transform: translateY(0) scaleX(1); }
+  25%      { transform: translateY(-4px) scaleX(1); }
+  50%      { transform: translateY(0) scaleX(1); }
+  75%      { transform: translateY(-4px) scaleX(1); }
+}
+@keyframes baby-leg-run {
+  0%, 100% { transform: rotate(20deg); }
+  50%      { transform: rotate(-20deg); }
+}
+@keyframes baby-leg-run-r {
+  0%, 100% { transform: rotate(-20deg); }
+  50%      { transform: rotate(20deg); }
+}
+
+.baby-panda-orbit {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 0; height: 0;
+  z-index: 2;
+  pointer-events: none;
+  animation: baby-orbit 8.4s linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+.baby-panda {
+  position: absolute;
+  left: -22px; top: -32px;
+  width: 44px; height: 52px;
+  animation: baby-bob 0.42s ease-in-out infinite;
+}
+.baby-panda * { position: absolute; box-sizing: border-box; }
+
+/* body */
+.baby-panda-body {
+  width: 28px; height: 22px;
+  left: 50%; bottom: 0;
+  transform: translateX(-50%);
+  background: radial-gradient(120% 100% at 50% 16%, #fdfdf8 58%, #e7ebf3 100%);
+  border-radius: 50% 50% 46% 46%;
+}
+/* head */
+.baby-panda-head {
+  width: 38px; height: 34px;
+  left: 50%; top: 0;
+  transform: translateX(-50%);
+  background: radial-gradient(120% 110% at 50% 20%, #fdfdf8 56%, #e6eaf2 100%);
+  border-radius: 50%;
+  z-index: 2;
+}
+/* ears */
+.baby-panda-ear {
+  width: 14px; height: 14px;
+  top: -4px;
+  background: radial-gradient(circle at 38% 30%, #353c4f 0%, #12161f 100%);
+  border-radius: 50%;
+  z-index: 1;
+}
+.baby-panda-ear::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: #3a4153;
+  border-radius: 50%;
+}
+.baby-panda-ear.left  { left: -2px; }
+.baby-panda-ear.right { right: -2px; }
+/* eye patches */
+.baby-panda-patch {
+  width: 13px; height: 15px;
+  top: 10px;
+  background: radial-gradient(circle at 44% 32%, #2c3242 0%, #12161f 100%);
+  border-radius: 52% 52% 50% 50% / 58% 58% 46% 46%;
+  z-index: 3;
+}
+.baby-panda-patch.left  { left: 3px; transform: rotate(12deg); }
+.baby-panda-patch.right { right: 3px; transform: rotate(-12deg); }
+/* eyes */
+.baby-panda-eye {
+  width: 7px; height: 7px;
+  top: 14px;
+  background: #fff;
+  border-radius: 50%;
+  z-index: 4;
+  box-shadow: inset 0 -1px 2px rgba(0,0,0,0.12);
+  animation: panda-blink 4s ease-in-out infinite;
+}
+.baby-panda-eye::before {
+  content: "";
+  position: absolute;
+  width: 5px; height: 5px;
+  top: 1px; left: 1px;
+  background: radial-gradient(circle at 36% 30%, #3a4153 0%, #12161f 70%);
+  border-radius: 50%;
+}
+.baby-panda-eye::after {
+  content: "";
+  position: absolute;
+  width: 2px; height: 2px;
+  top: 2px; left: 2px;
+  background: #fff;
+  border-radius: 50%;
+  z-index: 5;
+}
+.baby-panda-eye.left  { left: 7px; }
+.baby-panda-eye.right { right: 7px; }
+/* cheeks */
+.baby-panda-cheek {
+  width: 6px; height: 4px;
+  top: 20px;
+  background: radial-gradient(circle, rgba(255,140,162,0.8) 0%, rgba(255,140,162,0) 72%);
+  border-radius: 50%;
+  z-index: 3;
+}
+.baby-panda-cheek.left  { left: 1px; }
+.baby-panda-cheek.right { right: 1px; }
+/* nose */
+.baby-panda-nose {
+  width: 6px; height: 4px;
+  left: 50%; top: 21px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 40% 28%, #3a4153 0%, #12161f 100%);
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  z-index: 5;
+}
+/* mouth — tiny "w" */
+.baby-panda-mouth {
+  width: 10px; height: 4px;
+  left: 50%; top: 25px;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+.baby-panda-mouth::before,
+.baby-panda-mouth::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 5px; height: 4px;
+  border: 1.5px solid #20242f;
+  border-top: 0;
+  border-radius: 0 0 5px 5px;
+}
+.baby-panda-mouth::before { left: 0; }
+.baby-panda-mouth::after  { right: 0; }
+
 /* ── Responsive panda scaling ──────────────────────────────────────── */
 /* Mobile (< 640px): compact panda */
 @media (max-width: 639px) {
@@ -959,4 +1111,5 @@ html {
   .panda, .panda-shadow, .panda-ear, .panda-eye, .panda-arm,
   .panda-wrap, .panda-leg, .panda-foot { animation: none !important; }
   .panda--happy, .panda--sad { animation: none !important; }
+  .baby-panda-orbit, .baby-panda, .baby-panda-eye { animation: none !important; }
 }
