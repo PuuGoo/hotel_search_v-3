@@ -190,8 +190,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
                 disabled={isLoading}
                 className={`btn-panda btn-panda-primary btn-panda-lg w-full ${isLoading ? "btn-panda-loading" : ""}`}
               >
-                {isLoading && (
+                {isLoading ? (
                   <span className="btn-panda-spinner" />
+                ) : (
+                  <span className="btn-panda-icon-panda">
+                    <span /><em />
+                  </span>
                 )}
                 {variant === "LOGIN" ? "Đăng nhập" : "Đăng ký"}
               </button>

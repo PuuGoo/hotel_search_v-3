@@ -918,220 +918,291 @@ html {
 }
 
 /* ── Panda Button Animations ───────────────────────────────────────── */
-/* Apply .btn-panda to any button for panda-themed interactions */
+/* Cute panda-faced buttons with real panda face icon */
 
-@keyframes panda-btn-ears-pop {
-  0%   { transform: scaleY(0) translateY(4px); opacity: 0; }
-  50%  { transform: scaleY(1.15) translateY(-2px); opacity: 1; }
-  100% { transform: scaleY(1) translateY(0); opacity: 1; }
-}
-@keyframes panda-btn-paw-press {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(0.93) translateY(2px); }
-  100% { transform: scale(1); }
-}
 @keyframes panda-btn-bounce {
   0%, 100% { transform: translateY(0); }
-  30%      { transform: translateY(-6px); }
-  60%      { transform: translateY(2px); }
+  40%      { transform: translateY(-4px); }
+  60%      { transform: translateY(1px); }
+}
+@keyframes panda-btn-blink {
+  0%, 42%, 44%, 100% { transform: scaleY(1); }
+  43% { transform: scaleY(0.1); }
+}
+@keyframes panda-btn-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-8deg); }
+  75%      { transform: rotate(8deg); }
 }
 @keyframes panda-btn-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0%   { left: -100%; }
+  100% { left: 200%; }
+}
+@keyframes panda-btn-press {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(0.94) translateY(2px); }
+  100% { transform: scale(1); }
 }
 @keyframes panda-btn-spin {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Base panda button — rounded, bouncy, with panda ear peek on hover */
+/* ── Base panda button ──────────────────────────────────────────────── */
 .btn-panda {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   border-radius: 16px;
   font-weight: 600;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  overflow: visible;
+  font-size: 15px;
   cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: none;
+  outline: none;
+}
+.btn-panda:focus-visible {
+  outline: 2px solid #007aff;
+  outline-offset: 2px;
+}
+.btn-panda:disabled {
+  opacity: 0.6;
+  cursor: default;
+  pointer-events: none;
 }
 
-/* Panda ears that pop up on hover */
-.btn-panda::before,
-.btn-panda::after {
+/* ── Panda face icon (inline CSS panda) ─────────────────────────────── */
+.btn-panda-icon-panda {
+  position: relative;
+  display: inline-block;
+  width: 28px; height: 24px;
+  flex-shrink: 0;
+}
+/* Head */
+.btn-panda-icon-panda::before {
   content: "";
   position: absolute;
-  width: 14px; height: 14px;
-  top: -8px;
-  background: radial-gradient(circle at 38% 30%, #353c4f 0%, #12161f 100%);
+  width: 20px; height: 18px;
+  left: 50%; top: 4px;
+  transform: translateX(-50%);
+  background: #fff;
   border-radius: 50%;
-  z-index: 10;
-  transform: scaleY(0) translateY(4px);
-  transform-origin: 50% 100%;
-  opacity: 0;
-  pointer-events: none;
-  transition: none;
+  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.08);
 }
-.btn-panda::before {
-  left: 22%;
+/* Eye patches + eyes + nose */
+.btn-panda-icon-panda::after {
+  content: "";
+  position: absolute;
+  /* Left eye patch */
+  width: 8px; height: 7px;
+  left: 3px; top: 8px;
+  background: #1a1a2e;
+  border-radius: 50%;
+  box-shadow:
+    /* Right eye patch */
+    14px 0 0 #1a1a2e,
+    /* Left eye (white pupil) */
+    2px 2px 0 1px #fff,
+    /* Right eye (white pupil) */
+    16px 2px 0 1px #fff,
+    /* Nose */
+    9px 7px 0 0 #1a1a2e;
 }
-.btn-panda::after {
-  right: 22%;
+/* Ears */
+.btn-panda-icon-panda span {
+  position: absolute;
+  width: 10px; height: 10px;
+  top: 0;
+  background: #1a1a2e;
+  border-radius: 50%;
+  display: block;
 }
-.btn-panda::before {
-  animation: panda-btn-ears-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-play-state: paused;
+.btn-panda-icon-panda span::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 18px;
+  width: 10px; height: 10px;
+  background: #1a1a2e;
+  border-radius: 50%;
 }
-.btn-panda::after {
-  animation: panda-btn-ears-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s forwards;
-  animation-play-state: paused;
+.btn-panda-icon-panda span::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: #3a4153;
+  border-radius: 50%;
+}
+.btn-panda-icon-panda span { left: 1px; }
+.btn-panda-icon-panda span::after { left: 3px; }
+
+/* Second ear via the span's right position */
+.btn-panda-icon-panda em {
+  position: absolute;
+  width: 10px; height: 10px;
+  top: 0; right: 1px;
+  background: #1a1a2e;
+  border-radius: 50%;
+  font-style: normal;
+  display: block;
+}
+.btn-panda-icon-panda em::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: #3a4153;
+  border-radius: 50%;
 }
 
-/* Inner ear color */
-.btn-panda::before {
-  box-shadow: inset 0 0 0 4px #3a4153;
-}
-.btn-panda::after {
-  box-shadow: inset 0 0 0 4px #3a4153;
-}
-
-/* Hover: ears pop up, button bounces slightly */
+/* ── Hover: panda bounces + ears wiggle ─────────────────────────────── */
 .btn-panda:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.18);
 }
-.btn-panda:hover::before,
-.btn-panda:hover::after {
-  animation-play-state: running;
+.btn-panda:hover .btn-panda-icon-panda {
+  animation: panda-btn-bounce 0.6s ease;
+}
+.btn-panda:hover .btn-panda-icon-panda span,
+.btn-panda:hover .btn-panda-icon-panda em {
+  animation: panda-btn-wiggle 0.5s ease 0.1s;
+}
+/* Eyes blink on hover */
+.btn-panda:hover .btn-panda-icon-panda::after {
+  animation: panda-btn-blink 2s ease infinite 0.3s;
 }
 
-/* Active: paw press effect */
+/* Active: paw press */
 .btn-panda:active {
-  animation: panda-btn-paw-press 0.2s ease;
-  transform: translateY(0);
+  animation: panda-btn-press 0.2s ease;
 }
 
-/* Primary panda button — blue gradient with shimmer */
+/* ── Primary — blue gradient with panda ─────────────────────────────── */
 .btn-panda-primary {
-  background: linear-gradient(135deg, #007aff 0%, #0051d5 50%, #0042ad 100%);
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  font-size: 14px;
-  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+  background: linear-gradient(135deg, #007aff 0%, #0062d6 50%, #004db8 100%);
+  color: #fff;
+  padding: 12px 28px;
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35);
 }
 .btn-panda-primary:hover {
-  background: linear-gradient(135deg, #338fff 0%, #007aff 50%, #0051d5 100%);
-  box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+  background: linear-gradient(135deg, #1a8aff 0%, #007aff 50%, #0062d6 100%);
+  box-shadow: 0 8px 25px rgba(0, 122, 255, 0.45);
 }
-/* Shimmer on hover */
-.btn-panda-primary::before {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
-  background-size: 200% 100%;
-  width: 100%; height: 100%;
-  top: 0; left: 0;
-  border-radius: inherit;
-  z-index: 1;
+/* Shimmer overlay */
+.btn-panda-primary::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
 }
-.btn-panda-primary:hover::before {
-  animation: panda-btn-shimmer 1.5s ease infinite;
-  animation-play-state: running;
-  opacity: 1;
-  transform: none;
+.btn-panda-primary:hover::after {
+  animation: panda-btn-shimmer 0.8s ease;
 }
 
-/* Secondary panda button — outlined with panda face */
+/* ── Secondary — outlined ───────────────────────────────────────────── */
 .btn-panda-secondary {
-  background: white;
+  background: #fff;
   color: #1d1d1f;
   border: 2px solid #e5e5ea;
-  padding: 8px 20px;
-  font-size: 14px;
+  padding: 10px 24px;
 }
 .btn-panda-secondary:hover {
   border-color: #007aff;
   color: #007aff;
   background: #f0f7ff;
 }
+.btn-panda-secondary .btn-panda-icon-panda::before {
+  background: #f0f0f5;
+}
 
-/* Danger panda button — red for destructive actions */
+/* ── Danger — red ───────────────────────────────────────────────────── */
 .btn-panda-danger {
-  background: linear-gradient(135deg, #ff3b30 0%, #d32f2f 100%);
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  font-size: 14px;
-  box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
+  background: linear-gradient(135deg, #ff3b30, #d32f2f);
+  color: #fff;
+  padding: 12px 28px;
+  box-shadow: 0 4px 14px rgba(255, 59, 48, 0.35);
 }
 .btn-panda-danger:hover {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff3b30 100%);
-  box-shadow: 0 6px 20px rgba(255, 59, 48, 0.4);
+  background: linear-gradient(135deg, #ff6259, #ff3b30);
+  box-shadow: 0 8px 25px rgba(255, 59, 48, 0.45);
 }
 
-/* Ghost panda button — minimal with subtle panda touch */
+/* ── Ghost — transparent ────────────────────────────────────────────── */
 .btn-panda-ghost {
   background: transparent;
   color: #636366;
-  border: none;
   padding: 8px 16px;
-  font-size: 14px;
 }
 .btn-panda-ghost:hover {
   background: #f2f2f7;
   color: #1d1d1f;
 }
 
-/* Loading state — panda spinning */
+/* ── Loading state ──────────────────────────────────────────────────── */
 .btn-panda-loading {
   pointer-events: none;
-  opacity: 0.8;
 }
-.btn-panda-loading .btn-panda-spinner {
+.btn-panda-spinner {
   display: inline-block;
-  width: 16px; height: 16px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
+  width: 18px; height: 18px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
   border-radius: 50%;
-  animation: panda-btn-spin 0.6s linear infinite;
+  animation: panda-btn-spin 0.7s linear infinite;
+  flex-shrink: 0;
 }
 
-/* Small panda button */
+/* ── Size variants ──────────────────────────────────────────────────── */
 .btn-panda-sm {
-  padding: 6px 14px;
-  font-size: 12px;
+  padding: 8px 16px;
+  font-size: 13px;
   border-radius: 12px;
+  gap: 6px;
 }
-.btn-panda-sm::before,
-.btn-panda-sm::after {
-  width: 10px; height: 10px;
-  top: -6px;
+.btn-panda-sm .btn-panda-icon-panda {
+  width: 22px; height: 18px;
+}
+.btn-panda-sm .btn-panda-icon-panda::before {
+  width: 16px; height: 14px;
+  top: 3px;
+}
+.btn-panda-sm .btn-panda-icon-panda::after {
+  width: 6px; height: 5px;
+  left: 3px; top: 6px;
+  box-shadow:
+    10px 0 0 #1a1a2e,
+    1px 1px 0 1px #fff,
+    11px 1px 0 1px #fff,
+    6px 5px 0 0 #1a1a2e;
+}
+.btn-panda-sm .btn-panda-icon-panda span {
+  width: 8px; height: 8px;
+}
+.btn-panda-sm .btn-panda-icon-panda em {
+  width: 8px; height: 8px;
 }
 
-/* Large panda button */
 .btn-panda-lg {
-  padding: 14px 32px;
+  padding: 14px 36px;
   font-size: 16px;
   border-radius: 20px;
 }
-.btn-panda-lg::before,
-.btn-panda-lg::after {
-  width: 18px; height: 18px;
-  top: -10px;
+.btn-panda-lg .btn-panda-icon-panda {
+  width: 34px; height: 30px;
 }
-
-/* Icon-only panda button (round) */
-.btn-panda-icon {
-  width: 40px; height: 40px;
-  padding: 0;
-  border-radius: 50%;
-  font-size: 18px;
+.btn-panda-lg .btn-panda-icon-panda::before {
+  width: 26px; height: 22px;
+  top: 5px;
 }
-.btn-panda-icon::before,
-.btn-panda-icon::after {
-  width: 10px; height: 10px;
-  top: -6px;
+.btn-panda-lg .btn-panda-icon-panda span {
+  width: 12px; height: 12px;
+}
+.btn-panda-lg .btn-panda-icon-panda em {
+  width: 12px; height: 12px;
 }
 
 /* ── Baby pandas orbiting the big panda ─────────────────────────────── */
