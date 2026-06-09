@@ -13,6 +13,7 @@ import Input from "../../components/inputs/Input";
 import LoadingModal from "../../components/modals/LoadingModal";
 import AuthSocialButton from "./AuthSocialButton";
 import PandaMascot, { PandaMood } from "./PandaMascot";
+import PandaButton from "./PandaButton";
 
 type Variant = "LOGIN" | "REGISTER";
 
@@ -185,20 +186,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
               </div>
             )}
             <div>
-              <button
+              <PandaButton
                 type="submit"
+                variant="confirm"
+                loading={isLoading}
                 disabled={isLoading}
-                className={`btn-panda btn-panda-primary btn-panda-lg w-full ${isLoading ? "btn-panda-loading" : ""}`}
               >
-                {isLoading ? (
-                  <span className="btn-panda-spinner" />
-                ) : (
-                  <span className="btn-panda-icon-panda">
-                    <span /><em />
-                  </span>
-                )}
                 {variant === "LOGIN" ? "Đăng nhập" : "Đăng ký"}
-              </button>
+              </PandaButton>
             </div>
           </form>
           <div className="mt-5">
