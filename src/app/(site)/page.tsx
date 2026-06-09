@@ -16,6 +16,36 @@ export default function Home({
     <div className="relative h-screen flex overflow-hidden">
       {/* Background video is provided app-wide by the root layout. */}
 
+      {/* ── Floating panda & bamboo decorations (brand side, lg+) ── */}
+      {[
+        { emoji: "🐼", left: "8%",  top: "18%", dur: "5.5s", delay: "0s",   size: "28px" },
+        { emoji: "🎋", left: "82%", top: "12%", dur: "6.2s", delay: "1.3s", size: "22px" },
+        { emoji: "🐼", left: "15%", top: "72%", dur: "7.1s", delay: "2.1s", size: "20px" },
+        { emoji: "🍃", left: "88%", top: "65%", dur: "4.8s", delay: "0.8s", size: "18px" },
+        { emoji: "🎋", left: "50%", top: "8%",  dur: "8s",   delay: "3.5s", size: "16px" },
+        { emoji: "🌿", left: "72%", top: "80%", dur: "5.8s", delay: "1.9s", size: "20px" },
+      ].map((d, i) => (
+        <span
+          key={`deco-${i}`}
+          className="hidden lg:block"
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: d.left,
+            top: d.top,
+            fontSize: d.size,
+            pointerEvents: "none",
+            zIndex: 5,
+            opacity: 0.55,
+            animation: `float-sway ${d.dur} ease-in-out infinite`,
+            animationDelay: d.delay,
+            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))",
+          }}
+        >
+          {d.emoji}
+        </span>
+      ))}
+
       {/* ── Aurora overlay on brand side ── */}
       <div className="auth-aurora" aria-hidden="true" />
 
@@ -65,6 +95,11 @@ export default function Home({
 
         {/* Hero copy */}
         <div className="max-w-md">
+          {/* Panda badge */}
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-xs font-semibold text-white/90 auth-rise auth-rise-1">
+            <span style={{ animation: "float-sway 3s ease-in-out infinite", display: "inline-block" }}>🐼</span>
+            Powered by Hotel Search AI
+          </div>
           <h1 className="text-4xl xl:text-5xl font-black leading-[1.1] tracking-tight drop-shadow-lg auth-rise auth-rise-2">
             Tìm, đối chiếu &amp; quản lý khách sạn — trong một nơi.
           </h1>
@@ -85,6 +120,20 @@ export default function Home({
               )
             )}
           </div>
+
+          {/* Animated stats */}
+          <div className="mt-5 flex flex-wrap gap-4 auth-rise" style={{ animationDelay: "0.45s" }}>
+            {[
+              { value: "50K+", label: "Khách sạn" },
+              { value: "99%", label: "Uptime" },
+              { value: "∞", label: "Tìm kiếm" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-2xl font-black text-white drop-shadow">{stat.value}</div>
+                <div className="text-xs text-white/65 font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Footer */}
@@ -95,6 +144,26 @@ export default function Home({
 
       {/* ── Form panel (right, glass card over video) ── */}
       <div className="relative z-10 flex-1 flex flex-col justify-center px-6 py-6 sm:px-12 lg:px-16 xl:px-24">
+        {/* Bamboo particles floating around the card */}
+        {[
+          { left: "8%",  bottom: "18%", delay: "0s",    dur: "3.1s" },
+          { left: "92%", bottom: "24%", delay: "1.2s",  dur: "2.6s" },
+          { left: "5%",  bottom: "55%", delay: "2.1s",  dur: "3.4s" },
+          { left: "95%", bottom: "60%", delay: "0.7s",  dur: "2.9s" },
+          { left: "50%", bottom: "5%",  delay: "1.7s",  dur: "3.2s" },
+        ].map((p, i) => (
+          <span
+            key={i}
+            className="bamboo-particle hidden lg:block"
+            aria-hidden="true"
+            style={{
+              left:              p.left,
+              bottom:            p.bottom,
+              animationDelay:    p.delay,
+              animationDuration: p.dur,
+            }}
+          />
+        ))}
         <div className="sm:mx-auto sm:w-full sm:max-w-md rounded-3xl bg-white/95 dark:bg-dusk/90 backdrop-blur-xl shadow-2xl shadow-black/40 ring-1 ring-white/40 p-7 sm:p-9">
           <AutoScale>
             {/* Compact logo for mobile */}
@@ -111,7 +180,7 @@ export default function Home({
             </div>
 
             <h2 className="text-center lg:text-left text-2xl sm:text-3xl font-extrabold tracking-tight text-ink dark:text-gray-100 auth-rise auth-rise-2">
-              Chào mừng trở lại
+              Chào mừng trở lại 🐼
             </h2>
             <p className="mt-2 text-center lg:text-left text-sm text-ink-soft dark:text-gray-400 auth-rise auth-rise-3">
               Đăng nhập vào tài khoản để tiếp tục

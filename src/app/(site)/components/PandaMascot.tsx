@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 
-export type PandaMood = "idle" | "happy" | "sad";
+export type PandaMood = "idle" | "happy" | "sad" | "loading";
 
 interface PandaMascotProps {
   mood?: PandaMood;
@@ -22,14 +22,22 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
   const lookY = mood === "sad" ? 3 : 0;
 
   return (
-    <div className="panda-stage" aria-hidden="true">
-      <div className="panda-wrap">
+    <div
+      className={clsx(
+        "panda-stage",
+        mood === "happy" && "panda-stage--happy",
+        mood === "sad" && "panda-stage--sad",
+        mood === "loading" && "panda-stage--loading"
+      )}
+      aria-hidden="true"
+    >      <div className="panda-wrap">
         <div
           className={clsx(
             "panda",
             peek && "panda--peek",
             mood === "happy" && "panda--happy",
-            mood === "sad" && "panda--sad"
+            mood === "sad" && "panda--sad",
+            mood === "loading" && "panda--loading"
           )}
           style={
             {
@@ -84,6 +92,18 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
 
           <span className="panda-arm right" />
         </div>
+
+        {/* Floating sparkles that appear on happy mood */}
+        {["✨", "⭐", "💫"].map((star, i) => (
+          <div
+            key={`star-${i}`}
+            className="panda-sparkle"
+            style={{ "--star-i": i } as React.CSSProperties}
+            aria-hidden="true"
+          >
+            {star}
+          </div>
+        ))}
 
         {/* 3 baby pandas orbiting around the big panda */}
         {[0, 1, 2].map((i) => (

@@ -32,6 +32,25 @@ const PandaButton: React.FC<PandaButtonProps> = ({
         "position:absolute;left:50%;top:50%;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;background:#4caf50;opacity:0.35;pointer-events:none;animation:rippleOut 0.55s ease forwards;z-index:10;";
       btn.appendChild(r);
       r.addEventListener("animationend", () => r.remove());
+
+      // Confetti burst 🎊
+      const confettiColors = ["#4caf50", "#ffb3c1", "#2f80ed", "#f2c84b", "#ff8ca2", "#fff"];
+      for (let i = 0; i < 8; i++) {
+        const c = document.createElement("span");
+        const angle = (i / 8) * 360;
+        const color = confettiColors[i % confettiColors.length];
+        c.style.cssText = `
+          position:absolute;left:50%;top:30%;
+          width:6px;height:6px;border-radius:50%;
+          background:${color};pointer-events:none;z-index:20;
+          transform:translate(-50%,-50%);
+          animation:confettiBurst 0.6s ease-out forwards;
+          --angle:${angle}deg;
+        `;
+        btn.appendChild(c);
+        c.addEventListener("animationend", () => c.remove());
+      }
+
       onClick?.();
     },
     [onClick, disabled, loading]
@@ -39,7 +58,7 @@ const PandaButton: React.FC<PandaButtonProps> = ({
 
   return (
     <button
-      className="panda-svg-btn"
+      className={`panda-svg-btn${loading ? " panda-svg-btn--loading" : ""}`}
       type={type}
       aria-label={typeof children === "string" ? children : undefined}
       onClick={handleClick}

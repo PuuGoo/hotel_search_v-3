@@ -32,6 +32,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
   const [peek, setPeek] = useState(false);
   const [mood, setMood] = useState<PandaMood>("idle");
 
+  // Derive loading mood from isLoading state
+  const mascotMood: PandaMood = isLoading ? "loading" : mood;
+
   const {
     register,
     handleSubmit,
@@ -133,7 +136,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
 
       {/* Panda mascot */}
       <div className="-mt-2 mb-1 flex justify-center auth-rise auth-rise-3">
-        <PandaMascot mood={mood} peek={peek} lookX={lookX} />
+        <PandaMascot mood={mascotMood} peek={peek} lookX={lookX} />
       </div>
 
       <div className="auth-rise auth-rise-4">
