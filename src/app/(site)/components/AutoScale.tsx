@@ -3,25 +3,31 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
 /**
- * AutoScale — wraps content and scales it down to fit the viewport height.
- * Preserves full visual quality (panda, animations, etc.) while ensuring
- * the login form never requires scrolling.
+ * AutoScale — wraps content and scales it to fit viewport height.
+ * Uses CSS `zoom` which actually resizes the layout box (unlike transform:scale
+ * which only visual-scales and leaves the original box intact, breaking layout).
  */
 const AutoScale: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+  const [zoom, setZoom] = useState(1);
 
   const recalc = useCallback(() => {
     if (!containerRef.current) return;
     const el = containerRef.current;
-    // Temporarily remove transform to measure natural height
-    el.style.transform = "none";
-    const naturalH = el.scrollHeight;
-    const vh = window.innerHeight;
-    // Leave 24px breathing room top+bottom
-    const available = vh - 48;
-    const newScale = naturalH > available ? available / naturalH : 1;
-    setScale(Math.min(1, Math.max(0.35, newScale)));
+    // Reset zoom to measure natural height
+    el.style.zoom = "1";
+    // Use requestAnimationFrame to wait for layout recalc
+    requestAnimationFrame(() => {
+      const naturalH = el.scrollHeight;
+      const vh = window.innerHeight;
+      // Leave 32px breathing room
+      const available = vh - 64;
+      if (naturalH > available) {
+        setZoom(Math.max(0.4, available / naturalH));
+      } else {
+        setZoom(1);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -33,12 +39,7 @@ const AutoScale: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div
       ref={containerRef}
-      style={{
-        transform: `scale(${scale})`,
-        transformOrigin: "50% 0",
-        width: `${100 / scale}%`,
-        transition: "transform 0.2s ease",
-      }}
+      style={{ zoom }}
     >
       {children}
     </div>
