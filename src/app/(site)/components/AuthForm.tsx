@@ -185,12 +185,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
                 </a>
               </div>
             )}
-            <div>
+            <div style={{ display: "flex", justifyContent: "center", paddingTop: "16px" }}>
               <PandaButton
                 type="submit"
-                variant="confirm"
                 loading={isLoading}
                 disabled={isLoading}
+                labelStyle={
+                  variant === "REGISTER"
+                    ? { background: "#007aff", boxShadow: "0 2px 0 #0051d5" }
+                    : undefined
+                }
               >
                 {variant === "LOGIN" ? "Đăng nhập" : "Đăng ký"}
               </PandaButton>

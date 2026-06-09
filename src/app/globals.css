@@ -917,165 +917,184 @@ html {
   75%      { transform: translateX(7px) rotate(2deg); }
 }
 
-/* ── Panda Button (SVG-based) ───────────────────────────────────────── */
-.panda-btn {
+/* ── Panda SVG Button (original design) ─────────────────────────────── */
+.panda-svg-btn {
   position: relative;
   cursor: pointer;
   border: none;
+  background: none;
+  padding: 0;
   outline: none;
   user-select: none;
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 14px 32px;
-  border-radius: 16px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  transition: all 0.2s ease;
-  transform: translateY(0);
 }
-.panda-btn-full {
-  width: 100%;
-}
-.panda-btn:focus-visible {
-  outline: 2px solid #007aff;
-  outline-offset: 3px;
-}
-.panda-btn:disabled {
-  opacity: 0.7;
+.panda-svg-btn:disabled {
+  opacity: 0.6;
   cursor: default;
   pointer-events: none;
 }
-
-/* Hover: lift up */
-.panda-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-/* Active: press down */
-.panda-btn:active:not(:disabled) {
-  transform: translateY(2px) !important;
-  box-shadow: 0 1px 0 currentColor !important;
-}
-
-/* Panda face SVG */
-.panda-btn-face {
+.panda-svg-btn svg {
   display: block;
   overflow: visible;
-  flex-shrink: 0;
 }
 
-/* Body scale on hover/click */
-.panda-btn-body {
+/* Body */
+.panda-svg-body {
   transition: transform 0.15s ease;
   transform-origin: 50% 70%;
 }
-.panda-btn:hover .panda-btn-body {
-  transform: scale(1.08);
+.panda-svg-btn:hover .panda-svg-body {
+  transform: scale(1.06);
 }
-.panda-btn:active .panda-btn-body {
-  transform: scale(0.95) translateY(3px);
+.panda-svg-btn:active .panda-svg-body {
+  transform: scale(0.93) translateY(4px);
 }
 
-/* Eye blink on hover */
-.panda-btn-eye-l,
-.panda-btn-eye-r {
+/* Eyes */
+.panda-svg-eye-l,
+.panda-svg-eye-r {
   transform-origin: center;
 }
-.panda-btn:hover .panda-btn-eye-l {
-  animation: panda-svg-blink 0.4s 0.1s ease;
+.panda-svg-btn:hover .panda-svg-eye-l {
+  animation: panda-orig-blink 0.4s 0.1s ease;
 }
-.panda-btn:hover .panda-btn-eye-r {
-  animation: panda-svg-blink 0.4s 0.15s ease;
+.panda-svg-btn:hover .panda-svg-eye-r {
+  animation: panda-orig-blink 0.4s 0.15s ease;
 }
 
-/* Ear wiggle on hover */
-.panda-btn-ear-l,
-.panda-btn-ear-r {
+/* Ears */
+.panda-svg-ear-l,
+.panda-svg-ear-r {
   transform-origin: 50% 100%;
 }
-.panda-btn:hover .panda-btn-ear-l {
-  animation: panda-svg-wiggle-l 0.5s ease;
+.panda-svg-btn:hover .panda-svg-ear-l {
+  animation: panda-orig-wiggle-l 0.5s ease;
 }
-.panda-btn:hover .panda-btn-ear-r {
-  animation: panda-svg-wiggle-r 0.5s 0.08s ease;
+.panda-svg-btn:hover .panda-svg-ear-r {
+  animation: panda-orig-wiggle-r 0.5s 0.08s ease;
+}
+.panda-svg-btn:active .panda-svg-ear-l,
+.panda-svg-btn:active .panda-svg-ear-r {
+  animation: none;
 }
 
-/* Hearts float on hover */
-.panda-btn-heart {
+/* Shadow */
+.panda-svg-shadow {
+  fill: rgba(0,0,0,0.12);
+  transition: transform 0.15s ease;
+}
+.panda-svg-btn:active .panda-svg-shadow {
+  transform: scaleX(0.85);
+  transform-origin: 80px 148px;
+}
+
+/* Hearts */
+.panda-svg-heart {
   opacity: 0;
+  fill: #e25490;
 }
-.panda-btn:hover .panda-btn-heart.h1 {
-  animation: panda-svg-float-heart 0.9s 0.05s ease forwards;
+.panda-svg-btn:hover .panda-svg-h1 {
+  animation: panda-orig-floatHeart 0.9s 0.05s ease forwards;
 }
-.panda-btn:hover .panda-btn-heart.h2 {
-  animation: panda-svg-float-heart 0.9s 0.2s ease forwards;
+.panda-svg-btn:hover .panda-svg-h2 {
+  animation: panda-orig-floatHeart 0.9s 0.2s ease forwards;
+}
+.panda-svg-btn:hover .panda-svg-h3 {
+  animation: panda-orig-floatHeart 0.9s 0.35s ease forwards;
 }
 
-/* Button text */
-.panda-btn-text {
+/* Label pill */
+.panda-svg-label {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2d5a27;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 18px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
   pointer-events: none;
+  box-shadow: 0 2px 0 #1a3a17;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.panda-svg-btn:active .panda-svg-label {
+  transform: translateX(-50%) translateY(2px);
+  box-shadow: 0 0 0 #1a3a17;
 }
 
 /* Loading spinner */
-.panda-btn-spinner {
+.panda-svg-spinner {
   display: inline-block;
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(255,255,255,0.3);
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
   border-top-color: #fff;
   border-radius: 50%;
-  animation: panda-svg-spin 0.7s linear infinite;
-  flex-shrink: 0;
+  animation: panda-orig-spin 0.7s linear infinite;
 }
 
-/* ── Keyframes ─────────────────────────────────────────────────────── */
-@keyframes panda-svg-blink {
+/* Ripple */
+.ripple-el {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Keyframes (exact from original) ───────────────────────────────── */
+@keyframes panda-orig-blink {
   0%   { transform: scaleY(1); }
   30%  { transform: scaleY(0.05); }
   60%  { transform: scaleY(1); }
   80%  { transform: scaleY(0.05); }
   100% { transform: scaleY(1); }
 }
-@keyframes panda-svg-wiggle-l {
+@keyframes panda-orig-wiggle-l {
   0%   { transform: rotate(0deg); }
   25%  { transform: rotate(-18deg); }
   60%  { transform: rotate(10deg); }
   100% { transform: rotate(0deg); }
 }
-@keyframes panda-svg-wiggle-r {
+@keyframes panda-orig-wiggle-r {
   0%   { transform: rotate(0deg); }
   25%  { transform: rotate(18deg); }
   60%  { transform: rotate(-10deg); }
   100% { transform: rotate(0deg); }
 }
-@keyframes panda-svg-float-heart {
+@keyframes panda-orig-floatHeart {
   0%   { opacity: 0; transform: translateY(0) scale(0.6); }
   20%  { opacity: 1; }
   80%  { opacity: 0.8; }
   100% { opacity: 0; transform: translateY(-38px) scale(1.1); }
 }
-@keyframes panda-svg-spin {
+@keyframes panda-orig-spin {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+@keyframes rippleOut {
+  0%   { transform: scale(0); opacity: 0.4; }
+  100% { transform: scale(4.5); opacity: 0; }
 }
 
 /* ── Reduced motion ────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .panda-btn-body,
-  .panda-btn-eye-l,
-  .panda-btn-eye-r,
-  .panda-btn-ear-l,
-  .panda-btn-ear-r,
-  .panda-btn-heart,
-  .panda-btn-spinner {
+  .panda-svg-body,
+  .panda-svg-eye-l,
+  .panda-svg-eye-r,
+  .panda-svg-ear-l,
+  .panda-svg-ear-r,
+  .panda-svg-heart,
+  .panda-svg-spinner {
     animation: none !important;
   }
-  .panda-btn,
-  .panda-btn-body {
+  .panda-svg-body,
+  .panda-svg-shadow {
     transition: none !important;
   }
 }
