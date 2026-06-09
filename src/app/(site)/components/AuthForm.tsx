@@ -188,10 +188,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
               <button
                 type="submit"
                 disabled={isLoading}
-                className="auth-shimmer-btn w-full flex justify-center items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-brand to-accent hover:from-brand-dark hover:to-accent-dark shadow-bubble transition-all hover:shadow-card active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50 disabled:cursor-default"
+                className={`btn-panda btn-panda-primary btn-panda-lg w-full ${isLoading ? "btn-panda-loading" : ""}`}
               >
                 {isLoading && (
-                  <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                  <span className="btn-panda-spinner" />
                 )}
                 {variant === "LOGIN" ? "Đăng nhập" : "Đăng ký"}
               </button>
