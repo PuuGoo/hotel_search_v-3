@@ -917,6 +917,38 @@ html {
   75%      { transform: translateX(7px) rotate(2deg); }
 }
 
+/* ── Responsive panda scaling ──────────────────────────────────────── */
+/* Mobile (< 640px): compact panda */
+@media (max-width: 639px) {
+  .panda-stage {
+    min-height: 170px;
+  }
+  .panda-wrap {
+    transform: scale(0.65);
+    transform-origin: 50% 100%;
+  }
+}
+/* Tablet (640–767px) */
+@media (min-width: 640px) and (max-width: 767px) {
+  .panda-stage {
+    min-height: 195px;
+  }
+  .panda-wrap {
+    transform: scale(0.75);
+    transform-origin: 50% 100%;
+  }
+}
+/* Small desktop / large tablet (768–1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .panda-stage {
+    min-height: 220px;
+  }
+  .panda-wrap {
+    transform: scale(0.85);
+    transform-origin: 50% 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .auth-aurora,
   .auth-bubble,
