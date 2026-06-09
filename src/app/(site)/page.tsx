@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import Policy from "@/app/(site)/components/Policy";
+import AutoScale from "./components/AutoScale";
 
 import AuthForm from "./components/AuthForm";
 
@@ -66,28 +67,30 @@ export default function Home({
       {/* ── Form panel (right, glass card over video) ── */}
       <div className="relative z-10 flex-1 flex flex-col justify-center px-6 py-6 sm:px-12 lg:px-16 xl:px-24">
         <div className="sm:mx-auto sm:w-full sm:max-w-md rounded-3xl bg-white/95 dark:bg-dusk/90 backdrop-blur-xl shadow-2xl shadow-black/40 ring-1 ring-white/40 p-7 sm:p-9">
-          {/* Compact logo for mobile (brand text is hidden) */}
-          <div className="flex lg:hidden justify-center mb-5 auth-rise auth-rise-1">
-            <div className="h-12 w-12 grid place-items-center rounded-2xl bg-brand/10">
-              <Image
-                alt="Logo"
-                height={32}
-                width={32}
-                className="w-8 h-8 object-contain"
-                src="/images/logo-new.png"
-              />
+          <AutoScale>
+            {/* Compact logo for mobile (brand text is hidden) */}
+            <div className="flex lg:hidden justify-center mb-5 auth-rise auth-rise-1">
+              <div className="h-12 w-12 grid place-items-center rounded-2xl bg-brand/10">
+                <Image
+                  alt="Logo"
+                  height={32}
+                  width={32}
+                  className="w-8 h-8 object-contain"
+                  src="/images/logo-new.png"
+                />
+              </div>
             </div>
-          </div>
 
-          <h2 className="text-center lg:text-left text-2xl sm:text-3xl font-extrabold tracking-tight text-ink dark:text-gray-100 auth-rise auth-rise-2">
-            Chào mừng trở lại
-          </h2>
-          <p className="mt-2 text-center lg:text-left text-sm text-ink-soft dark:text-gray-400 auth-rise auth-rise-3">
-            Đăng nhập vào tài khoản để tiếp tục
-          </p>
+            <h2 className="text-center lg:text-left text-2xl sm:text-3xl font-extrabold tracking-tight text-ink dark:text-gray-100 auth-rise auth-rise-2">
+              Chào mừng trở lại
+            </h2>
+            <p className="mt-2 text-center lg:text-left text-sm text-ink-soft dark:text-gray-400 auth-rise auth-rise-3">
+              Đăng nhập vào tài khoản để tiếp tục
+            </p>
 
-          <AuthForm callbackUrl={callbackUrl} />
-          <Policy />
+            <AuthForm callbackUrl={callbackUrl} />
+            <Policy />
+          </AutoScale>
         </div>
       </div>
     </div>
