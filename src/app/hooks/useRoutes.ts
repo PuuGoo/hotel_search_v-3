@@ -167,11 +167,7 @@ const useRoutes = (
     base.push({
       label: "Đăng xuất",
       onClick: async () => {
-        try {
-          await signOut({ redirect: false });
-        } finally {
-          window.location.href = "/";
-        }
+        await signOut({ redirect: true, callbackUrl: "/" });
       },
       href: "#",
       icon: HiArrowLeftOnRectangle,
