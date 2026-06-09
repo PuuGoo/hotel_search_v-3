@@ -126,7 +126,7 @@ export const authOptions: AuthOptions = {
         if (dbUser) {
           // Invalidate sessions issued before a password reset.
           if (dbUser.passwordChangedAt && token.iat) {
-            const issuedAt = new Date(token.iat * 1000);
+            const issuedAt = new Date((token.iat as number) * 1000);
             if (issuedAt < dbUser.passwordChangedAt) {
               return {}; // Force re-authentication
             }
