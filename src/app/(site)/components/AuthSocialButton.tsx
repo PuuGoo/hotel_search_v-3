@@ -4,37 +4,28 @@ interface AuthSocialButtonProps {
   icon: IconType;
   onClick: () => void;
   disabled?: boolean;
+  label?: string;
 }
 
-const AuthSocialButton: React.FC<AuthSocialButtonProps> = ({ icon: Icon, onClick, disabled }) => {
+const AuthSocialButton: React.FC<AuthSocialButtonProps> = ({
+  icon: Icon,
+  onClick,
+  disabled,
+  label,
+}) => {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="
-        inline-flex
-        w-full 
-        justify-center 
-        rounded-md 
-        bg-white 
-        px-4 
-        py-2 
-        text-ink-soft 
-        shadow-sm 
-        ring-1 
-        ring-inset 
-        ring-gray-300 
-        hover:bg-gray-50 
-        focus:outline-offset-0
-        dark:bg-lightgray
-        dark:ring-gray-500
-        dark:text-gray-200
-        disabled:opacity-50
-        disabled:cursor-not-allowed
-      "
+      className="auth-social-btn"
     >
-      <Icon />
+      <span className="auth-social-btn__icon">
+        <Icon />
+      </span>
+      {label && <span className="auth-social-btn__label">{label}</span>}
+      {/* Panda paw print watermark on hover */}
+      <span className="auth-social-btn__paw" aria-hidden="true">🐾</span>
     </button>
   );
 };

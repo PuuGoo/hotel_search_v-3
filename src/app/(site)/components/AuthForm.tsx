@@ -57,9 +57,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
 
   useEffect(() => {
     if (session?.status === "authenticated") {
-      // Use hard navigation to avoid stale client-side session cache
-      // after signOut. router.push keeps the old NextAuth context alive
-      // which can cause an immediate re-login loop.
       window.location.href = callbackUrl;
     }
   }, [session?.status, callbackUrl]);
@@ -80,8 +77,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
         .post("/api/register", data)
         .then(() => signIn("credentials", data))
         .catch((error) => {
-          // Surface the specific server-side reason (e.g. invalid email,
-          // weak password, email already in use) instead of a generic message.
           const message =
             typeof error?.response?.data === "string"
               ? error.response.data
@@ -135,112 +130,111 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
   return (
     <>
       {session?.status === "loading" && <LoadingModal />}
+
+      {/* Panda mascot */}
       <div className="-mt-2 mb-1 flex justify-center auth-rise auth-rise-3">
         <PandaMascot mood={mood} peek={peek} lookX={lookX} />
       </div>
-      <div className="auth-rise auth-rise-4">
-        <div>
-          <form
-            className="space-y-4"
-            method="post"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            {variant === "REGISTER" && (
-              <Input
-                disabled={isLoading}
-                register={register}
-                errors={errors}
-                required
-                id="name"
-                label="Tên"
-              />
-            )}
-            <Input
-              disabled={isLoading}
-              register={register}
-              errors={errors}
-              required
-              id="email"
-              label="Địa chỉ email"
-              type="email"
-            />
-            <Input
-              disabled={isLoading}
-              register={register}
-              errors={errors}
-              required
-              id="password"
-              label="Mật khẩu"
-              type="password"
-              onFocus={() => setPeek(true)}
-              onBlur={() => setPeek(false)}
-            />
-            {variant === "LOGIN" && (
-              <div className="flex justify-end">
-                <a
-                  href="/forgot-password"
-                  className="text-sm text-sky-600 hover:underline dark:text-sky-400"
-                >
-                  Quên mật khẩu?
-                </a>
-              </div>
-            )}
-            <div style={{ display: "flex", justifyContent: "center", paddingTop: "16px" }}>
-              <PandaButton
-                type="submit"
-                loading={isLoading}
-                disabled={isLoading}
-                labelStyle={
-                  variant === "REGISTER"
-                    ? { background: "#007aff", boxShadow: "0 2px 0 #0051d5" }
-                    : undefined
-                }
-              >
-                {variant === "LOGIN" ? "Đăng nhập" : "Đăng ký"}
-              </PandaButton>
-            </div>
-          </form>
-          <div className="mt-5">
-            <div className="relative">
-              <div
-                className="
-                absolute 
-                inset-0 
-                flex 
-                items-center
-              "
-              >
-                <div className="w-full border-t border-gray-300 dark:border-t-2 dark:border-lightgray" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-ink-soft dark:bg-dusk dark:text-gray-200">
-                  Hoặc tiếp tục với
-                </span>
-              </div>
-            </div>
 
-            <div className="mt-5 flex gap-2">
-              <AuthSocialButton icon={BsGithub} onClick={() => socialAction("github")} disabled={isLoading} />
-              <AuthSocialButton icon={BsGoogle} onClick={() => socialAction("google")} disabled={isLoading} />
+      <div className="auth-rise auth-rise-4">
+        <form
+          className="space-y-4"
+          method="post"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          {variant === "REGISTER" && (
+            <Input
+              disabled={isLoading}
+              register={register}
+              errors={errors}
+              required
+              id="name"
+              label="Tên"
+            />
+          )}
+          <Input
+            disabled={isLoading}
+            register={register}
+            errors={errors}
+            required
+            id="email"
+            label="Địa chỉ email"
+            type="email"
+          />
+          <Input
+            disabled={isLoading}
+            register={register}
+            errors={errors}
+            required
+            id="password"
+            label="Mật khẩu"
+            type="password"
+            onFocus={() => setPeek(true)}
+            onBlur={() => setPeek(false)}
+          />
+          {variant === "LOGIN" && (
+            <div className="flex justify-end">
+              <a
+                href="/forgot-password"
+                className="auth-forgot-link"
+              >
+                Quên mật khẩu?
+              </a>
             </div>
+          )}
+
+          {/* PandaButton submit */}
+          <div style={{ display: "flex", justifyContent: "center", paddingTop: "16px" }}>
+            <PandaButton
+              type="submit"
+              loading={isLoading}
+              disabled={isLoading}
+              labelStyle={
+                variant === "REGISTER"
+                  ? { background: "#007aff", boxShadow: "0 2px 0 #0051d5" }
+                  : undefined
+              }
+            >
+              {variant === "LOGIN" ? "Đăng nhập" : "Đăng ký"}
+            </PandaButton>
           </div>
-          <div
-            className="
-            mt-5 
-            flex 
-            justify-center 
-            gap-2 
-            px-2 
-            text-sm 
-            text-ink-soft
-            dark:text-gray-400
-          "
+        </form>
+
+        {/* Divider */}
+        <div className="auth-divider">
+          <div className="auth-divider__line" />
+          <span className="auth-divider__text">Hoặc tiếp tục với</span>
+          <div className="auth-divider__line" />
+        </div>
+
+        {/* Social buttons */}
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <AuthSocialButton
+            icon={BsGithub}
+            label="GitHub"
+            onClick={() => socialAction("github")}
+            disabled={isLoading}
+          />
+          <AuthSocialButton
+            icon={BsGoogle}
+            label="Google"
+            onClick={() => socialAction("google")}
+            disabled={isLoading}
+          />
+        </div>
+
+        {/* Toggle login / register */}
+        <div className="mt-5 flex justify-center gap-2 px-2 text-sm text-ink-soft dark:text-gray-400">
+          <span>
+            {variant === "LOGIN" ? "Bạn mới biết đến Hotel Search?" : "Đã có tài khoản?"}
+          </span>
+          <button
+            type="button"
+            onClick={toggleVariant}
+            className="auth-toggle-link"
           >
-            <div>{variant === "LOGIN" ? "Bạn mới biết đến Hotel Search?" : "Đã có tài khoản?"}</div>
-            <button type="button" onClick={toggleVariant} className="cursor-pointer underline bg-transparent border-none p-0 text-sm text-sky-600 dark:text-sky-400">
-              {variant === "LOGIN" ? "Tạo tài khoản" : "Đăng nhập"}
-            </button>
-          </div>
+            {variant === "LOGIN" ? "Tạo tài khoản" : "Đăng nhập"}
+          </button>
         </div>
       </div>
     </>

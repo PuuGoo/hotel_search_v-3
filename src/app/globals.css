@@ -312,7 +312,7 @@ html {
 }
 
 /* ============================================================
-   Login / Auth screen — animated split layout
+      Login / Auth screen — animated split layout
    ============================================================ */
 
 /* Brand-side aurora: slow drifting radial blobs behind the panel. */
@@ -1350,4 +1350,307 @@ html {
   .baby-panda-leg, .baby-panda-arm { animation: none !important; }
   .btn-panda { transition: none !important; }
   .btn-panda::before, .btn-panda::after { animation: none !important; }
+}
+
+
+/* ================================================================
+   NÂNG CẤP UI/UX — Đồng bộ chủ đề Panda toàn trang login
+   ================================================================ */
+
+/* ── Panda colour tokens ──────────────────────────────────────── */
+:root {
+  --panda-green:       #2d5a27;
+  --panda-green-light: #3a7a32;
+  --panda-green-dark:  #1a3a17;
+  --panda-green-glow:  rgba(45, 90, 39, 0.22);
+  --panda-black:       #1e2230;
+  --panda-cream:       #fdfdf8;
+  --panda-pink:        #ffb3c1;
+  --panda-blue-suit:   #2f80ed;
+  --panda-radius:      14px;
+}
+
+/* ── Input focus ring — panda green ──────────────────────────── */
+/* Override the default blue focus ring on Input component       */
+input:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+  outline: none !important;
+  box-shadow:
+    0 0 0 2px var(--panda-green-glow),
+    0 0 0 3.5px var(--panda-green) !important;
+  border-color: var(--panda-green) !important;
+}
+
+/* Floating label colour when focused */
+input:focus ~ label,
+input:not(:placeholder-shown) ~ label {
+  color: var(--panda-green) !important;
+}
+
+/* ── Auth divider (replaces the old inline flex version) ─────── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+.auth-divider__line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(45, 90, 39, 0.25) 30%,
+    rgba(45, 90, 39, 0.25) 70%,
+    transparent
+  );
+}
+.dark .auth-divider__line {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(200, 210, 195, 0.18) 30%,
+    rgba(200, 210, 195, 0.18) 70%,
+    transparent
+  );
+}
+.auth-divider__text {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: #6b7280;
+  letter-spacing: 0.02em;
+}
+.dark .auth-divider__text {
+  color: #9ca3af;
+}
+
+/* ── Social button — panda-themed ───────────────────────────── */
+.auth-social-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: var(--panda-radius);
+  border: 1.5px solid rgba(45, 90, 39, 0.18);
+  background: #fff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Subtle bamboo-shadow */
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.07),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.dark .auth-social-btn {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.12);
+  color: #e5e7eb;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* Paw print watermark (hidden by default) */
+.auth-social-btn__paw {
+  position: absolute;
+  right: 10px;
+  bottom: -4px;
+  font-size: 18px;
+  opacity: 0;
+  transform: scale(0.5) rotate(-20deg);
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+
+.auth-social-btn:hover {
+  background: #f0faf0;
+  border-color: var(--panda-green);
+  box-shadow:
+    0 3px 10px var(--panda-green-glow),
+    0 1px 3px rgba(0,0,0,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  transform: translateY(-2px);
+}
+.dark .auth-social-btn:hover {
+  background: rgba(45, 90, 39, 0.15);
+  border-color: rgba(58, 122, 50, 0.5);
+}
+
+.auth-social-btn:hover .auth-social-btn__paw {
+  opacity: 0.55;
+  transform: scale(1) rotate(0deg);
+}
+
+.auth-social-btn:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.auth-social-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.auth-social-btn__icon {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.auth-social-btn__label {
+  font-size: 13px;
+}
+
+/* Shimmer sweep on social button hover */
+.auth-social-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255,255,255,0.55) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+.auth-social-btn:hover::before {
+  animation: auth-shimmer 0.65s ease forwards;
+}
+
+/* ── Forgot password link ────────────────────────────────────── */
+.auth-forgot-link {
+  font-size: 13px;
+  color: var(--panda-green);
+  font-weight: 500;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.15s ease;
+}
+.auth-forgot-link::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -1px;
+  width: 0; height: 1.5px;
+  background: var(--panda-green);
+  transition: width 0.22s ease;
+}
+.auth-forgot-link:hover {
+  color: var(--panda-green-light);
+}
+.auth-forgot-link:hover::after {
+  width: 100%;
+}
+.dark .auth-forgot-link {
+  color: #6ee060;
+}
+.dark .auth-forgot-link::after {
+  background: #6ee060;
+}
+
+/* ── Toggle link (Tạo tài khoản / Đăng nhập) ────────────────── */
+.auth-toggle-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--panda-green);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(45, 90, 39, 0.35);
+  text-underline-offset: 2px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.auth-toggle-link:hover {
+  color: var(--panda-green-light);
+  text-decoration-color: var(--panda-green-light);
+}
+.dark .auth-toggle-link {
+  color: #6ee060;
+  text-decoration-color: rgba(110, 224, 96, 0.35);
+}
+.dark .auth-toggle-link:hover {
+  color: #90ef7a;
+}
+
+/* ── Policy links — panda green ─────────────────────────────── */
+.auth-policy-link,
+[class*="text-ink-soft"] button[class*="underline"] {
+  color: var(--panda-green) !important;
+  text-decoration-color: rgba(45, 90, 39, 0.3) !important;
+  transition: color 0.15s ease !important;
+}
+.auth-policy-link:hover,
+[class*="text-ink-soft"] button[class*="underline"]:hover {
+  color: var(--panda-green-light) !important;
+}
+.dark [class*="text-ink-soft"] button[class*="underline"] {
+  color: #6ee060 !important;
+}
+
+/* ── Glass card hover — subtle panda-green ring glow ─────────── */
+/* Targets the form card on the right panel */
+.sm\:max-w-md {
+  transition: box-shadow 0.3s ease;
+}
+.sm\:max-w-md:hover {
+  box-shadow:
+    0 24px 64px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(45, 90, 39, 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.55);
+}
+
+/* ── Panda mascot — tighter top margin on register (3 fields) ── */
+/* Already handled by panda-stage min-height, but ensure no overflow */
+.panda-stage {
+  overflow: visible;
+}
+
+/* ── Entrance animation for social grid ─────────────────────── */
+.auth-rise .grid {
+  /* inherit parent auth-rise timing */
+}
+
+/* ── Bamboo-green chip tags on brand side ─────────────────────── */
+/* Already in page.tsx via Tailwind; add a subtle panda-themed glow on hover */
+.auth-rise-4 span[class*="rounded-full"] {
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+.auth-rise-4 span[class*="rounded-full"]:hover {
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 0 12px rgba(255,255,255,0.2);
+}
+
+/* ── Toast customisation — panda green success ───────────────── */
+/* react-hot-toast uses inline styles, but the icon class is overrideable */
+[data-hot-toast] [class*="success"] {
+  color: var(--panda-green) !important;
+}
+
+/* ── Reduced motion additions ────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .auth-social-btn,
+  .auth-social-btn::before,
+  .auth-forgot-link::after {
+    transition: none !important;
+    animation: none !important;
+  }
 }

@@ -19,35 +19,27 @@ const Policy = () => {
     <>
       <div className="mt-6 text-center text-xs text-ink-soft dark:text-gray-400">
         <div className="space-x-4 mb-2">
-          {/* Policy Links with onClick handlers */}
           <button
             onClick={() => openModal("privacy")}
-            className="
-                                text-ink-soft hover:text-gray-600 
-                                dark:text-gray-400 dark:hover:text-gray-300 
-                                transition duration-150 ease-in-out underline
-                            "
+            className="auth-policy-link underline transition duration-150 ease-in-out"
           >
             Chính sách bảo mật
           </button>
-
           <button
             onClick={() => openModal("terms")}
-            className="
-                                text-ink-soft hover:text-gray-600 
-                                dark:text-gray-400 dark:hover:text-gray-300 
-                                transition duration-150 ease-in-out underline
-                            "
+            className="auth-policy-link underline transition duration-150 ease-in-out"
           >
             Điều khoản dịch vụ
           </button>
         </div>
-        <div>Hotel Search By PuuGoo</div>
+        <div className="flex items-center justify-center gap-1 text-ink-soft/70 dark:text-gray-500">
+          <span>🐼</span>
+          <span>Hotel Search By PuuGoo</span>
+        </div>
       </div>
-      {/* Render the PolicyModal when modalContent is set */}
       {modalContent && (
         <PolicyModal
-          isOpen={!!modalContent} // Always true when rendered
+          isOpen={!!modalContent}
           onClose={closeModal}
           policyType={modalContent}
         />
