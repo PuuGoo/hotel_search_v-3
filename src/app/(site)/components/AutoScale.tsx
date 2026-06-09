@@ -15,7 +15,7 @@ const AutoScale: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     if (!containerRef.current) return;
     const el = containerRef.current;
     // Reset zoom to measure natural height
-    el.style.zoom = "1";
+    (el.style as any).zoom = "1";
     // Use requestAnimationFrame to wait for layout recalc
     requestAnimationFrame(() => {
       const naturalH = el.scrollHeight;
@@ -39,7 +39,7 @@ const AutoScale: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div
       ref={containerRef}
-      style={{ zoom }}
+      style={{ zoom } as React.CSSProperties}
     >
       {children}
     </div>
