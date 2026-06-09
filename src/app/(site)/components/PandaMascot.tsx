@@ -93,7 +93,11 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
             style={{ "--delay": `${i * -2.8}s` } as React.CSSProperties}
           >
             <div className="baby-panda">
+              <span className="baby-panda-leg left" />
+              <span className="baby-panda-leg right" />
               <span className="baby-panda-body" />
+              <span className="baby-panda-arm left" />
+              <span className="baby-panda-arm right" />
               <span className="baby-panda-head">
                 <span className="baby-panda-ear left" />
                 <span className="baby-panda-ear right" />

@@ -939,6 +939,14 @@ html {
   0%, 100% { transform: rotate(-20deg); }
   50%      { transform: rotate(20deg); }
 }
+@keyframes baby-arm-left {
+  0%, 100% { transform: rotate(-25deg); }
+  50%      { transform: rotate(25deg); }
+}
+@keyframes baby-arm-right {
+  0%, 100% { transform: rotate(25deg); }
+  50%      { transform: rotate(-25deg); }
+}
 
 .baby-panda-orbit {
   position: absolute;
@@ -960,10 +968,55 @@ html {
 /* body */
 .baby-panda-body {
   width: 28px; height: 22px;
-  left: 50%; bottom: 0;
+  left: 50%; bottom: 6px;
   transform: translateX(-50%);
   background: radial-gradient(120% 100% at 50% 16%, #fdfdf8 58%, #e7ebf3 100%);
   border-radius: 50% 50% 46% 46%;
+  z-index: 2;
+}
+/* legs */
+.baby-panda-leg {
+  width: 10px; height: 10px;
+  bottom: 0;
+  background: radial-gradient(circle at 40% 30%, #2c3242 0%, #12161f 100%);
+  border-radius: 50%;
+  z-index: 1;
+  transform-origin: 50% 0;
+}
+.baby-panda-leg.left {
+  left: calc(50% - 14px);
+  animation: baby-leg-run 0.42s ease-in-out infinite;
+}
+.baby-panda-leg.right {
+  left: calc(50% + 4px);
+  animation: baby-leg-run-r 0.42s ease-in-out infinite;
+}
+/* feet */
+.baby-panda-leg::after {
+  content: "";
+  position: absolute;
+  width: 6px; height: 4px;
+  bottom: -1px; left: 50%;
+  transform: translateX(-50%);
+  background: #eef1f6;
+  border-radius: 50%;
+}
+/* arms */
+.baby-panda-arm {
+  width: 8px; height: 14px;
+  bottom: 14px;
+  background: radial-gradient(circle at 38% 28%, #2c3242 0%, #12161f 100%);
+  border-radius: 46% 46% 50% 50%;
+  z-index: 3;
+  transform-origin: 50% 0;
+}
+.baby-panda-arm.left {
+  left: calc(50% - 20px);
+  animation: baby-arm-left 0.42s ease-in-out infinite;
+}
+.baby-panda-arm.right {
+  left: calc(50% + 12px);
+  animation: baby-arm-right 0.42s ease-in-out infinite;
 }
 /* head */
 .baby-panda-head {
@@ -1111,5 +1164,6 @@ html {
   .panda, .panda-shadow, .panda-ear, .panda-eye, .panda-arm,
   .panda-wrap, .panda-leg, .panda-foot { animation: none !important; }
   .panda--happy, .panda--sad { animation: none !important; }
-  .baby-panda-orbit, .baby-panda, .baby-panda-eye { animation: none !important; }
+  .baby-panda-orbit, .baby-panda, .baby-panda-eye,
+  .baby-panda-leg, .baby-panda-arm { animation: none !important; }
 }
