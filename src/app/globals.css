@@ -472,6 +472,8 @@ html {
   background: radial-gradient(120% 100% at 50% 16%, var(--cream) 58%, #e7ebf3 100%);
   border-radius: 50% 50% 48% 48%;
   box-shadow: inset 0 -6px 12px rgba(0,0,0,0.06);
+  animation: panda-breathe 3.8s ease-in-out infinite;
+  transform-origin: 50% 100%;
 }
 /* belly patch */
 .panda-belly {
@@ -2012,12 +2014,8 @@ input:focus {
 
 /* ── Panda mascot idle: subtle breathing (scale y) ───────────── */
 @keyframes panda-breathe {
-  0%, 100% { transform: scaleY(1); }
-  45%       { transform: scaleY(1.025); }
-}
-.panda-body {
-  animation: panda-breathe 3.8s ease-in-out infinite;
-  transform-origin: 50% 100%;
+  0%, 100% { transform: translateX(-50%) scaleY(1); }
+  45%       { transform: translateX(-50%) scaleY(1.025); }
 }
 
 /* ── Panda mascot eyes: extra long gaze, then double blink ──── */
@@ -2535,12 +2533,8 @@ input:focus {
 
 /* ── Panda mascot idle: subtle breathing (scale y) ───────────── */
 @keyframes panda-breathe {
-  0%, 100% { transform: scaleY(1); }
-  45%       { transform: scaleY(1.025); }
-}
-.panda-body {
-  animation: panda-breathe 3.8s ease-in-out infinite;
-  transform-origin: 50% 100%;
+  0%, 100% { transform: translateX(-50%) scaleY(1); }
+  45%       { transform: translateX(-50%) scaleY(1.025); }
 }
 
 /* ── Panda mascot eyes: extra long gaze, then double blink ──── */
