@@ -32,6 +32,10 @@ export async function POST(request: Request) {
       return new NextResponse("Thiếu messageId hoặc emoji", { status: 400 });
     }
 
+    if (typeof emoji !== "string" || emoji.length > 10) {
+      return new NextResponse("Emoji quá dài", { status: 400 });
+    }
+
     const message = await prisma.message.findUnique({
       where: { id: messageId },
       include: {

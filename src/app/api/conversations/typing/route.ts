@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { pusherServer } from "@/app/libs/pusher";
 import { pusherEvents, conversationChannel } from "@/app/libs/pusherChannels";
 import getSession from "@/app/actions/getSession";
+import prisma from "@/app/libs/prismadb";
 
 export async function POST(request: Request) {
   const session = await getSession();
@@ -18,6 +19,15 @@ export async function POST(request: Request) {
 
     if (event !== pusherEvents.TYPING_START && event !== pusherEvents.TYPING_STOP) {
       return NextResponse.json({ error: "Invalid event" }, { status: 400 });
+    }
+
+    // Verify user is a member of this conversation.
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { userIds: true },
+    });
+    if (!conversation || !conversation.userIds.includes(session.user.id)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     await pusherServer.trigger(conversationChannel(conversationId), event, {

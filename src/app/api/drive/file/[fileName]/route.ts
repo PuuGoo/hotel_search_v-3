@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readFile, stat } from "fs/promises";
 import { join } from "path";
+import getCurrentUser from "@/app/actions/getCurrentUser";
 
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html",
@@ -41,6 +42,12 @@ export async function GET(
   { params }: { params: { fileName: string } }
 ) {
   try {
+    // Require authentication to access drive files.
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
     const fileName = params.fileName;
     
     if (!fileName || fileName.includes("..") || fileName.includes("/")) {
@@ -69,16 +76,20 @@ export async function GET(
       return new NextResponse(null, { status: 304 });
     }
 
+    const origin = request.headers.get("origin");
+    const allowedOrigin = process.env.NEXTAUTH_URL || "http://localhost:3020";
+
     return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": mimeType,
         "Content-Disposition": contentDisposition,
-        "Cache-Control": "public, max-age=31536000, immutable",
-        "CDN-Cache-Control": "public, max-age=31536000, immutable",
+        "Cache-Control": "private, max-age=3600",
         ETag: etag,
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": origin || allowedOrigin,
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Range, Content-Type",
+        "Access-Control-Allow-Credentials": "true",
+        "Vary": "Origin",
       },
     });
   } catch (error) {

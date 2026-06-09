@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { verifyCsrfRequest } from "@/app/libs/csrf";
 
 import prisma from "@/app/libs/prismadb";
 import {
@@ -70,6 +71,9 @@ function checkResetRateLimit(ip: string): NextResponse | null {
 // logged server-side; in non-production it is also returned in the response so
 // the flow is testable without an email provider wired up.
 export async function POST(request: Request) {
+  if (!verifyCsrfRequest(request)) {
+    return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+  }
   // Rate limit by IP to prevent brute-force / spam
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||

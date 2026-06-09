@@ -8,6 +8,8 @@ import GoogleProvider from "next-auth/providers/google";
 import prisma from "./prismadb";
 import { normalizeRole } from "./authz";
 import { sanitizePermissions } from "./features";
+import { decryptSecret } from "./crypto";
+import { verifyTOTP } from "./totp";
 
 // NextAuth config lives here (not in the route file) because Next.js 13 App
 // Router route modules may only export HTTP handlers and a small set of known
@@ -48,6 +50,7 @@ export const authOptions: AuthOptions = {
       credentials: {
         email: { label: "email", type: "text" },
         password: { label: "password", type: "password" },
+        totp: { label: "totp", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -73,6 +76,23 @@ export const authOptions: AuthOptions = {
 
         if (!isCorrectPassword) {
           throw new Error("Invalid credentials");
+        }
+
+        // Enforce 2FA if enabled — reject login without a valid TOTP code.
+        if (user.twoFactorEnabled && user.twoFactorSecret) {
+          const totp = credentials.totp?.trim();
+          if (!totp) {
+            throw new Error("2FA code required");
+          }
+          let secret: string;
+          try {
+            secret = decryptSecret(user.twoFactorSecret);
+          } catch {
+            throw new Error("2FA configuration error");
+          }
+          if (!verifyTOTP(secret, totp)) {
+            throw new Error("Invalid 2FA code");
+          }
         }
 
         return user;
@@ -101,9 +121,16 @@ export const authOptions: AuthOptions = {
       if (token.email) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email },
-          select: { id: true, role: true, permissions: true },
+          select: { id: true, role: true, permissions: true, passwordChangedAt: true },
         });
         if (dbUser) {
+          // Invalidate sessions issued before a password reset.
+          if (dbUser.passwordChangedAt && token.iat) {
+            const issuedAt = new Date(token.iat * 1000);
+            if (issuedAt < dbUser.passwordChangedAt) {
+              return {}; // Force re-authentication
+            }
+          }
           token.id = dbUser.id;
           token.role = normalizeRole(dbUser.role);
           token.permissions = sanitizePermissions(dbUser.permissions);

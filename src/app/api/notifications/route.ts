@@ -84,6 +84,12 @@ export async function POST(request: Request) {
         data: { isRead: true },
       });
     } else if (Array.isArray(ids) && ids.length > 0) {
+      if (ids.length > 100 || ids.some((id) => typeof id !== "string" || id.trim().length === 0)) {
+        return NextResponse.json(
+          { error: "ids array must contain 1-100 non-empty strings" },
+          { status: 400 }
+        );
+      }
       await prismadb.notification.updateMany({
         where: { userId: currentUser.id, id: { in: ids } },
         data: { isRead: true },

@@ -62,6 +62,15 @@ export async function POST(request: Request) {
       return new NextResponse("Thiếu thông tin file", { status: 400 });
     }
 
+    const forbidden = /(\.\.[\/\\]|[\/\\])/;
+    if (
+      typeof fileName !== "string" || fileName.length > 255 || forbidden.test(fileName) ||
+      typeof originalName !== "string" || originalName.length > 255 || forbidden.test(originalName) ||
+      typeof filePath !== "string" || filePath.length > 255 || forbidden.test(filePath)
+    ) {
+      return new NextResponse("Invalid file parameters", { status: 400 });
+    }
+
     const existing = await prisma.driveFile.findFirst({
       where: {
         uploadedById: currentUser.id,

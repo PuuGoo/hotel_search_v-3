@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
+import { verifyCsrfRequest } from "@/app/libs/csrf";
 
 import prisma from "@/app/libs/prismadb";
 import {
@@ -13,6 +14,9 @@ import {
 // user's hashedPassword, and deletes the token (single use). Expired or unknown
 // tokens are rejected with a generic message.
 export async function POST(request: Request) {
+  if (!verifyCsrfRequest(request)) {
+    return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+  }
   try {
     let body: any;
     try {
@@ -53,7 +57,7 @@ export async function POST(request: Request) {
     // clears any other outstanding tokens for the same user too.
     await prisma.user.update({
       where: { id: record.userId },
-      data: { hashedPassword },
+      data: { hashedPassword, passwordChangedAt: new Date() },
     });
     await prisma.passwordResetToken.deleteMany({ where: { userId: record.userId } });
 

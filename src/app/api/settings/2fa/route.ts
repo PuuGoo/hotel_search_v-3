@@ -1,5 +1,6 @@
 import prisma from "@/app/libs/prismadb";
 import { NextResponse } from "next/server";
+import { verifyCsrfRequest } from "@/app/libs/csrf";
 
 import getCurrentUser from "../../../actions/getCurrentUser";
 import { generateSecret, generateOtpauthUri, verifyTOTP } from "@/app/libs/totp";
@@ -7,7 +8,10 @@ import { encryptSecret, decryptSecret, isEncrypted } from "@/app/libs/crypto";
 
 const ISSUER = "HotelSearch";
 
-export async function POST() {
+export async function POST(request: Request) {
+  if (!verifyCsrfRequest(request)) {
+    return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+  }
   try {
     const currentUser = await getCurrentUser();
 
@@ -39,6 +43,9 @@ export async function POST() {
 }
 
 export async function PUT(request: Request) {
+  if (!verifyCsrfRequest(request)) {
+    return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+  }
   try {
     const currentUser = await getCurrentUser();
 
@@ -89,6 +96,9 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  if (!verifyCsrfRequest(request)) {
+    return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+  }
   try {
     const currentUser = await getCurrentUser();
 

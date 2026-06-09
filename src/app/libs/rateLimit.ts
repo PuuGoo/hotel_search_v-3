@@ -190,3 +190,48 @@ export function resetAllRateLimits() {
   searchRequests.clear();
   return size;
 }
+
+// ---------------------------------------------------------------------------
+// Generic per-key rate limiter (for routes that need their own limits).
+// Usage: const limited = await rateLimit("register:1.2.3.4", { windowMs: 3600000, max: 5 });
+// ---------------------------------------------------------------------------
+const genericLimits = globalThis as unknown as {
+  __genericRateLimit?: Map<string, RateLimitEntry>;
+  __genericRateLimitCleanup?: boolean;
+};
+const genericRequests =
+  genericLimits.__genericRateLimit ??
+  (genericLimits.__genericRateLimit = new Map<string, RateLimitEntry>());
+
+export async function rateLimit(
+  key: string,
+  config: { windowMs: number; max: number }
+): Promise<boolean> {
+  const now = Date.now();
+  const entry = genericRequests.get(key);
+
+  if (!entry || now - entry.firstRequest > config.windowMs) {
+    genericRequests.set(key, { count: 1, firstRequest: now });
+    return false; // not limited
+  }
+
+  if (entry.count >= config.max) {
+    return true; // limited
+  }
+
+  entry.count++;
+  return false;
+}
+
+if (typeof setInterval !== "undefined" && !genericLimits.__genericRateLimitCleanup) {
+  genericLimits.__genericRateLimitCleanup = true;
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of Array.from(genericRequests)) {
+      // Use a generous sweep threshold (1 hour) since callers choose varying windows.
+      if (now - entry.firstRequest > 60 * 60 * 1000) {
+        genericRequests.delete(key);
+      }
+    }
+  }, 5 * 60 * 1000).unref?.();
+}

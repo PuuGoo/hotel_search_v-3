@@ -1,13 +1,27 @@
 import bcrypt from "bcrypt";
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { verifyCsrfRequest } from "@/app/libs/csrf";
 
 import prisma from "../../libs/prismadb";
 import { DEFAULT_USER_PERMISSIONS } from "../../libs/features";
+import { rateLimit } from "../../libs/rateLimit";
 import { validateRegistration } from "./registerValidation";
 
 export async function POST(request: Request) {
+  if (!verifyCsrfRequest(request)) {
+    return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+  }
+
   try {
+    // Rate limit: 5 registrations per hour per IP
+    const forwarded = request.headers.get("x-forwarded-for");
+    const ip = forwarded?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
+    const limited = await rateLimit(`register:${ip}`, { windowMs: 60 * 60 * 1000, max: 5 });
+    if (limited) {
+      return new NextResponse("Quá nhiều yêu cầu, vui lòng thử lại sau", { status: 429 });
+    }
+
     let body: any;
     try {
       body = await request.json();

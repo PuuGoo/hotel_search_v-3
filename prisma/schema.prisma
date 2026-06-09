@@ -23,6 +23,7 @@ model User {
   // user to exactly those feature keys (see src/app/libs/features.ts). Admins
   // bypass this entirely.
   permissions    String[]  @default([])
+  passwordChangedAt DateTime?  // Used to invalidate sessions after password reset
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 

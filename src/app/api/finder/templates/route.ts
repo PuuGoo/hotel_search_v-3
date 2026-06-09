@@ -129,7 +129,12 @@ export async function PUT(request: Request) {
     const data: Record<string, unknown> = {};
     if (name !== undefined) data.name = name.trim();
     if (workers !== undefined) data.workers = Math.min(5, Math.max(1, Math.round(Number(workers))));
-    if (template !== undefined) data.template = template;
+    if (template !== undefined) {
+      if (typeof template !== "string" || !["full", "executive", "quick", "analysis"].includes(template)) {
+        return NextResponse.json({ error: "Template không hợp lệ" }, { status: 400 });
+      }
+      data.template = template;
+    }
     if (autoSaveEnabled !== undefined) data.autoSaveEnabled = Boolean(autoSaveEnabled);
     if (autoSaveLines !== undefined) data.autoSaveLines = Math.min(100, Math.max(1, Math.round(Number(autoSaveLines))));
     if (autoSaveFolder !== undefined) data.autoSaveFolder = autoSaveFolder;
