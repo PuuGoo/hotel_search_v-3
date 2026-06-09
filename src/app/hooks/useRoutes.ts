@@ -167,7 +167,12 @@ const useRoutes = (
     base.push({
       label: "Đăng xuất",
       onClick: async () => {
-        await signOut({ redirect: true, callbackUrl: "/" });
+      // Use redirect:false + hard navigation to ensure the NextAuth
+      // session cookie is fully cleared before the page reloads.
+      // redirect:true sometimes causes a re-login loop because the
+      // client-side session context stays "authenticated" briefly.
+      await signOut({ redirect: false });
+      window.location.href = "/";
       },
       href: "#",
       icon: HiArrowLeftOnRectangle,

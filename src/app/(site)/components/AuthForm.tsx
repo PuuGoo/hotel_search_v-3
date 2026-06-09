@@ -56,9 +56,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
 
   useEffect(() => {
     if (session?.status === "authenticated") {
-      router.push(callbackUrl);
+      // Use hard navigation to avoid stale client-side session cache
+      // after signOut. router.push keeps the old NextAuth context alive
+      // which can cause an immediate re-login loop.
+      window.location.href = callbackUrl;
     }
-  }, [session?.status, router, callbackUrl]);
+  }, [session?.status, callbackUrl]);
 
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {
