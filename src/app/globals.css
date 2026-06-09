@@ -922,27 +922,50 @@ html {
   position: relative;
   cursor: pointer;
   border: none;
-  background: none;
-  padding: 0;
   outline: none;
   user-select: none;
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 32px;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+  transform: translateY(0);
+}
+.panda-btn-full {
+  width: 100%;
 }
 .panda-btn:focus-visible {
   outline: 2px solid #007aff;
-  outline-offset: 4px;
-  border-radius: 8px;
+  outline-offset: 3px;
 }
 .panda-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.7;
   cursor: default;
   pointer-events: none;
 }
+
+/* Hover: lift up */
+.panda-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+/* Active: press down */
+.panda-btn:active:not(:disabled) {
+  transform: translateY(2px) !important;
+  box-shadow: 0 1px 0 currentColor !important;
+}
+
+/* Panda face SVG */
 .panda-btn-face {
   display: block;
   overflow: visible;
+  flex-shrink: 0;
 }
 
 /* Body scale on hover/click */
@@ -951,10 +974,10 @@ html {
   transform-origin: 50% 70%;
 }
 .panda-btn:hover .panda-btn-body {
-  transform: scale(1.06);
+  transform: scale(1.08);
 }
 .panda-btn:active .panda-btn-body {
-  transform: scale(0.93) translateY(4px);
+  transform: scale(0.95) translateY(3px);
 }
 
 /* Eye blink on hover */
@@ -970,9 +993,7 @@ html {
 }
 
 /* Ear wiggle on hover */
-.panda-btn-ear-l {
-  transform-origin: 50% 100%;
-}
+.panda-btn-ear-l,
 .panda-btn-ear-r {
   transform-origin: 50% 100%;
 }
@@ -993,50 +1014,22 @@ html {
 .panda-btn:hover .panda-btn-heart.h2 {
   animation: panda-svg-float-heart 0.9s 0.2s ease forwards;
 }
-.panda-btn:hover .panda-btn-heart.h3 {
-  animation: panda-svg-float-heart 0.9s 0.35s ease forwards;
-}
 
-/* Zzz float for sleep variant */
-.panda-btn-zzz {
-  animation: panda-svg-float-zzz 2.2s ease-in-out infinite;
-  transform-origin: 116px 60px;
-}
-
-/* Label pill below panda */
-.panda-btn-label {
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 5px 18px;
-  border-radius: 20px;
-  white-space: nowrap;
-  letter-spacing: 0.03em;
+/* Button text */
+.panda-btn-text {
   pointer-events: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-.panda-btn:active .panda-btn-label {
-  transform: translateX(-50%) translateY(2px);
-  box-shadow: 0 0 0 transparent !important;
 }
 
-/* Loading spinner inside label */
+/* Loading spinner */
 .panda-btn-spinner {
   display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255,255,255,0.3);
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255,255,255,0.3);
   border-top-color: #fff;
   border-radius: 50%;
   animation: panda-svg-spin 0.7s linear infinite;
+  flex-shrink: 0;
 }
 
 /* ── Keyframes ─────────────────────────────────────────────────────── */
@@ -1065,16 +1058,27 @@ html {
   80%  { opacity: 0.8; }
   100% { opacity: 0; transform: translateY(-38px) scale(1.1); }
 }
-@keyframes panda-svg-float-zzz {
-  0%, 100% { transform: translateY(0); opacity: 1; }
-  50%      { transform: translateY(-8px); opacity: 0.6; }
-}
 @keyframes panda-svg-spin {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
 /* ── Reduced motion ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-btn-body,
+  .panda-btn-eye-l,
+  .panda-btn-eye-r,
+  .panda-btn-ear-l,
+  .panda-btn-ear-r,
+  .panda-btn-heart,
+  .panda-btn-spinner {
+    animation: none !important;
+  }
+  .panda-btn,
+  .panda-btn-body {
+    transition: none !important;
+  }
+}
 
 /* ── Baby pandas orbiting the big panda ─────────────────────────────── */
 /* The orbit container rotates around the panda centre; the baby inside
