@@ -58,3 +58,8 @@ venv/
 *_out.xlsx
 *_out.errors.json
 *_output_*.xlsx
+
+# IDE / local artifacts
+.vs/
+.superpowers/
+*.zip

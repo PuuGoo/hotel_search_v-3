@@ -824,6 +824,9 @@ html {
 /* Pupils follow the typed email (look-x) / droop when sad (look-y). The eye
    itself keeps its blink animation; only the pupil + catchlight translate. */
 .panda-eye::before,
+.panda-eye::after {
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .panda-eye::before { transform: translate(var(--look-x, 0), var(--look-y, 0)); }
 .panda-eye::after  { transform: translate(var(--look-x, 0), var(--look-y, 0)); }
 
@@ -1090,6 +1093,10 @@ html {
   .panda-svg-spinner {
     animation: none !important;
   }
+  .panda-svg-body,
+  .panda-svg-shadow {
+    transition: none !important;
+  }
 }
 
 /* ── Baby pandas orbiting the big panda ─────────────────────────────── */
@@ -1300,12 +1307,33 @@ html {
 /* ── Responsive panda scaling ──────────────────────────────────────── */
 /* Mobile (< 640px): compact panda */
 @media (max-width: 639px) {
+  .panda-stage {
+    min-height: 170px;
+  }
+  .panda-wrap {
+    transform: scale(0.65);
+    transform-origin: 50% 100%;
+  }
 }
 /* Tablet (640–767px) */
 @media (min-width: 640px) and (max-width: 767px) {
+  .panda-stage {
+    min-height: 195px;
+  }
+  .panda-wrap {
+    transform: scale(0.75);
+    transform-origin: 50% 100%;
+  }
 }
 /* Small desktop / large tablet (768–1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
+  .panda-stage {
+    min-height: 220px;
+  }
+  .panda-wrap {
+    transform: scale(0.85);
+    transform-origin: 50% 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1330,6 +1358,17 @@ html {
    ================================================================ */
 
 /* ── Panda colour tokens ──────────────────────────────────────── */
+:root {
+  --panda-green:       #2d5a27;
+  --panda-green-light: #3a7a32;
+  --panda-green-dark:  #1a3a17;
+  --panda-green-glow:  rgba(45, 90, 39, 0.22);
+  --panda-black:       #1e2230;
+  --panda-cream:       #fdfdf8;
+  --panda-pink:        #ffb3c1;
+  --panda-blue-suit:   #2f80ed;
+  --panda-radius:      14px;
+}
 
 /* ── Input focus ring — panda green ──────────────────────────── */
 /* Override the default blue focus ring on Input component       */
@@ -1581,6 +1620,9 @@ input:not(:placeholder-shown) ~ label {
 
 /* ── Panda mascot — tighter top margin on register (3 fields) ── */
 /* Already handled by panda-stage min-height, but ensure no overflow */
+.panda-stage {
+  overflow: visible;
+}
 
 /* ── Entrance animation for social grid ─────────────────────── */
 .auth-rise .grid {
@@ -1712,6 +1754,9 @@ input:focus {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
+.sm\:max-w-md {
+  animation: none;
+}
 
 /* ── PandaButton — upgraded hover + pressed + loaded state ─────── */
 @keyframes panda-btn-float {
@@ -1722,6 +1767,11 @@ input:focus {
   0%   { opacity: 0; transform: translateY(20px) scale(0.9); }
   60%  { transform: translateY(-4px) scale(1.02); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.panda-svg-btn {
+  animation: panda-btn-appear 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.35s;
+  opacity: 0;
 }
 .panda-svg-btn:not(:disabled):hover svg {
   animation: panda-btn-float 0.9s ease-in-out infinite;
@@ -1784,6 +1834,9 @@ input:focus {
   border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
   animation: tear-drop 0.6s ease-out forwards;
 }
+.panda--sad .panda-cheek.right::after {
+  left: 9px;
+}
 
 /* ── Auth form panel — staggered field reveal ───────────────────── */
 @keyframes field-slide-in {
@@ -1840,9 +1893,10 @@ input:focus {
   .panda--loading .panda-eye,
   .bamboo-particle,
   .panda-svg-btn,
-  .space-y-4 > * {
+  .space-y-4 > *,
+  .rounded-3xl {
     animation: none !important;
-    transition: none !important;
+    opacity: 1 !important;
   }
 }
 
@@ -1958,8 +2012,13 @@ input:focus {
 
 /* ── Panda mascot idle: subtle breathing (scale y) ───────────── */
 @keyframes panda-breathe {
-  0%, 100% { transform: scaleY(1); }
-  45%       { transform: scaleY(1.025); }
+  /* Must preserve translateX(-50%): .panda-body is centered with it (see dc02dc3) */
+  0%, 100% { transform: translateX(-50%) scaleY(1); }
+  45%       { transform: translateX(-50%) scaleY(1.025); }
+}
+.panda-body {
+  animation: panda-breathe 3.8s ease-in-out infinite;
+  transform-origin: 50% 100%;
 }
 
 /* ── Panda mascot eyes: extra long gaze, then double blink ──── */
@@ -1970,11 +2029,17 @@ input:focus {
   94%            { transform: scaleY(0.07); }
   97%            { transform: scaleY(1); }
 }
+.panda-eye {
+  animation: panda-blink-pro 5.5s ease-in-out infinite !important;
+}
 
 /* ── Panda nose shimmer ──────────────────────────────────────── */
 @keyframes nose-wiggle {
   0%, 100% { transform: translateX(-50%) scale(1); }
   50%       { transform: translateX(-50%) scale(1.12); }
+}
+.panda-nose {
+  animation: nose-wiggle 2.6s ease-in-out infinite;
 }
 
 /* ── Auth form card: mount with 3D flip-up effect ───────────── */
@@ -1984,6 +2049,9 @@ input:focus {
   100% { opacity: 1; transform: perspective(900px) rotateX(0deg) translateY(0); }
 }
 /* Apply to the card container once only on mount */
+.sm\:max-w-md {
+  animation: card-flip-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
 /* ── Heading text — typewriter underline effect ──────────────── */
 @keyframes underline-grow {
@@ -2051,6 +2119,9 @@ h2.auth-rise-2.text-center {
 
 /* ── Password reveal: panda paws smooth out + bounce ─────────── */
 .panda--peek .panda-arm.left,
+.panda--peek .panda-arm.right {
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
 
 /* ── Baby pandas grow hearts on happy ───────────────────────── */
 @keyframes baby-heart {
@@ -2071,6 +2142,12 @@ h2.auth-rise-2.text-center {
 }
 
 /* ── Gradient text on the form heading ───────────────────────── */
+h2.auth-rise-2 {
+  background: linear-gradient(135deg, #1a2a18 0%, var(--panda-green) 50%, #4caf50 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 .dark h2.auth-rise-2 {
   background: linear-gradient(135deg, #a8e6a0 0%, #6ee060 50%, #b0f0a8 100%);
   -webkit-background-clip: text;
@@ -2086,7 +2163,20 @@ h2.auth-rise-2.text-center {
   .panda-stage--loading,
   h2.auth-rise-2::after,
   .auth-social-btn .auth-social-btn__icon,
+  .panda-svg-btn svg {
+    animation: none !important;
+    transition: none !important;
+  }
   h2.auth-rise-2::after { transform: scaleX(1); }
+  h2.auth-rise-2 {
+    -webkit-text-fill-color: unset;
+    background: none;
+    color: inherit;
+  }
+  .sm\:max-w-md {
+    animation: none !important;
+    opacity: 1 !important;
+  }
 }
 
 
@@ -2096,6 +2186,10 @@ h2.auth-rise-2.text-center {
 
 /* ── Fix: position:relative cho glass shimmer ::before hoạt động ── */
 [class*="sm:max-w-md"],
+.sm\:max-w-md {
+  position: relative;
+  overflow: hidden;
+}
 
 /* ── Mood particles burst (happy / sad / loading) ────────────── */
 @keyframes mood-particle-burst {
@@ -2176,14 +2270,18 @@ h2.auth-rise-2.text-center {
   50%  { box-shadow: inset 0 0 24px rgba(45,90,39,0.07); }
   100% { box-shadow: inset 0 0 0px rgba(45,90,39,0); }
 }
+.rounded-3xl {
+  animation: card-ring-pulse 1.4s ease-out 0.6s 1 both,
+             card-inner-glow 3.5s ease-in-out 2s infinite;
+}
 
 /* ── Policy footer: panda emoji heartbeat ───────────────────── */
 @keyframes panda-heartbeat {
-  0%, 100% { transform: translateX(-50%) scale(1); }
-  14%       { transform: translateX(-50%) scale(1.3); }
-  28%       { transform: translateX(-50%) scale(1); }
-  42%       { transform: translateX(-50%) scale(1.2); }
-  56%       { transform: translateX(-50%) scale(1); }
+  0%, 100% { transform: scale(1); }
+  14%       { transform: scale(1.3); }
+  28%       { transform: scale(1); }
+  42%       { transform: scale(1.2); }
+  56%       { transform: scale(1); }
 }
 .auth-policy-panda {
   display: inline-block;
@@ -2194,6 +2292,9 @@ h2.auth-rise-2.text-center {
 @keyframes social-press-glow {
   0%   { box-shadow: 0 0 0 0 rgba(45,90,39,0.45); }
   100% { box-shadow: 0 0 0 12px rgba(45,90,39,0); }
+}
+.auth-social-btn:active {
+  animation: social-press-glow 0.4s ease-out forwards;
 }
 
 /* ── Input: label slide animation enhanced ───────────────────── */
@@ -2232,12 +2333,20 @@ input:focus ~ label {
   75%  { transform: scale(0.97) translateY(2px) rotate(-1deg); }
   100% { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
 }
+.panda-stage {
+  animation: mascot-entrance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.18s;
+  overflow: visible;
+}
 
 /* ── Baby panda orbit: appear staggered on load ─────────────── */
 @keyframes baby-orbit-appear {
   from { opacity: 0; transform: scale(0); }
   to   { opacity: 1; transform: scale(1); }
 }
+/* NOTE: do NOT redeclare `animation` shorthand on .baby-panda-orbit here —
+   it resets animation-delay and wipes out the per-orbit var(--delay)
+   stagger, making all babies cluster at one spot. */
 .baby-panda-orbit:nth-child(5) { animation-delay: calc(var(--delay, 0s)), 0.5s; }
 .baby-panda-orbit:nth-child(6) { animation-delay: calc(var(--delay, 0s)), 0.7s; }
 .baby-panda-orbit:nth-child(7) { animation-delay: calc(var(--delay, 0s)), 0.9s; }
@@ -2247,6 +2356,36 @@ input:focus ~ label {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+h2.auth-rise-2 {
+  background: linear-gradient(
+    135deg,
+    #1a2a18 0%,
+    var(--panda-green) 35%,
+    #4caf50 55%,
+    #2d5a27 80%,
+    #1a2a18 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 5s ease infinite;
+}
+.dark h2.auth-rise-2 {
+  background: linear-gradient(
+    135deg,
+    #a8e6a0 0%,
+    #6ee060 35%,
+    #b0f0a8 55%,
+    #5cd050 80%,
+    #a8e6a0 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 5s ease infinite;
 }
 
 /* ── PandaButton: glow ring pulse on idle ────────────────────── */
@@ -2265,6 +2404,9 @@ input:focus ~ label {
   0%   { opacity: 0; transform: translateY(4px) scale(0.95); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
+.auth-toggle-link {
+  animation: toggle-text-in 0.3s ease both;
+}
 
 /* ── Auth card: subtle float on desktop ─────────────────────── */
 @keyframes card-float {
@@ -2272,6 +2414,11 @@ input:focus ~ label {
   50%       { transform: translateY(-3px); }
 }
 @media (min-width: 1024px) {
+  .sm\:max-w-md {
+    animation: card-ring-pulse 1.4s ease-out 0.6s 1 both,
+               card-inner-glow 3.5s ease-in-out 2s infinite,
+               card-float 6s ease-in-out 3s infinite;
+  }
 }
 
 /* ── Reduced motion: disable ALL Phase 4 additions ─────────── */
@@ -2281,9 +2428,17 @@ input:focus ~ label {
   .space-y-4,
   .panda-stage,
   .auth-policy-panda,
-  .sm\:max-w-md {
+  h2.auth-rise-2 {
     animation: none !important;
-    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  h2.auth-rise-2 {
+    background-size: 100% 100%;
+  }
+  .sm\:max-w-md,
+  .rounded-3xl {
+    animation: none !important;
   }
 }
 
@@ -2361,6 +2516,21 @@ input:focus ~ label {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
+.panda-svg-btn:not(:disabled):hover .panda-svg-label {
+  background-image: linear-gradient(
+    105deg,
+    #2d5a27 20%,
+    #5cba4a 40%,
+    #2d5a27 60%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: label-shimmer 0.9s linear forwards;
+  /* Override the background color approach */
+  background-color: transparent !important;
+}
 
 /* ── Input wrapper: panda track line at bottom ──────────────── */
 @keyframes track-in {
@@ -2368,6 +2538,9 @@ input:focus ~ label {
   to   { transform: scaleX(1); }
 }
 /* Panda-green underline sweep when focused */
+input:focus {
+  border-bottom-color: var(--panda-green) !important;
+}
 
 /* ── Auth toggle area: switch transition ripple ─────────────── */
 @keyframes toggle-area-flash {
@@ -2403,11 +2576,21 @@ input:focus ~ label {
   30%        { transform: translate(calc(var(--look-x, 0) + 1.5px), calc(var(--look-y, 0) - 1px)); }
   65%        { transform: translate(calc(var(--look-x, 0) - 1px), calc(var(--look-y, 0) + 1px)); }
 }
+.panda-eye::before {
+  animation: pupil-drift 4s ease-in-out infinite;
+}
+.panda-eye::after {
+  animation: pupil-drift 4s ease-in-out infinite;
+}
 
 /* ── Panda stage: subtle shadow pulse ───────────────────────── */
 @keyframes mascot-shadow-breathe {
   0%, 100% { filter: drop-shadow(0 12px 20px rgba(0,0,0,0.20)); }
   50%       { filter: drop-shadow(0 18px 28px rgba(0,0,0,0.28)); }
+}
+.panda {
+  animation: panda-sway 4.2s ease-in-out infinite,
+             mascot-shadow-breathe 4.2s ease-in-out infinite;
 }
 
 /* ── Final: ensure all animation delays don't cause invisible flashes ── */
@@ -2425,6 +2608,12 @@ input:focus ~ label {
   .flex-1.flex.flex-col.justify-center,
   .panda-eye::before,
   .panda-eye::after,
+  .panda {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
   .auth-rise {
     opacity: 1 !important;
     animation: none !important;
@@ -2444,6 +2633,10 @@ input:focus ~ label {
   45%  { transform: rotate(-25deg) translateY(-5px); }
   60%  { transform: rotate(10deg); }
   100% { transform: rotate(28deg); }
+}
+.panda-arm.left {
+  animation: panda-arm-left 3s ease-in-out infinite,
+             panda-wave 6s ease-in-out 2s infinite;
 }
 
 /* ── Panda tail wag ─────────────────────────────────────────── */
@@ -2470,6 +2663,18 @@ input:focus ~ label {
   92%            { opacity: 0.9; transform: translateX(-4px) scale(1); }
   96%            { opacity: 0; transform: translateX(10px) scale(1.4); }
 }
+.panda-glasses-lens::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 6px;
+  height: 3px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 4px;
+  transform: rotate(-20deg);
+  animation: glasses-glint 5s ease-in-out infinite;
+}
 .panda-glasses-lens.right::after {
   animation-delay: 0.4s;
 }
@@ -2479,6 +2684,9 @@ input:focus ~ label {
   0%, 100% { transform: rotate(0deg); }
   25%       { transform: rotate(-6deg) translateY(-2px); }
   75%       { transform: rotate(5deg) translateY(-1px); }
+}
+.panda-suitcase {
+  animation: suitcase-wobble 0.7s ease-in-out infinite;
 }
 
 /* ── Ear pulse on hover card ────────────────────────────────── */
@@ -2496,6 +2704,9 @@ input:focus ~ label {
   0%   { box-shadow: 0 0 0 0px rgba(76, 175, 80, 0); }
   50%  { box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.18); }
   100% { box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12); }
+}
+input:focus {
+  animation: input-focus-glow 0.4s ease forwards !important;
 }
 
 /* ── Input floating label: panda pawprint appears on focus ──── */
@@ -2598,6 +2809,25 @@ input:focus ~ label {
 }
 
 /* ── Auth card: panda paw corner decoration ──────────────────── */
+.sm\:max-w-md {
+  position: relative;
+}
+.sm\:max-w-md::before {
+  content: "🐾";
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: rotate(-20deg) scale(0.8);
+  z-index: 10;
+}
+.sm\:max-w-md:hover::before {
+  opacity: 0.35;
+  transform: rotate(-10deg) scale(1);
+}
 
 /* ── Background: animated bamboo grove particles (page-wide) ── */
 @keyframes bamboo-float-up {
@@ -2624,6 +2854,9 @@ input:focus ~ label {
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 .auth-rise-4 > div > span,
+.auth-rise-4 span[class*="rounded-full"] {
+  animation: chip-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
 
 /* ── Social button: icon spin on click ──────────────────────── */
 @keyframes icon-click-spin {
@@ -2640,12 +2873,20 @@ input:focus ~ label {
   0%, 100% { transform: rotate(-8deg) scale(1); }
   50%       { transform: rotate(12deg) scale(1.2); }
 }
+.auth-policy-panda {
+  display: inline-block;
+  animation: policy-panda-bounce 2.4s ease-in-out infinite;
+  transform-origin: bottom center;
+}
 
 /* ── Forgot password link: panda paw trail ───────────────────── */
 @keyframes paw-trail {
   0%   { letter-spacing: 0; }
   50%  { letter-spacing: 0.04em; }
   100% { letter-spacing: 0; }
+}
+.auth-forgot-link:hover {
+  animation: paw-trail 0.4s ease;
 }
 
 /* ── Form card inner glow ring: nâng cấp ───────────────────── */
@@ -2665,6 +2906,9 @@ input:focus ~ label {
   96%            { transform: translateX(-50%) scaleX(1.3) scaleY(0.85); }
   98%            { transform: translateX(-50%) scaleX(0.9) scaleY(1.1); }
 }
+.panda-nose {
+  animation: nose-twitch 4.5s ease-in-out infinite 1s;
+}
 
 /* ── Eyes: idle look-around (when not tracking email) ────────── */
 @keyframes idle-look {
@@ -2679,6 +2923,9 @@ input:focus ~ label {
   0%, 100% { transform: rotate(0deg) skewX(0deg); }
   30%       { transform: rotate(-5deg) skewX(3deg); }
   70%       { transform: rotate(3deg) skewX(-2deg); }
+}
+.panda-tuft {
+  animation: hair-breeze 3s ease-in-out infinite;
 }
 .panda-tuft.l { animation-delay: 0.2s; }
 .panda-tuft.r { animation-delay: 0.5s; }
@@ -2709,9 +2956,14 @@ input:focus ~ label {
   .panda-tuft,
   .panda-nose,
   .auth-policy-panda,
-  .panda-svg-btn::before {
+  .panda-svg-btn::before,
+  .bg-bamboo-particle {
     animation: none !important;
-    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .sm\:max-w-md::before {
+    display: none;
   }
 }
 
@@ -2743,15 +2995,33 @@ input:focus ~ label {
 }
 
 /* ── chip-pop keyframe (also defined in Phase 6 above, safe to have here for scoped component use) */
+@keyframes chip-pop {
+  0%   { opacity: 0; transform: scale(0.6) translateY(8px); }
+  65%  { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
 
 /* ── Social button: gradient border glow on hover ─────────────── */
+.auth-social-btn {
+  transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1),
+              box-shadow 0.18s ease,
+              border-color 0.18s ease !important;
+}
+.auth-social-btn:hover {
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 6px 18px rgba(76,175,80,0.18) !important;
+}
+.auth-social-btn:active {
+  transform: translateY(0) scale(0.97) !important;
+}
 
 /* ── Reduced motion for new additions ─────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .panda-mood-particles--idle .mood-particle,
-  .panda-svg-btn--loading svg {
+  .panda-svg-btn--loading svg,
+  .auth-social-btn {
     animation: none !important;
-    transition: none !important;
+    transform: none !important;
   }
 }
 
@@ -2761,13 +3031,40 @@ input:focus ~ label {
    ================================================================ */
 
 /* ── Panda body: breathing (subtle inhale/exhale) ────────────── */
+@keyframes panda-breathe {
+  /* Must preserve translateX(-50%): .panda-body is centered with it (see dc02dc3) */
+  0%, 100% { transform: translateX(-50%) scaleX(1) scaleY(1); }
+  50%       { transform: translateX(-50%) scaleX(1.025) scaleY(1.018); }
+}
+.panda-body {
+  animation: panda-breathe 3.2s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
 
 /* ── Panda tail: wag behind body ─────────────────────────────── */
+@keyframes tail-wag {
+  0%, 100% { transform: translateX(-50%) rotate(-18deg); }
+  50%       { transform: translateX(-50%) rotate(18deg); }
+}
+.panda-body::after {
+  content: "";
+  position: absolute;
+  width: 22px; height: 18px;
+  left: 50%; bottom: -6px;
+  transform: translateX(-50%) rotate(-10deg);
+  background: radial-gradient(circle at 40% 40%, #e8e8e8 0%, #cdd2dc 100%);
+  border-radius: 50%;
+  animation: tail-wag 1.1s ease-in-out infinite;
+  transform-origin: 50% 0;
+}
 
 /* ── Panda cheeks: rosy pulse on happy ───────────────────────── */
 @keyframes cheek-blush {
   0%, 100% { opacity: 0.55; transform: scale(1); }
   50%       { opacity: 0.8; transform: scale(1.12); }
+}
+.panda-cheek {
+  animation: cheek-blush 2s ease-in-out infinite;
 }
 .panda-cheek.left  { animation-delay: 0s; }
 .panda-cheek.right { animation-delay: 0.3s; }
@@ -2778,15 +3075,39 @@ input:focus ~ label {
   91%                      { transform: scaleY(0.07); }
   95.5%                    { transform: scaleY(0.07); }
 }
+.panda-eye {
+  animation: panda-blink-v2 5.5s ease-in-out infinite;
+}
 .panda-eye.right { animation-delay: 0.06s; }
 
 /* ── Glasses: lens shimmer on idle ───────────────────────────── */
+@keyframes glasses-glint {
+  0%, 88%, 100% { opacity: 0; }
+  90%            { opacity: 0.45; transform: translate(-50%,-50%) rotate(-35deg) scale(1.5); }
+  95%            { opacity: 0; }
+}
+.panda-glasses-lens::after {
+  content: "";
+  position: absolute;
+  width: 5px; height: 2px;
+  top: 30%; left: 28%;
+  background: rgba(255,255,255,0.9);
+  border-radius: 2px;
+  animation: glasses-glint 4s ease-in-out infinite;
+}
+.panda-glasses-lens.right::after {
+  animation-delay: 0.45s;
+}
 
 /* ── Panda ears: idle perk-up ─────────────────────────────────── */
 @keyframes ear-perk {
   0%, 80%, 100% { transform: scale(1) rotate(0deg); }
   85%            { transform: scale(1.14) rotate(-8deg); }
   90%            { transform: scale(1.1) rotate(6deg); }
+}
+.panda-ear {
+  animation: ear-perk 5s ease-in-out infinite;
+  transform-origin: 50% 100%;
 }
 .panda-ear.right { animation-delay: 0.25s; }
 
@@ -2829,6 +3150,11 @@ input:focus ~ label {
   60%  { box-shadow: 0 0 0 5px rgba(76,175,80,0.12); }
   100% { box-shadow: 0 0 0 3px rgba(76,175,80,0.1); }
 }
+input:focus {
+  border-color: #4caf50 !important;
+  animation: input-panda-focus-ring 0.4s ease forwards, input-panda-pulse 1.2s ease-out;
+  outline: none;
+}
 
 /* ── Floating paw prints: appear near form card on hover ─────── */
 @keyframes paw-float-up {
@@ -2857,8 +3183,16 @@ input:focus ~ label {
   60%  { transform: translateY(-2px) scale(1.03) rotate(2deg); }
   100% { transform: translateY(-2px) scale(1.03) rotate(0deg); }
 }
+.auth-social-btn:hover {
+  animation: social-btn-wave 0.5s ease !important;
+  transform: translateY(-2px) scale(1.03) !important;
+}
 
 /* ── Toggle link: bouncy underline grow ─────────────────────── */
+.auth-toggle-link {
+  position: relative;
+  overflow: hidden;
+}
 .auth-toggle-link::after {
   content: "";
   position: absolute;
@@ -2888,6 +3222,11 @@ input[type="password"]:focus + .lock-icon {
 }
 
 /* ── Submit button: bounce appear ────────────────────────────── */
+@keyframes panda-btn-appear {
+  0%   { opacity: 0; transform: scale(0.72) translateY(14px); }
+  65%  { transform: scale(1.05) translateY(-3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
 
 /* ── Hero heading: gradient shimmer (additional) ─────────────── */
 @keyframes hero-text-float {
@@ -2961,11 +3300,17 @@ span[class*="rounded-full"]:hover {
   100% { color: #4caf50; }
 }
 input:focus ~ label,
+input:not(:placeholder-shown) ~ label {
+  animation: label-float-color 0.25s ease forwards;
+}
 
 /* ── Form container: subtle rotate-in on mount ───────────────── */
 @keyframes form-panel-in {
   0%   { opacity: 0; transform: perspective(800px) rotateY(6deg) translateX(20px); }
   100% { opacity: 1; transform: perspective(800px) rotateY(0deg) translateX(0); }
+}
+.sm\:max-w-md {
+  animation: form-panel-in 0.65s cubic-bezier(0.22,1,0.36,1) both !important;
 }
 
 /* ── Panda stage: subtle tilt when hovered ───────────────────── */
@@ -2987,12 +3332,19 @@ input:focus ~ label,
   0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.3); }
   50%       { box-shadow: 0 0 0 4px rgba(76,175,80,0.08); }
 }
+.auth-toggle-link {
+  animation: toggle-text-in 0.3s ease both, toggle-hint-pulse 3s ease-in-out 2s infinite;
+}
 
 /* ── Card paw badge: spin on card hover ─────────────────────── */
 @keyframes paw-badge-spin {
   0%   { transform: rotate(-20deg) scale(0.8); opacity: 0; }
   50%  { transform: rotate(10deg) scale(1.15); opacity: 0.5; }
   100% { transform: rotate(-10deg) scale(1); opacity: 0.35; }
+}
+.sm\:max-w-md:hover::before {
+  animation: paw-badge-spin 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards !important;
+  opacity: 0.35 !important;
 }
 
 /* ── Reduced motion: disable ALL Phase 7 additions ──────────── */
@@ -3006,9 +3358,10 @@ input:focus ~ label,
   .bg-paw-print,
   .panda-loading-dot,
   .auth-toggle-link,
-  h1.auth-rise-2 {
+  h1.auth-rise-2,
+  .sm\:max-w-md {
     animation: none !important;
-    transition: none !important;
+    transform: none !important;
   }
 }
 
@@ -3040,9 +3393,9 @@ input:focus ~ label,
 
 /* ── Reduced motion for Phase 7 SVG additions ─────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .panda-svg-tail {
+  .panda-svg-tail,
+  .panda-btn-submitting .panda-svg-btn svg {
     animation: none !important;
-    transition: none !important;
   }
 }
 
@@ -3052,6 +3405,22 @@ input:focus ~ label,
    ================================================================ */
 
 /* ── Form card: panda-green glow ring khi hover ───────────────── */
+.sm\:max-w-md {
+  transition: box-shadow 0.4s cubic-bezier(0.22,1,0.36,1), transform 0.4s cubic-bezier(0.22,1,0.36,1) !important;
+  position: relative;
+}
+.sm\:max-w-md::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--panda-radius) + 4px);
+  background: linear-gradient(135deg, rgba(45,90,39,0.4) 0%, rgba(76,175,80,0.2) 50%, rgba(45,90,39,0.4) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(8px);
+}
 .sm\:max-w-md:hover::after {
   opacity: 1;
 }
@@ -3069,6 +3438,9 @@ input:focus ~ label,
     0 0 30px rgba(76,175,80,0.12),
     inset 0 1px 0 rgba(255,255,255,0.6);
   }
+}
+.sm\:max-w-md {
+  animation: form-panel-in 0.65s cubic-bezier(0.22,1,0.36,1) both, panda-card-border-glow 4s ease-in-out 1s infinite !important;
 }
 
 /* ── Welcome heading: animated gradient text ──────────────────── */
@@ -3249,11 +3621,19 @@ input[aria-invalid="true"] {
 .panda-typing-indicator span:nth-child(1) { animation: typing-dot 0.9s ease-in-out infinite 0s; }
 .panda-typing-indicator span:nth-child(2) { animation: typing-dot 0.9s ease-in-out infinite 0.2s; }
 .panda-typing-indicator span:nth-child(3) { animation: typing-dot 0.9s ease-in-out infinite 0.4s; }
+@keyframes typing-dot {
+  0%, 60%, 100% { transform: scale(0.7); opacity: 0.4; }
+  30%            { transform: scale(1.2); opacity: 1; }
+}
 .panda-stage--typing .panda-typing-indicator {
   opacity: 1;
 }
 
 /* ── AuthSocialButton: ripple effect at click point ──────────── */
+.auth-social-btn {
+  position: relative;
+  overflow: hidden;
+}
 .auth-social-btn__shimmer {
   position: absolute;
   inset: 0;
@@ -3287,6 +3667,13 @@ input[aria-invalid="true"] {
 }
 
 /* ── Social button: panda green accent on hover ──────────────── */
+.auth-social-btn:hover {
+  border-color: rgba(45,90,39,0.5) !important;
+  box-shadow:
+    0 4px 14px rgba(45,90,39,0.12),
+    0 1px 3px rgba(0,0,0,0.08) !important;
+  background: rgba(45,90,39,0.04) !important;
+}
 
 /* ── Welcome back heading: gradient text ─────────────────────── */
 /* Target the h2 in the form card */
@@ -3307,6 +3694,12 @@ input[aria-invalid="true"] {
 }
 
 /* ── Panda mascot wrapper: entrance bounce ───────────────────── */
+@keyframes mascot-entrance {
+  0%   { transform: translateY(-40px) scale(0.6) rotate(-5deg); opacity: 0; }
+  60%  { transform: translateY(8px) scale(1.05) rotate(2deg); opacity: 1; }
+  80%  { transform: translateY(-4px) scale(0.98) rotate(-1deg); }
+  100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+}
 .panda-mascot-wrapper {
   animation: mascot-entrance 0.75s cubic-bezier(0.34,1.56,0.64,1) both !important;
   animation-delay: 0.1s !important;
@@ -3330,11 +3723,17 @@ input[aria-invalid="true"] {
   50%  { filter: hue-rotate(30deg); }
   100% { filter: hue-rotate(0deg); }
 }
+.panda-svg-btn:hover svg {
+  animation: panda-btn-rainbow 2s ease infinite !important;
+}
 
 /* ── PandaButton label: gradient pulse ───────────────────────── */
 @keyframes label-pulse-glow {
   0%, 100% { box-shadow: 0 2px 0 #1a3a17, 0 0 0 rgba(76,175,80,0); }
   50%       { box-shadow: 0 2px 0 #1a3a17, 0 0 16px rgba(76,175,80,0.45); }
+}
+.panda-svg-label {
+  animation: label-pulse-glow 3s ease-in-out infinite !important;
 }
 .panda-svg-btn:hover .panda-svg-label {
   animation: label-pulse-glow 1s ease-in-out infinite !important;
@@ -3343,6 +3742,9 @@ input[aria-invalid="true"] {
 /* ── Background: extra floating panda emojis (subtle) ────────── */
 /* The page.tsx already handles this via inline style;
    these selectors reinforce the ambient bamboo / paw trail.      */
+.bg-bamboo-particle {
+  background: linear-gradient(to bottom, #2d5a27 0%, #4caf50 40%, #a8e6a0 70%, transparent 100%) !important;
+}
 
 /* ── Policy links: panda green underline on hover ────────────── */
 .auth-policy-link {
@@ -3369,11 +3771,23 @@ input[aria-invalid="true"] {
   60%  { transform: rotate(15deg) scale(1.1); }
   100% { transform: rotate(0deg) scale(1); }
 }
+.auth-policy-panda {
+  display: inline-block;
+  cursor: default;
+  transition: transform 0.2s ease;
+}
 .auth-policy-panda:hover {
   animation: panda-emoji-spin 0.6s cubic-bezier(0.34,1.56,0.64,1);
 }
 
 /* ── Toggle link: slide underline + scale ────────────────────── */
+.auth-toggle-link {
+  position: relative;
+  transition: color 0.2s ease, transform 0.15s ease !important;
+}
+.auth-toggle-link:hover {
+  transform: scale(1.06) !important;
+}
 
 /* ── Panda mood: happy — card gets green glow ────────────────── */
 @keyframes happy-card-glow {
@@ -3417,9 +3831,13 @@ input[aria-invalid="true"] {
   .panda-form-shake,
   .sm\:max-w-md h2,
   .panda-mascot-wrapper,
-  .panda-svg-label {
+  .panda-svg-label,
+  .auth-policy-panda {
     animation: none !important;
+    transform: none !important;
     transition: none !important;
+    -webkit-text-fill-color: unset !important;
+    background-clip: unset !important;
   }
 }
 
@@ -3521,6 +3939,12 @@ input:not([type="checkbox"]):not([type="radio"]):focus {
 }
 
 /* ── Social button ripple: panda-green centered radial ───────── */
+.auth-social-btn__ripple {
+  background: radial-gradient(circle, rgba(76,175,80,0.45) 0%, rgba(45,90,39,0.15) 60%, transparent 100%) !important;
+  width: 80px !important;
+  height: 80px !important;
+  margin: -40px 0 0 -40px !important;
+}
 
 /* ── Password peek paws: emoji layer floats in ───────────────── */
 /* Already has CSS, but ensure panda-wrap--peek arms stay up */
@@ -3532,6 +3956,9 @@ input:not([type="checkbox"]):not([type="radio"]):focus {
 .panda-wrap--peek .panda-arm.left {
   transform: translate(33px, -78px) rotate(10deg) !important;
 }
+.panda-wrap--peek .panda-arm.right {
+  transform: translate(-33px, -78px) rotate(-10deg) !important;
+}
 
 /* ── Form variant switch: flip animation ─────────────────────── */
 @keyframes form-variant-flip {
@@ -3541,6 +3968,9 @@ input:not([type="checkbox"]):not([type="radio"]):focus {
 }
 
 /* ── Form fields: stagger re-entrance after variant switch ───── */
+.space-y-4 {
+  animation: form-variant-flip 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
 
 /* ── Panda glasses: lens flare on login focus ────────────────── */
 @keyframes lens-flare-burst {
@@ -3553,6 +3983,17 @@ input:not([type="checkbox"]):not([type="radio"]):focus {
 }
 
 /* ── Baby pandas: hearts burst on happy ─────────────────────── */
+.panda-stage--happy .baby-panda::after {
+  content: "♥";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ff8ca2;
+  font-size: 11px;
+  animation: baby-heart 0.7s ease-out forwards;
+  pointer-events: none;
+}
 
 /* ── Background paw prints: new pulse variant ────────────────── */
 @keyframes paw-pulse-fade {
@@ -3561,12 +4002,22 @@ input:not([type="checkbox"]):not([type="radio"]):focus {
   80%  { opacity: 0.12; }
   100% { opacity: 0; transform: translateY(-80px) scale(0.8) rotate(calc(var(--rot,15deg) + 25deg)); }
 }
+.bg-paw-print {
+  animation: paw-pulse-fade var(--dur, 10s) ease-in-out infinite !important;
+  animation-delay: var(--delay, 0s) !important;
+}
 
 /* ── Auth card: 3D tilt on mouse (CSS approximation via :hover) ── */
 @keyframes card-idle-tilt {
   0%, 100% { transform: perspective(900px) rotateX(0deg) rotateY(0deg); }
   25%       { transform: perspective(900px) rotateX(0.5deg) rotateY(-0.5deg); }
   75%       { transform: perspective(900px) rotateX(-0.5deg) rotateY(0.5deg); }
+}
+.sm\:max-w-md {
+  animation:
+    form-panel-in 0.65s cubic-bezier(0.22,1,0.36,1) both,
+    panda-card-border-glow 4s ease-in-out 1s infinite,
+    card-idle-tilt 8s ease-in-out 2s infinite !important;
 }
 
 /* ── Panda nose: sniff animation ─────────────────────────────── */
@@ -3576,6 +4027,9 @@ input:not([type="checkbox"]):not([type="radio"]):focus {
   91%            { transform: translateX(-50%) scale(0.9) translateY(1px); }
   94%            { transform: translateX(-50%) scale(1.1); }
   97%            { transform: translateX(-50%) scale(1); }
+}
+.panda-nose {
+  animation: panda-sniff 4.5s ease-in-out infinite 1s !important;
 }
 
 /* ── Auth heading subtitle: shimmer on load ──────────────────── */
@@ -3610,10 +4064,22 @@ p.auth-rise-3 {
   50%  { border-color: rgba(76,175,80,0.8);  box-shadow: 0 0 12px 3px rgba(76,175,80,0.3); }
   100% { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 0 0 rgba(76,175,80,0); }
 }
+.auth-logo-ring {
+  animation: auth-ring 2.8s ease-out infinite, logo-ring-chroma 3.5s ease-in-out infinite !important;
+}
 
 /* ── Chip badges: magnetic hover ─────────────────────────────── */
+.auth-rise-4 span[class*="rounded-full"]:hover {
+  animation: chip-magnetic 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards !important;
+  transform: scale(1.08) translateY(-3px);
+}
 
 /* ── Social button dark mode: panda green accent ─────────────── */
+.dark .auth-social-btn:hover {
+  background: rgba(45,90,39,0.2) !important;
+  border-color: rgba(76,175,80,0.5) !important;
+  box-shadow: 0 4px 14px rgba(76,175,80,0.2), 0 1px 3px rgba(0,0,0,0.3) !important;
+}
 
 /* ── Typewriter cursor on form heading ───────────────────────── */
 .sm\:max-w-md h2::before {
@@ -3635,11 +4101,24 @@ p.auth-rise-3 {
   80%            { transform: rotate(-3deg); }
   88%            { transform: rotate(2deg); }
 }
+.panda-head {
+  animation: head-tilt-look 7s ease-in-out infinite;
+}
 
 /* ── Divider text: paw print float on hover ──────────────────── */
+.auth-divider__text {
+  position: relative;
+  transition: letter-spacing 0.2s ease;
+}
+.auth-divider:hover .auth-divider__text {
+  letter-spacing: 0.04em;
+}
 
 /* ── Panel slide entrance: staggered (brand left, form right) ── */
 /* These are already in Phase 5; ensure specificity */
+.lg\:w-1\/2 {
+  animation: panel-slide-in-left 0.65s cubic-bezier(0.22,1,0.36,1) 0.05s both !important;
+}
 
 /* ── Baby pandas: stagger appearance delay fix ───────────────── */
 .baby-panda-orbit:nth-child(5) { animation-delay: var(--delay), 0.45s !important; }
@@ -3664,6 +4143,11 @@ p.auth-rise-3 {
   .sm\:max-w-md h2::before,
   .panda-head,
   .auth-stat-card:hover > div:first-child,
+  .sm\:max-w-md {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
   .panda-wrap--peek .panda-arm.left  { transform: translate(33px, -78px) rotate(10deg) !important; }
   .panda-wrap--peek .panda-arm.right { transform: translate(-33px, -78px) rotate(-10deg) !important; }
 }
@@ -3764,6 +4248,10 @@ p.auth-rise-3 {
   text-align: right;
   animation: label-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+@keyframes label-pop-in {
+  0%   { transform: scale(0.8) translateX(4px); opacity: 0; }
+  100% { transform: scale(1) translateX(0); opacity: 1; }
+}
 
 /* ── Success flash on card (green shimmer sweep) ──────────────── */
 @keyframes auth-success-sweep {
@@ -3838,13 +4326,53 @@ input[type="text"]#password {
 }
 
 /* ── Floating bamboo particles: extra z-index fix ─────────────── */
+.bamboo-particle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
 
 /* ── Form toggle link: underline draw effect ──────────────────── */
+.auth-toggle-link {
+  position: relative;
+}
+.auth-toggle-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 1.5px;
+  width: 0%;
+  background: #4caf50;
+  border-radius: 99px;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.auth-toggle-link:hover::after {
+  width: 100%;
+}
 .dark .auth-toggle-link::after {
   background: #86efac;
 }
 
 /* ── Auth headings: gradient text ─────────────────────────────── */
+.sm\:max-w-md h2 {
+  background: linear-gradient(
+    135deg,
+    #1a2a1a 0%,
+    #2d5a27 40%,
+    #166534 70%,
+    #1a2a1a 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.dark .sm\:max-w-md h2 {
+  background: linear-gradient(135deg, #d1fae5 0%, #86efac 50%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
 /* ── Social buttons: staggered entrance ──────────────────────── */
 @keyframes social-btn-enter {
@@ -3860,6 +4388,11 @@ input[type="text"]#password {
 }
 
 /* ── Policy footer: bamboo accent ─────────────────────────────── */
+.auth-policy-panda {
+  display: inline-block;
+  animation: float-sway 3.5s ease-in-out infinite;
+  transform-origin: center bottom;
+}
 
 /* ── Reduced motion: V9 additions ─────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
@@ -3875,6 +4408,9 @@ input[type="text"]#password {
     animation: none !important;
     transition: none !important;
   }
+  .auth-strength-bar-seg {
+    transform: scaleX(1) !important;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -3888,12 +4424,39 @@ input[type="text"]#password {
   80%  { transform: perspective(800px) rotateX(-1.5deg) translateY(1px) scale(0.999); }
   100% { opacity: 1; transform: perspective(800px) rotateX(0deg) translateY(0) scale(1); }
 }
+.sm\:max-w-md {
+  animation: card-flip-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.08s;
+}
 
 /* ── 2. GLASSMORPHISM UPGRADE: animated shimmer border on card ── */
 @keyframes card-border-shimmer {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+.sm\:max-w-md {
+  position: relative;
+}
+.sm\:max-w-md::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(1.5rem + 1px);
+  background: linear-gradient(
+    135deg,
+    rgba(76,175,80,0.4) 0%,
+    rgba(255,255,255,0.2) 25%,
+    rgba(45,90,39,0.3) 50%,
+    rgba(255,255,255,0.15) 75%,
+    rgba(76,175,80,0.35) 100%
+  );
+  background-size: 300% 300%;
+  animation: card-border-shimmer 5s ease infinite;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(0.5px);
+  opacity: 0.8;
 }
 .dark .sm\:max-w-md::before {
   background: linear-gradient(
@@ -3927,6 +4490,11 @@ input[type="text"]#password {
   0%   { box-shadow: 0 0 0 0 rgba(76,175,80,0.5), 0 1px 3px rgba(0,0,0,0.1); }
   50%  { box-shadow: 0 0 0 4px rgba(76,175,80,0.15), 0 2px 8px rgba(76,175,80,0.12); }
   100% { box-shadow: 0 0 0 3px rgba(76,175,80,0.2), 0 1px 4px rgba(0,0,0,0.08); }
+}
+input:focus {
+  animation: input-panda-glow 0.4s ease forwards !important;
+  border-color: #4caf50 !important;
+  outline: none !important;
 }
 
 /* ── 5. BUTTON PRESS: spring squash & stretch ─────────────────── */
@@ -3973,8 +4541,17 @@ input[type="text"]#password {
 }
 
 /* ── 8. PANDA MASCOT: subtle heartbeat on idle ────────────────── */
+/* Dedicated keyframes: .panda-body is centered via translateX(-50%),
+   which must be preserved (the shared panda-heartbeat is plain scale). */
+@keyframes panda-body-heartbeat {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  14%       { transform: translateX(-50%) scale(1.03); }
+  28%       { transform: translateX(-50%) scale(1);    }
+  42%       { transform: translateX(-50%) scale(1.025); }
+  56%       { transform: translateX(-50%) scale(1);    }
+}
 .panda-stage--idle .panda-body {
-  animation: panda-heartbeat 3.5s ease-in-out infinite 2s;
+  animation: panda-body-heartbeat 3.5s ease-in-out infinite 2s;
 }
 
 /* ── 9. PAGE BACKGROUND: animated gradient mesh ──────────────── */
@@ -4000,6 +4577,37 @@ input[type="text"]#password {
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+.sm\:max-w-md h2 {
+  background: linear-gradient(
+    135deg,
+    #1a3a1a 0%,
+    #2d5a27 20%,
+    #4caf50 45%,
+    #166534 65%,
+    #2d5a27 80%,
+    #1a3a1a 100%
+  ) !important;
+  background-size: 200% 200% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  animation: title-gradient-shift 4s ease infinite;
+}
+.dark .sm\:max-w-md h2 {
+  background: linear-gradient(
+    135deg,
+    #d1fae5 0%,
+    #86efac 25%,
+    #4ade80 50%,
+    #6ee7b7 75%,
+    #d1fae5 100%
+  ) !important;
+  background-size: 200% 200% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  animation: title-gradient-shift 4s ease infinite;
+}
 
 /* ── 12. PANDA PEEK: extra dramatic cover animation ──────────── */
 @keyframes peek-paw-cover {
@@ -4007,6 +4615,14 @@ input[type="text"]#password {
   60%  { transform: translateY(-8px) rotate(3deg) scale(1.1); opacity: 1; }
   80%  { transform: translateY(2px) rotate(-1deg) scale(1.02); }
   100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+}
+.panda-stage--peek .panda-peek-paw.left {
+  animation: peek-paw-cover 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards !important;
+  transform-origin: bottom right !important;
+}
+.panda-stage--peek .panda-peek-paw.right {
+  animation: peek-paw-cover 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.05s forwards !important;
+  transform-origin: bottom left !important;
 }
 
 /* ── 13. SUCCESS FLASH: confetti burst from panda mascot ─────── */
@@ -4017,6 +4633,9 @@ input[type="text"]#password {
   75%  { transform: translateY(-10px) scale(1.02, 0.98); }
   90%  { transform: translateY(-4px) scale(0.99, 1.01); }
   100% { transform: translateY(0) scale(1); }
+}
+.panda-stage--happy .panda-wrap {
+  animation: mascot-happy-jump 0.7s cubic-bezier(0.34,1.56,0.64,1) !important;
 }
 
 /* ── 14. ERROR SHAKE: more dramatic ──────────────────────────── */
@@ -4029,11 +4648,17 @@ input[type="text"]#password {
   70%       { transform: translateX(-3px); }
   85%       { transform: translateX(3px); }
 }
+.panda-form-shake {
+  animation: panda-form-shake-v2 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+}
 
 /* ── 15. DIVIDER: animated bamboo separator ──────────────────── */
 @keyframes divider-grow {
   0%   { width: 0; opacity: 0; }
   100% { width: 100%; opacity: 1; }
+}
+.auth-divider__line {
+  animation: divider-grow 0.6s ease 0.5s both;
 }
 
 /* ── 16. TOGGLE LINK: panda bounce on hover ──────────────────── */
@@ -4041,6 +4666,9 @@ input[type="text"]#password {
   0%, 100% { transform: translateY(0); }
   30%       { transform: translateY(-3px); }
   60%       { transform: translateY(1px); }
+}
+.auth-toggle-link:hover {
+  animation: toggle-link-bounce 0.4s ease;
 }
 
 /* ── 17. PANDA EYE TOGGLE: blink animation ───────────────────── */
@@ -4067,6 +4695,10 @@ input[type="text"]#password {
   animation: stat-shine 0.6s ease;
   pointer-events: none;
 }
+.auth-stat-card {
+  position: relative;
+  overflow: hidden;
+}
 
 /* ── 19. BAMBOO PARTICLES: enhanced 3D perspective ───────────── */
 @keyframes bamboo-sway-3d {
@@ -4076,11 +4708,24 @@ input[type="text"]#password {
   75%  { transform: translateY(-3px) rotateX(-1deg) scaleX(0.98); }
   100% { transform: translateY(0) rotateX(0deg) scaleX(1); }
 }
+.bg-bamboo-particle {
+  animation: bamboo-sway-3d var(--dur, 10s) ease-in-out infinite var(--delay, 0s) !important;
+}
 
 /* ── 20. FORM CARD: subtle parallax tilt on mouse move ─────────
    JS được inject từ AuthForm để thêm class panda-card--tilt ──── */
 @keyframes card-tilt-reset {
   to { transform: perspective(800px) rotateX(0deg) rotateY(0deg); }
+}
+.sm\:max-w-md {
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+  will-change: transform;
+}
+.sm\:max-w-md:hover {
+  box-shadow:
+    0 32px 64px -12px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(76,175,80,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.1) !important;
 }
 
 /* ── 21. PAW PRINT TRAIL on background ───────────────────────── */
@@ -4089,6 +4734,14 @@ input[type="text"]#password {
   10%  { opacity: 0.6; }
   80%  { opacity: 0.4; }
   100% { transform: translateY(-90vh) rotate(calc(var(--rot) + 15deg)) scale(calc(var(--sz) * 0.5)); opacity: 0; }
+}
+.bg-paw-print {
+  position: absolute;
+  font-size: var(--sz, 12px);
+  animation: paw-bg-drift var(--dur, 10s) linear infinite var(--delay, 0s) !important;
+  pointer-events: none;
+  z-index: 3;
+  filter: blur(0.3px);
 }
 
 /* ── 22. VARIANT SWITCH: page-turn effect ────────────────────── */
@@ -4107,6 +4760,9 @@ input[type="text"]#password {
   25%       { transform: rotate(3deg) scale(1.02); }
   50%       { transform: rotate(-2deg) scale(0.98); }
   75%       { transform: rotate(2deg) scale(1.01); }
+}
+.panda-svg-btn--loading svg {
+  animation: panda-btn-loading-wobble 0.8s ease-in-out infinite !important;
 }
 
 /* ── 24. INPUT FOCUS: bamboo leaf particle burst ─────────────── */
@@ -4138,8 +4794,23 @@ input[type="text"]#password {
   0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.6; }
   100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
 }
+.auth-social-btn__ripple {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(76,175,80,0.4), rgba(134,239,172,0.2));
+  transform: translate(-50%, -50%) scale(0);
+  animation: social-ripple-expand 0.6s ease-out forwards !important;
+  pointer-events: none;
+}
 
 /* ── 27. PANDA TOOLTIP: animated entrance ────────────────────── */
+@keyframes tooltip-pop {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(4px) scale(0.85); }
+  70%  { transform: translateX(-50%) translateY(-2px) scale(1.05); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
 .panda-tooltip {
   transition: opacity 0.25s ease !important;
 }
@@ -4166,9 +4837,19 @@ input[type="text"]#password {
 }
 
 /* ── 30. FORGOT PASSWORD: underline animate ──────────────────── */
+.auth-forgot-link {
+  position: relative;
+  transition: color 0.2s ease;
+}
 @keyframes forgot-underline-draw {
   0%   { width: 0; }
   100% { width: 100%; }
+}
+.auth-forgot-link:hover {
+  color: #4caf50 !important;
+}
+.auth-forgot-link:hover::after {
+  animation: forgot-underline-draw 0.25s ease forwards !important;
 }
 
 /* ── REDUCED MOTION: disable V9 premium animations ───────────── */
@@ -4181,6 +4862,10 @@ input[type="text"]#password {
   .panda-stage--happy .panda,
   .panda-svg-btn--loading svg,
   .auth-stat-card:hover::after,
+  .bg-bamboo-particle {
+    animation: none !important;
+    transition: none !important;
+  }
   .sm\:max-w-md::before { display: none; }
 }
 
@@ -4199,6 +4884,24 @@ input[type="text"]#password {
   100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translateX(-50%) scale(1) rotate(0deg); }
 }
 
+.sm\:max-w-md::after {
+  content: "";
+  position: absolute;
+  width: 130%;
+  height: 120%;
+  top: -10%;
+  left: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(76, 175, 80, 0.10) 0%,
+    rgba(45, 90, 39, 0.07) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: -2;
+  animation: blob-morph 12s ease-in-out infinite;
+  will-change: transform, border-radius;
+}
 
 /* ── 2. NEON GLOW RING trên card khi focus-within ──────────────── */
 @keyframes neon-pulse {
@@ -4215,6 +4918,9 @@ input[type="text"]#password {
       0 0 40px rgba(76, 175, 80, 0.12),
       0 25px 50px rgba(0, 0, 0, 0.4);
   }
+}
+.sm\:max-w-md:focus-within {
+  animation: neon-pulse 2.5s ease-in-out infinite !important;
 }
 
 /* ── 3. PANDA BLINK + wink (left eye closes alone) ─────────────── */
@@ -4237,11 +4943,18 @@ input[type="text"]#password {
   88%  { transform: scale(0.98) translateY(1px); }
   100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; }
 }
+.panda-mascot-wrapper {
+  animation: panda-spring-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both !important;
+}
 
 /* ── 5. CARD INNER SHIMMER BORDER — gradient spinning border ─────── */
 @keyframes border-spin {
   0%   { background-position: 0% 0%; }
   100% { background-position: 300% 300%; }
+}
+.sm\:max-w-md::before {
+  background-size: 300% 300% !important;
+  animation: card-border-shimmer 4s ease infinite, border-spin 8s linear infinite !important;
 }
 
 /* ── 6. PASSWORD EYE TOGGLE: panda reaction ripple ────────────── */
@@ -4307,6 +5020,10 @@ input[type="text"]#password {
   0%, 100% { filter: drop-shadow(0 2px 4px rgba(76, 175, 80, 0.2)); }
   50%       { filter: drop-shadow(0 4px 8px rgba(76, 175, 80, 0.45)); }
 }
+.baby-panda {
+  animation: baby-bob 0.42s ease-in-out infinite,
+             baby-orbit-glow 3s ease-in-out infinite !important;
+}
 
 /* ── 11. PANDA GLASSES: steam/fog effect on sad ──────────────── */
 @keyframes glasses-fog {
@@ -4336,6 +5053,10 @@ input[type="text"]#password {
   50%  { transform: translateY(1px) scale(0.98); box-shadow: 0 2px 6px rgba(76,175,80,0.12); }
   100% { transform: translateY(-2px) scale(1.03); box-shadow: 0 6px 18px rgba(76,175,80,0.18); }
 }
+.auth-social-btn:active {
+  animation: social-press-3d 0.15s ease forwards !important;
+  transform: translateY(1px) scale(0.98) !important;
+}
 
 /* ── 14. PANDA SUITCASE: spark trail on walk ─────────────────── */
 @keyframes spark-trail {
@@ -4349,6 +5070,10 @@ input[type="text"]#password {
   33%  { background: radial-gradient(ellipse at 50% 10%, rgba(255,183,77,0.1), transparent 50%), radial-gradient(ellipse at 30% 90%, rgba(76,175,80,0.15), transparent 50%); }
   66%  { background: radial-gradient(ellipse at 80% 50%, rgba(33,150,243,0.08), transparent 50%), radial-gradient(ellipse at 20% 40%, rgba(76,175,80,0.12), transparent 50%); }
   100% { background: radial-gradient(ellipse at 20% 80%, rgba(76,175,80,0.15), transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(134,239,172,0.12), transparent 50%); }
+}
+.panda-card--happy {
+  animation: card-aurora-happy 1.5s ease infinite,
+             panda-form-happy-glow 1.4s ease-out both !important;
 }
 
 /* ── 16. FORM HEADING SUBTITLE: typewriter effect ───────────── */
@@ -4366,6 +5091,9 @@ input[type="text"]#password {
   0%, 100% { transform: translateX(-50%) scale(1) rotate(0deg); }
   30%       { transform: translateX(-50%) scale(1.3) rotate(-12deg); }
   60%       { transform: translateX(-50%) scale(0.9) rotate(8deg); }
+}
+.auth-divider__text {
+  position: relative;
 }
 
 /* ── 18. LOADING PANDA: speed lines behind it ───────────────── */
@@ -4412,6 +5140,10 @@ input[type="text"]#password {
   77%            { transform: rotate(3deg) translateX(-50%); }
   82%            { transform: rotate(-2deg) translateX(-50%); }
 }
+.panda-head {
+  animation: head-curiosity 8s ease-in-out infinite !important;
+  transform-origin: 50% 100%;
+}
 
 /* ── 20. PANDA ARM WAVE: more natural movement ──────────────── */
 @keyframes arm-wave-natural {
@@ -4423,6 +5155,9 @@ input[type="text"]#password {
   65%  { transform: rotate(-10deg) translateY(-3px); }
   80%  { transform: rotate(20deg); }
   100% { transform: rotate(28deg); }
+}
+.panda-arm.left {
+  animation: arm-wave-natural 4s ease-in-out infinite !important;
 }
 
 /* ── 21. FORM FIELDS: linger glow after typing ───────────────── */
@@ -4440,6 +5175,9 @@ input:not(:focus):not(:placeholder-shown):valid {
   90%            { filter: brightness(1.3); }
   92%            { filter: brightness(0.9); }
   95%            { filter: brightness(1.1); }
+}
+.panda-patch {
+  animation: patch-shimmer 6s ease-in-out infinite;
 }
 .panda-patch.right { animation-delay: 0.4s; }
 
@@ -4460,17 +5198,39 @@ input:not(:focus):not(:placeholder-shown):valid {
   88%  { opacity: calc(var(--opacity, 0.4) * 0.6); }
   100% { transform: translateY(-100px) scale(0.8) rotate(15deg); opacity: 0; }
 }
+.bamboo-particle {
+  animation: bamboo-rise-3d var(--dur, 2.2s) ease-in-out infinite !important;
+  --opacity: 0.7;
+}
 
 /* ── 25. PANDA TOOLTIP: breathing pulse when visible ────────── */
 @keyframes tooltip-breathe {
   0%, 100% { transform: translateX(-50%) scale(1); }
   50%       { transform: translateX(-50%) scale(1.04); }
 }
+.panda-tooltip[style*="opacity: 1"] {
+  animation: tooltip-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) both,
+             tooltip-breathe 2s ease-in-out 0.5s infinite !important;
+}
 
 /* ── 26. AUTH CARD: floating island effect ───────────────────── */
 @keyframes card-island-float {
+  0%, 100% {
+    transform: translateY(0px);
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.3));
+  }
+  50% {
+    transform: translateY(-4px);
+    filter: drop-shadow(0 28px 40px rgba(0,0,0,0.35));
+  }
 }
 @media (min-width: 1024px) {
+  .sm\:max-w-md {
+    animation:
+      card-flip-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both,
+      panda-card-border-glow 4s ease-in-out 1s infinite,
+      card-island-float 5s ease-in-out 2s infinite !important;
+  }
 }
 
 /* ── 27. PANDA CHEEKS: pulse more intensely on happy ────────── */
@@ -4485,6 +5245,9 @@ input:not(:focus):not(:placeholder-shown):valid {
 @keyframes policy-float {
   0%, 100% { transform: translateY(0) rotate(-5deg); }
   50%       { transform: translateY(-4px) rotate(5deg); }
+}
+.auth-policy-panda {
+  animation: policy-float 2.5s ease-in-out infinite !important;
 }
 
 /* ── 29. MOBILE: swipe hint animation ───────────────────────── */
@@ -4501,12 +5264,18 @@ input:not(:focus):not(:placeholder-shown):valid {
   60%  { transform: scale(1.1) translateX(-1px); }
   100% { transform: scale(1) translateX(0); opacity: 1; }
 }
+.auth-strength-label {
+  animation: strength-label-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
 
 /* ── 31. PANDA SUITCASE: color cycle ────────────────────────── */
 @keyframes suitcase-color-cycle {
   0%, 100% { filter: hue-rotate(0deg) brightness(1); }
   33%       { filter: hue-rotate(15deg) brightness(1.08); }
   66%       { filter: hue-rotate(-10deg) brightness(0.95); }
+}
+.panda-suitcase-body {
+  animation: suitcase-color-cycle 8s ease-in-out infinite;
 }
 
 /* ── 32. PAGE LOAD SEQUENCE: coordinated entrance ────────────── */
@@ -4540,6 +5309,12 @@ input:not(:focus):not(:placeholder-shown):valid {
 
 /* ── 35. DARK MODE EXTRAS: neon green glow ────────────────────── */
 @media (prefers-color-scheme: dark) {
+  .sm\:max-w-md:focus-within {
+    box-shadow:
+      0 0 0 2px rgba(134,239,172,0.4),
+      0 0 30px rgba(134,239,172,0.15),
+      0 25px 50px rgba(0,0,0,0.5) !important;
+  }
 }
 
 /* ── REDUCED MOTION: disable ALL V10 additions ──────────────── */
@@ -4559,11 +5334,19 @@ input:not(:focus):not(:placeholder-shown):valid {
   .auth-strength-label,
   .panda-suitcase-body,
   .auth-policy-panda,
-  .panda-svg-btn .panda-svg-body {
+  .panda-svg-btn .panda-svg-body,
+  .relative.h-screen {
     animation: none !important;
     transition: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .sm\:max-w-md:focus-within {
+    box-shadow: 0 0 0 2px rgba(76,175,80,0.4) !important;
+    animation: none !important;
   }
 }
+
 
 
 /* ================================================================
@@ -4572,12 +5355,27 @@ input:not(:focus):not(:placeholder-shown):valid {
    ================================================================ */
 
 /* ── V11 TOKEN ADDITIONS ─────────────────────────────────────── */
+:root {
+  --panda-glow-green:  0 0 0 2px rgba(76,175,80,0.35), 0 0 20px rgba(76,175,80,0.18);
+  --panda-glow-happy:  0 0 0 3px rgba(76,175,80,0.6),  0 0 40px rgba(76,175,80,0.25);
+  --panda-glow-sad:    0 0 0 3px rgba(239,68,68,0.55), 0 0 24px rgba(239,68,68,0.18);
+  --panda-transition:  all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
 /* ── 1. INPUT: INK-DROP FILL ANIMATION ───────────────────────── */
-/* Khi focus, một "giọt mực" panda-green tràn từ dưới lên       */
+/* Khi focus, một "giọt mực" panda-green tràn từ dưới lên.
+   WARNING: ink-drop-fill animates the input's own `opacity` to 0.04 —
+   applying it to the input makes typed text invisible. Keyframes kept
+   for reference only; never attach to the input element. */
 @keyframes ink-drop-fill {
   0%   { background-size: 100% 0%;   background-position: bottom; opacity: 0.06; }
   100% { background-size: 100% 100%; background-position: bottom; opacity: 0.04; }
+}
+input:not([type="checkbox"]):not([type="radio"]):focus {
+  background-image: linear-gradient(0deg, rgba(76,175,80,0.07), rgba(76,175,80,0.02)) !important;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  animation: input-panda-glow 0.4s ease forwards !important;
 }
 
 /* ── 2. INPUT: ANIMATED PLACEHOLDER FADE ────────────────────── */
@@ -4595,6 +5393,10 @@ input::placeholder {
   0%   { opacity: 0.5; transform: translateX(-50%) rotate(0deg) scale(1); }
   50%  { opacity: 0.8; transform: translateX(-50%) rotate(3deg) scale(1.04); }
   100% { opacity: 0.5; transform: translateX(-50%) rotate(0deg) scale(1); }
+}
+.sm\:max-w-md::after {
+  animation: blob-morph 12s ease-in-out infinite,
+             liquid-glass-pulse 6s ease-in-out 1s infinite !important;
 }
 
 /* ── 4. PANDA HEAD: THINKING SMOKE PUFFS ────────────────────── */
@@ -4628,10 +5430,28 @@ input::placeholder {
 
 /* ── 6. PANDA MASCOT: SHADOW DEPTH PULSE ────────────────────── */
 @keyframes mascot-depth-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 14px 22px rgba(0,0,0,0.22))
+            drop-shadow(0 3px 6px rgba(45,90,39,0.12));
+  }
+  50% {
+    filter: drop-shadow(0 20px 32px rgba(0,0,0,0.3))
+            drop-shadow(0 5px 12px rgba(45,90,39,0.2));
+  }
+}
+.panda {
+  animation: panda-sway 4.2s ease-in-out infinite,
+             mascot-depth-pulse 4.2s ease-in-out infinite !important;
 }
 
 /* ── 7. SOCIAL BUTTONS: GRADIENT ICON BADGE ─────────────────── */
 /* Màu nền icon Google/GitHub đồng bộ chủ đề khi hover          */
+.auth-social-btn:hover .auth-social-btn__icon {
+  background: linear-gradient(135deg, rgba(76,175,80,0.15), rgba(45,90,39,0.08));
+  border-radius: 6px;
+  padding: 2px;
+  animation: icon-bounce 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
 
 /* ── 8. VARIANT TOGGLE: SLIDE DIRECTION ARROWS ───────────────── */
 @keyframes arrow-hint-right {
@@ -4649,6 +5469,9 @@ input::placeholder {
 @keyframes belly-ripple {
   0%, 100% { transform: translateX(-50%) scaleX(1) scaleY(1); opacity: 0.7; }
   50%       { transform: translateX(-50%) scaleX(1.06) scaleY(1.04); opacity: 0.85; }
+}
+.panda-belly {
+  animation: belly-ripple 3.5s ease-in-out infinite;
 }
 
 /* ── 10. LOADING DOTS: PANDA FACE SEQUENCE ───────────────────── */
@@ -4671,6 +5494,12 @@ input::placeholder {
   60%  { transform: translateY(-50%) scale(1.12) rotate(5deg); }
   100% { transform: translateY(-50%) scale(1.15) rotate(0deg); }
 }
+.auth-eye-toggle:hover {
+  animation: eye-btn-magnetic 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards !important;
+  margin-top: 10px;
+  color: #4caf50 !important;
+  background: rgba(76,175,80,0.12) !important;
+}
 
 /* ── 12. FORM: SECTION DIVIDERS GROW FROM CENTER ─────────────── */
 /* Divider lines already animate; add a center paw pip           */
@@ -4691,6 +5520,9 @@ input::placeholder {
   33%  { background: rgba(120,255,180,0.25); }
   66%  { background: rgba(255,180,120,0.18); }
   100% { background: rgba(120,180,255,0.22); }
+}
+.panda-glasses-lens {
+  animation: holo-lens 6s ease-in-out infinite;
 }
 .panda-glasses-lens.right {
   animation-delay: 1.5s;
@@ -4724,6 +5556,10 @@ input[aria-invalid="true"]:focus {
   75%  { filter: drop-shadow(0 0 12px rgba(255,100,130,0.4)) drop-shadow(0 14px 22px rgba(0,0,0,0.22)); }
   100% { filter: drop-shadow(0 0 8px rgba(76,175,80,0.5))  drop-shadow(0 14px 22px rgba(0,0,0,0.22)); }
 }
+.panda-stage--happy .panda {
+  animation: happy-aura-v11 0.8s ease-in-out infinite,
+             panda-sway 4.2s ease-in-out infinite !important;
+}
 
 /* ── 17. SOCIAL BUTTON: PLATFORM COLOR BADGE ────────────────── */
 /* GitHub button gets a dark tint, Google gets colorful          */
@@ -4752,14 +5588,29 @@ input[aria-invalid="true"]:focus {
   50%  { background: radial-gradient(ellipse 60% 60% at 70% 40%, rgba(76,175,80,0.09) 0%, transparent 70%); }
   100% { background: radial-gradient(ellipse 60% 60% at 30% 60%, rgba(76,175,80,0.06) 0%, transparent 70%); }
 }
+.panda-stage {
+  animation: mascot-entrance 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.18s both,
+             spotlight-sweep 6s ease-in-out 1s infinite !important;
+  position: relative;
+}
 
 /* ── 20. STRENGTH BAR: GRADIENT SEGMENTS ────────────────────── */
 /* Each filled segment transitions through traffic-light colors  */
+.auth-strength-bar-seg {
+  transition: background 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1),
+              box-shadow 0.3s ease !important;
+}
+.auth-strength-bar-seg[style*="scaleX(1)"] {
+  box-shadow: 0 0 4px currentColor;
+}
 
 /* ── 21. PANDA PEEK BUBBLE: PULSING GLOW ────────────────────── */
 @keyframes peek-bubble-glow {
   0%, 100% { box-shadow: 0 3px 10px rgba(45,90,39,0.25); }
   50%       { box-shadow: 0 3px 18px rgba(76,175,80,0.45), 0 0 8px rgba(76,175,80,0.2); }
+}
+.panda-stage--peek .panda-peek-bubble {
+  animation: peek-bubble-glow 1.5s ease-in-out infinite;
 }
 
 /* ── 22. BRAND PANEL LOGO: RING CHROMA UPGRADE ───────────────── */
@@ -4769,6 +5620,10 @@ input[aria-invalid="true"]:focus {
   66%  { border-color: rgba(255,255,255,0.7);  box-shadow: 0 0 8px 1px rgba(134,239,172,0.25); }
   100% { border-color: rgba(255,255,255,0.55); box-shadow: 0 0 0 0 rgba(76,175,80,0); }
 }
+.auth-logo-ring {
+  animation: auth-ring 2.8s ease-out infinite,
+             logo-chroma-v11 4s ease-in-out infinite !important;
+}
 
 /* ── 23. PANDA TAIL: ENHANCED WAG BEHIND BODY ───────────────── */
 @keyframes tail-wag-v11 {
@@ -4776,6 +5631,9 @@ input[aria-invalid="true"]:focus {
   25%       { transform: translateX(-50%) rotate(15deg) scale(1.08); }
   50%       { transform: translateX(-50%) rotate(-10deg) scale(0.96); }
   75%       { transform: translateX(-50%) rotate(20deg) scale(1.05); }
+}
+.panda-body::after {
+  animation: tail-wag-v11 1.2s ease-in-out infinite !important;
 }
 
 /* ── 24. CHIP BADGES: SPRING HOVER MICRO-INTERACTION ────────── */
@@ -4786,9 +5644,20 @@ input[aria-invalid="true"]:focus {
   75%  { transform: scale(1.05) translateY(-1px) rotate(-1deg); }
   100% { transform: scale(1.08) translateY(-3px) rotate(0deg); }
 }
+span[class*="rounded-full"]:hover {
+  animation: chip-spring 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards !important;
+  cursor: default;
+}
 
 /* ── 25. PANDA BUTTON: NEON GLOW PULSE ON IDLE ───────────────── */
 @keyframes panda-btn-neon-idle {
+  0%, 100% {
+    filter: drop-shadow(0 4px 8px rgba(45,90,39,0.2));
+  }
+  50% {
+    filter: drop-shadow(0 6px 14px rgba(76,175,80,0.4))
+            drop-shadow(0 0 8px rgba(76,175,80,0.25));
+  }
 }
 .panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading):not(:hover) {
   animation:
@@ -4828,12 +5697,20 @@ input[aria-invalid="true"]:focus {
   50%  { letter-spacing: 0.05em; }
   100% { letter-spacing: 0em; }
 }
+.auth-forgot-link:hover {
+  animation: forgot-paw-trail 0.4s ease !important;
+  color: #4caf50 !important;
+}
 
 /* ── 28. PANDA MASCOT WRAPPER: SPOTLIGHT ENTRANCE ───────────── */
 @keyframes mascot-wrapper-glow {
   0%   { filter: drop-shadow(0 0 0px rgba(76,175,80,0)); }
   40%  { filter: drop-shadow(0 0 20px rgba(76,175,80,0.35)); }
   100% { filter: drop-shadow(0 0 0px rgba(76,175,80,0)); }
+}
+.panda-mascot-wrapper {
+  animation: panda-spring-in 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.12s both,
+             mascot-wrapper-glow 1s ease-out 0.9s 1 both !important;
 }
 
 /* ── 29. BOTTOM POLICY AREA: STAGGER FADE-IN ────────────────── */
@@ -4870,6 +5747,11 @@ input[aria-invalid="true"]:focus {
   20%  { opacity: 1; }
   100% { opacity: 0; transform: translate(var(--lx,8px), 28px) rotate(var(--lr,40deg)) scale(0.5); }
 }
+.panda-svg-btn:hover::after {
+  animation: leaf-rain-v11 0.7s ease-out infinite !important;
+  --lx: -18px;
+  --lr: -35deg;
+}
 
 /* ── 32. DARK MODE: ENHANCED NEON GREEN ──────────────────────── */
 .dark .sm\:max-w-md:focus-within {
@@ -4878,6 +5760,9 @@ input[aria-invalid="true"]:focus {
     0 0 35px rgba(134,239,172,0.2),
     0 0 60px rgba(74,222,128,0.1),
     0 30px 60px rgba(0,0,0,0.55) !important;
+}
+.dark .auth-social-btn:hover {
+  box-shadow: 0 4px 16px rgba(134,239,172,0.25), 0 1px 3px rgba(0,0,0,0.35) !important;
 }
 
 /* ── REDUCED MOTION: ALL V11 ADDITIONS ──────────────────────── */
@@ -4900,316 +5785,2413 @@ input[aria-invalid="true"]:focus {
     transform: none !important;
     filter: none !important;
   }
+  .panda-stage {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  /* Base .panda-svg-btn has opacity:0 + relies on panda-btn-appear;
+     with animations disabled it must be forced visible. */
+  .panda-svg-btn {
+    opacity: 1 !important;
+  }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   V13 — PREMIUM ANIMATION UPGRADE
+   Thêm: input glow, card entrance, mascot wave-in, touch trail,
+   neon social buttons, full-screen confetti, ambient pulse
+   ═══════════════════════════════════════════════════════════════ */
 
-/* ================================================================
-   ANIMATION NÂNG CẤP — Phase 2
-   ================================================================ */
+/* ── V13.1: FORM CARD — GLASS SHIMMER ENTRANCE ──────────────── */
+@keyframes card-glass-in {
+  0%   { opacity: 0; transform: translateY(28px) scale(0.94); filter: blur(8px); }
+  60%  { opacity: 1; filter: blur(0); }
+  80%  { transform: translateY(-4px) scale(1.008); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes card-ambient-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(76,175,80,0.12),
+      0 8px 32px rgba(0,0,0,0.22),
+      0 0 60px rgba(76,175,80,0.04);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(134,239,172,0.22),
+      0 8px 40px rgba(0,0,0,0.28),
+      0 0 80px rgba(76,175,80,0.12),
+      0 0 120px rgba(76,175,80,0.06);
+  }
+}
+/* Apply to the glass card container */
+.sm\:max-w-md.rounded-3xl {
+  animation:
+    card-glass-in 0.7s cubic-bezier(0.22,1,0.36,1) both,
+    card-ambient-pulse 4s ease-in-out 1s infinite !important;
+  transform-style: preserve-3d;
+}
 
-/* ── Panda LOADING state: chạy tại chỗ nhanh hơn + xoay mắt ─── */
+/* ── V13.2: INPUT FIELDS — NEON FOCUS GLOW ──────────────────── */
+@keyframes input-focus-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(76,175,80,0); }
+  50%  { box-shadow: 0 0 0 3px rgba(76,175,80,0.18), 0 0 16px rgba(76,175,80,0.12); }
+  100% { box-shadow: 0 0 0 2px rgba(76,175,80,0.25), 0 0 8px rgba(76,175,80,0.1); }
+}
+@keyframes label-float-in {
+  0%   { opacity: 0.6; transform: translateY(0) scale(1); }
+  100% { opacity: 1; transform: translateY(-22px) scale(0.82); }
+}
+input:focus {
+  animation: input-focus-glow 0.35s ease forwards !important;
+  border-color: rgba(76,175,80,0.6) !important;
+  outline: none !important;
+}
+.dark input:focus {
+  border-color: rgba(134,239,172,0.5) !important;
+  box-shadow: 0 0 0 2px rgba(134,239,172,0.2), 0 0 14px rgba(134,239,172,0.12) !important;
+}
+/* Animated border sweep on focus */
+input:focus::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(76,175,80,0.4), transparent);
+  animation: auth-shimmer 1.2s ease forwards;
+  pointer-events: none;
+}
 
-.panda--loading .panda-leg.left  { animation: panda-step-a 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-leg.right { animation: panda-step-b 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-foot.left  { animation: panda-step-a 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-foot.right { animation: panda-step-b 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-arm.left { animation: panda-arm-left 0.28s ease-in-out infinite !important; }
-/* Sweat drop rendered via pseudo-element on panda-head during loading */
-/* Eyes spin while loading */
+/* ── V13.3: MASCOT ENTRANCE — SPRING WAVE-IN ────────────────── */
+@keyframes mascot-wave-entrance {
+  0%   { opacity: 0; transform: translateY(20px) rotate(-8deg) scale(0.7); }
+  45%  { opacity: 1; transform: translateY(-8px) rotate(4deg) scale(1.06); }
+  65%  { transform: translateY(2px) rotate(-2deg) scale(0.98); }
+  80%  { transform: translateY(-3px) rotate(1deg) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+}
+@keyframes mascot-halo {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 0px rgba(76,175,80,0))
+      drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 18px rgba(76,175,80,0.5))
+      drop-shadow(0 4px 16px rgba(0,0,0,0.2));
+  }
+}
+.panda-mascot-wrapper {
+  animation:
+    mascot-wave-entrance 1.0s cubic-bezier(0.34,1.56,0.64,1) 0.15s both,
+    mascot-halo 3.5s ease-in-out 1.2s infinite !important;
+}
 
-/* ── Panda-wrap loading bob applies to the whole stage container ─ */
+/* ── V13.4: PANDA BUTTON — BOUNCE IDLE + BLINK EYE ─────────── */
+@keyframes panda-btn-idle-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30%      { transform: translateY(-5px) scale(1.02); }
+  50%      { transform: translateY(-8px) scale(1.025); }
+  70%      { transform: translateY(-5px) scale(1.02); }
+}
+@keyframes panda-btn-eye-blink {
+  0%, 90%, 100%  { transform: scaleY(1); }
+  95%            { transform: scaleY(0.05); }
+}
+.panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading) svg {
+  animation: panda-btn-idle-bounce 2.8s ease-in-out 1s infinite !important;
+}
+.panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading) .panda-svg-eye-l,
+.panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading) .panda-svg-eye-r {
+  animation: panda-btn-eye-blink 4s ease-in-out 2s infinite !important;
+}
+/* Stop bounce on hover — let hover animation take over */
+.panda-svg-btn:hover svg {
+  animation: none !important;
+}
 
-/* ── Bamboo particle floaters (appear on form card hover) ──────── */
+/* ── V13.5: SOCIAL BUTTONS — NEON GRADIENT BORDER ───────────── */
+@keyframes social-btn-border-dance {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.auth-social-btn::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(76,175,80,0.0),
+    rgba(134,239,172,0.0),
+    rgba(76,175,80,0.0)
+  );
+  background-size: 200% 200%;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.auth-social-btn:hover::after {
+  background: linear-gradient(
+    135deg,
+    rgba(76,175,80,0.5),
+    rgba(134,239,172,0.8),
+    rgba(45,90,39,0.6),
+    rgba(134,239,172,0.8),
+    rgba(76,175,80,0.5)
+  );
+  background-size: 200% 200%;
+  animation: social-btn-border-dance 2s linear infinite !important;
+  opacity: 1;
+}
+.auth-social-btn:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
+.dark .auth-social-btn:hover::after {
+  background: linear-gradient(
+    135deg,
+    rgba(134,239,172,0.6),
+    rgba(74,222,128,0.9),
+    rgba(76,175,80,0.7),
+    rgba(74,222,128,0.9),
+    rgba(134,239,172,0.6)
+  );
+  background-size: 200% 200%;
+  opacity: 1;
+}
 
-/* ── Input field — animated label float + panda border pulse ───── */
+/* ── V13.6: TOGGLE LINK — MORPHING UNDERLINE ────────────────── */
+@keyframes toggle-link-morph {
+  0%   { transform: scaleX(0) translateX(-50%); }
+  100% { transform: scaleX(1) translateX(0); }
+}
+.auth-toggle-link {
+  position: relative;
+  display: inline-block;
+}
+.auth-toggle-link::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #4caf50, #86efac, #4caf50);
+  background-size: 200% 100%;
+  border-radius: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  animation: social-btn-border-dance 1.5s linear infinite paused;
+}
+.auth-toggle-link:hover::after {
+  transform: scaleX(1);
+  animation-play-state: running !important;
+}
 
-/* ── Form card — subtle panda-green shimmer sweep on mount ─────── */
+/* ── V13.7: PASSWORD EYE TOGGLE — SPRING POP ────────────────── */
+/* NOTE: .auth-eye-icon is a static flex child inside the button —
+   no translateY(-50%) here (that belongs to the absolutely-positioned
+   .auth-eye-toggle button), otherwise the icon shifts up off-center. */
+@keyframes eye-toggle-pop {
+  0%   { transform: scale(0.7) rotate(-15deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.auth-eye-icon {
+  animation: eye-toggle-pop 0.25s cubic-bezier(0.34,1.56,0.64,1) both !important;
+}
+.auth-eye-toggle:hover {
+  transform: translateY(-50%) scale(1.2) rotate(10deg) !important;
+  margin-top: 10px;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
 
-/* ── PandaButton — upgraded hover + pressed + loaded state ─────── */
+/* ── V13.8: PANDA STAGE — FIRST-RENDER WINK ────────────────────*/
+@keyframes panda-first-wink {
+  0%, 60%, 100%  { transform: scaleY(1); }
+  65%            { transform: scaleY(0.06); }
+  70%            { transform: scaleY(1); }
+  74%            { transform: scaleY(0.06); }
+  78%            { transform: scaleY(1); }
+}
+.panda-stage--idle .panda-eye.left {
+  animation: panda-blink 5s ease-in-out 2s infinite,
+             panda-first-wink 1.2s ease 1.5s 1 !important;
+}
+.panda-stage--idle .panda-eye.right {
+  animation: panda-blink 5s ease-in-out 3.5s infinite,
+             panda-first-wink 1.2s ease 1.8s 1 !important;
+}
 
-/* ── Star/sparkle burst on happy mood ──────────────────────────── */
+/* ── V13.9: FORGOT PASSWORD — BAMBOO SLIDE ──────────────────── */
+@keyframes forgot-bamboo-slide {
+  0%   { background-position: -200% 0; opacity: 0.4; }
+  100% { background-position: 200% 0;  opacity: 0; }
+}
+.auth-forgot-link {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(76,175,80,0.15) 45%,
+    rgba(134,239,172,0.25) 50%,
+    rgba(76,175,80,0.15) 55%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  background-position: -200% 0;
+  border-radius: 3px;
+  padding: 1px 4px;
+  transition: color 0.2s ease !important;
+}
+.auth-forgot-link:hover {
+  animation: forgot-bamboo-slide 0.6s ease forwards !important;
+  color: #4caf50 !important;
+}
 
-/* ── Sad state — tears drip ─────────────────────────────────────── */
-.panda--sad .panda-cheek.left::after,
+/* ── V13.10: FORM DIVIDER — PANDA PAW BLINK ─────────────────── */
+@keyframes divider-paw-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50%      { opacity: 0.7; transform: scale(1.18); }
+}
+.auth-divider__text::before {
+  content: ' 🐾 ';
+  font-size: 9px;
+  display: inline-block;
+  animation: divider-paw-pulse 2s ease-in-out infinite;
+}
+.auth-divider__text::after {
+  content: ' 🐾 ';
+  font-size: 9px;
+  display: inline-block;
+  animation: divider-paw-pulse 2s ease-in-out 1s infinite;
+}
 
-/* ── Auth form panel — staggered field reveal ───────────────────── */
-.space-y-4 > *:nth-child(1) { animation-delay: 0.3s; }
-.space-y-4 > *:nth-child(2) { animation-delay: 0.38s; }
-.space-y-4 > *:nth-child(3) { animation-delay: 0.46s; }
-.space-y-4 > *:nth-child(4) { animation-delay: 0.52s; }
+/* ── V13.11: HAPPY MOOD — FULL CARD RAINBOW BORDER ──────────── */
+@keyframes happy-border-spin {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.panda-card--happy {
+  position: relative;
+}
+.panda-card--happy::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 24px;
+  background: linear-gradient(
+    135deg,
+    #4caf50, #86efac, #22c55e, #a7f3d0, #4caf50
+  );
+  background-size: 200% 200%;
+  animation: happy-border-spin 1.2s linear forwards !important;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.8;
+}
 
-/* ── Baby pandas — speed up when loading ──────────────────────── */
-.panda-stage:has(.panda--loading) .baby-panda-leg,
+/* ── V13.12: SAD MOOD — CARD SHAKE + RED PULSE ──────────────── */
+@keyframes sad-red-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+  50%      { box-shadow: 0 0 0 4px rgba(239,68,68,0.18), 0 0 20px rgba(239,68,68,0.1); }
+}
+.panda-card--sad {
+  animation: sad-red-pulse 0.6s ease 2 !important;
+}
 
-/* ── Card border — panda-green pulse ring on mount ──────────────── */
+/* ── V13.13: LOADING STATE — PANDA SVG SPIN ORBIT ───────────── */
+@keyframes loading-orbit-glow {
+  0%   { filter: drop-shadow(0 0 4px rgba(76,175,80,0.3)); }
+  50%  { filter: drop-shadow(0 0 14px rgba(76,175,80,0.7)) drop-shadow(0 0 6px rgba(134,239,172,0.5)); }
+  100% { filter: drop-shadow(0 0 4px rgba(76,175,80,0.3)); }
+}
+.panda-svg-btn--loading svg {
+  animation: loading-orbit-glow 1.2s ease-in-out infinite !important;
+}
 
-/* ── Auth toggle link — bubble pop on switch ─────────────────────── */
+/* ── V13.14: TOUCH TRAIL (mobile) — PANDA PAW ───────────────── */
+/* CSS for JS-spawned touch paw elements */
+.panda-touch-paw {
+  position: fixed;
+  pointer-events: none;
+  font-size: 14px;
+  z-index: 9998;
+  transform: translate(-50%, -50%) scale(0);
+  animation: touch-paw-burst 0.6s ease-out forwards;
+}
+@keyframes touch-paw-burst {
+  0%   { transform: translate(-50%, -50%) scale(0) rotate(-20deg); opacity: 1; }
+  40%  { transform: translate(-50%, -60%) scale(1.3) rotate(10deg); opacity: 0.9; }
+  100% { transform: translate(-50%, -80%) scale(0.4) rotate(25deg); opacity: 0; }
+}
 
-/* ── Reduced motion: disable all new animations ─────────────────── */
+/* ── V13.15: BAMBOO AMBIENT — RICHER DEPTH ──────────────────── */
+@keyframes bamboo-sway-deep {
+  0%, 100% { transform: rotate(-2deg) scaleY(1); }
+  33%      { transform: rotate(2.5deg) scaleY(1.01); }
+  66%      { transform: rotate(-1deg) scaleY(0.99); }
+}
+.bg-bamboo-particle {
+  animation-name: bamboo-sway-deep !important;
+  animation-timing-function: ease-in-out !important;
+}
+
+/* ── V13.16: HEADING ON BRAND SIDE — TYPEWRITER GLOW ───────── */
+@keyframes heading-letter-glow {
+  0%, 100% { text-shadow: 0 0 0px rgba(255,255,255,0); }
+  50%      { text-shadow: 0 0 20px rgba(255,255,255,0.35), 0 0 40px rgba(134,239,172,0.2); }
+}
+h1.drop-shadow-lg {
+  animation: heading-letter-glow 4s ease-in-out 1s infinite !important;
+}
+
+/* ── V13.17: STAT CARDS — COUNTER BOUNCE ────────────────────── */
+@keyframes stat-counter-bounce {
+  0%   { transform: scale(1) translateY(0); }
+  30%  { transform: scale(1.18) translateY(-4px); }
+  60%  { transform: scale(0.96) translateY(1px); }
+  80%  { transform: scale(1.06) translateY(-2px); }
+  100% { transform: scale(1) translateY(0); }
+}
+.auth-stat-card:hover .text-2xl {
+  animation: stat-counter-bounce 0.4s cubic-bezier(0.34,1.56,0.64,1) !important;
+  color: #86efac !important;
+}
+
+/* ── V13.18: GLASS CARD INNER SHIMMER (idle) ─────────────────── */
+@keyframes card-inner-shimmer {
+  0%   { transform: translateX(-200%) rotate(15deg); opacity: 0; }
+  10%  { opacity: 0.06; }
+  90%  { opacity: 0.04; }
+  100% { transform: translateX(200%) rotate(15deg); opacity: 0; }
+}
+.sm\:max-w-md.rounded-3xl::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.45) 50%, transparent 60%);
+  pointer-events: none;
+  z-index: 50;
+  animation: card-inner-shimmer 6s ease-in-out 2s infinite;
+  overflow: hidden;
+}
+
+/* ── V13.19: POLICY AREA — PANDA WIGGLE ON HOVER ────────────── */
+.auth-policy-panda {
+  transition: transform 0.2s ease;
+}
+.auth-policy-panda:hover {
+  animation: panda-friendly-wiggle 0.7s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
+
+/* ── V13.20: FLOATING DECORATIONS — SPARKLE TRAIL ───────────── */
+@keyframes sparkle-trail {
+  0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+  30%  { opacity: 0.9; transform: scale(1.2) rotate(90deg); }
+  70%  { opacity: 0.5; transform: scale(0.8) rotate(200deg); }
+  100% { opacity: 0; transform: scale(0) rotate(360deg); }
+}
+/* Enhance float-sway for deco elements */
+@keyframes float-sway-enhanced {
+  0%   { transform: translateY(0px) rotate(0deg) scale(1); }
+  20%  { transform: translateY(-6px) rotate(3deg) scale(1.03); }
+  40%  { transform: translateY(-10px) rotate(-1deg) scale(1.05); }
+  60%  { transform: translateY(-7px) rotate(4deg) scale(1.02); }
+  80%  { transform: translateY(-3px) rotate(-2deg) scale(1.01); }
+  100% { transform: translateY(0px) rotate(0deg) scale(1); }
+}
+
+/* ── V13.21: PREFERS-REDUCED-MOTION — ALL V13 ──────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .panda--loading,
-  .panda--loading .panda-leg,
-  .panda--loading .panda-foot,
-  .panda--loading .panda-arm,
-  .panda--loading .panda-eye,
-  .bamboo-particle,
-  .panda-svg-btn,
-  .space-y-4 > * {
+  .sm\:max-w-md.rounded-3xl,
+  .sm\:max-w-md.rounded-3xl::after,
+  .panda-mascot-wrapper,
+  .panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading) svg,
+  .panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading) .panda-svg-eye-l,
+  .panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading) .panda-svg-eye-r,
+  .auth-social-btn:hover::after,
+  .auth-toggle-link::after,
+  .auth-eye-icon,
+  .panda-stage--idle .panda-eye.left,
+  .panda-stage--idle .panda-eye.right,
+  .auth-forgot-link,
+  .auth-divider__text::before,
+  .auth-divider__text::after,
+  .panda-card--happy::before,
+  .panda-card--sad,
+  .panda-svg-btn--loading svg,
+  .bg-bamboo-particle,
+  h1.drop-shadow-lg,
+  input:focus {
     animation: none !important;
     transition: none !important;
   }
 }
 
 
-/* ================================================================
-   ANIMATION NÂNG CẤP — Phase 3: Premium Panda Experience
-   ================================================================ */
-
-/* ── Confetti burst keyframe (PandaButton click) ─────────────── */
-
-/* ── Sparkle stars on happy panda ────────────────────────────── */
-
-/* Position the 3 sparkles at different spots */
-.panda-sparkle:nth-child(1) { left: -20px; top: 10px; }
-.panda-sparkle:nth-child(2) { right: -18px; top: 20px; }
-.panda-sparkle:nth-child(3) { left: 50%; top: -14px; transform: translateX(-50%); font-size: 14px; }
-
-/* Trigger sparkles when parent stage has happy class */
-
-/* ── Panda sad tears — enhanced drop animation ───────────────── */
-.panda-stage--sad .panda-cheek.left::after,
-
-/* ── Loading state: screen shake pulse on the stage ──────────── */
-
-/* ── Baby pandas slow down on happy (celebrating!) ───────────── */
-/* Baby pandas scatter/freeze on sad */
-
-/* ── Card glass shimmer on hover ─────────────────────────────── */
-
-/* ── Input typing indicator — cute green dot pulse ───────────── */
-
-/* ── Panda mascot idle: subtle breathing (scale y) ───────────── */
-
-/* ── Panda mascot eyes: extra long gaze, then double blink ──── */
-
-/* ── Panda nose shimmer ──────────────────────────────────────── */
-
-/* ── Auth form card: mount with 3D flip-up effect ───────────── */
-/* Apply to the card container once only on mount */
-
-/* ── Heading text — typewriter underline effect ──────────────── */
-
-/* Center variant (mobile) */
-
-/* ── Panda button: idle float animation on the SVG ──────────── */
-/* Pause idle float on hover (replaced by panda-btn-float) */
-
-/* ── Social button: icon bounce on hover ─────────────────────── */
-
-/* ── Floating panda emoji watermark on brand side ────────────── */
-
-/* ── "Đăng nhập" / "Đăng ký" transition — text swap shimmer ─── */
-
-/* ── Password reveal: panda paws smooth out + bounce ─────────── */
-.panda--peek .panda-arm.left,
-
-/* ── Baby pandas grow hearts on happy ───────────────────────── */
-
-/* ── Gradient text on the form heading ───────────────────────── */
-
-/* ── Reduced motion: disable ALL Phase 3 additions ───────────── */
-@media (prefers-reduced-motion: reduce) {
-  .panda-sparkle,
-  .panda-body,
-  .panda-nose,
-  .panda-stage--loading,
-  h2.auth-rise-2::after,
-  .auth-social-btn .auth-social-btn__icon,
-  h2.auth-rise-2::after { transform: scaleX(1); }
+/* ── V13.22: CONFETTI RAIN (success state) ───────────────────── */
+@keyframes confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  70%  { opacity: 0.8; }
+  100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; }
 }
 
 
-/* ================================================================
-   ANIMATION NÂNG CẤP — Phase 2
-   ================================================================ */
+/* ═══════════════════════════════════════════════════════════════
+   V13 UPGRADE — PREMIUM PANDA LOGIN ANIMATIONS
+   ═══════════════════════════════════════════════════════════════ */
 
-/* ── Panda LOADING state: chạy tại chỗ nhanh hơn + xoay mắt ─── */
+/* ── 1. PANDA CURSOR PAW TRAIL ─────────────────────────────── */
+@keyframes panda-paw-trail {
+  0%   { opacity: 0.85; transform: rotate(var(--paw-rot, 0deg)) scale(1); }
+  60%  { opacity: 0.55; transform: rotate(var(--paw-rot, 0deg)) scale(0.8) translateY(-4px); }
+  100% { opacity: 0;    transform: rotate(var(--paw-rot, 0deg)) scale(0.4) translateY(-10px); }
+}
+.panda-cursor-paw {
+  position: fixed;
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 99999;
+  animation: panda-paw-trail 0.65s ease-out forwards;
+  will-change: transform, opacity;
+}
 
-.panda--loading .panda-leg.left  { animation: panda-step-a 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-leg.right { animation: panda-step-b 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-foot.left  { animation: panda-step-a 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-foot.right { animation: panda-step-b 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-arm.left { animation: panda-arm-left 0.28s ease-in-out infinite !important; }
-/* Sweat drop rendered via pseudo-element on panda-head during loading */
-/* Eyes spin while loading */
+/* ── 2. INPUT LEAF BURST ON FOCUS ──────────────────────────── */
+@keyframes leaf-burst-v13 {
+  0%   { opacity: 0.9; transform: translate(0, 0) rotate(0deg) scale(1); }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0;   transform: translate(var(--lx, 0px), var(--ly, -20px)) rotate(var(--lr, 30deg)) scale(0.4); }
+}
+.input-leaf-particle {
+  position: fixed;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 99998;
+  animation: leaf-burst-v13 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
 
-/* ── Panda-wrap loading bob applies to the whole stage container ─ */
+/* ── 3. CARD GLASS SHIMMER BORDER ON FOCUS ─────────────────── */
+@keyframes glass-border-focus {
+  0%   { opacity: 0; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; }
+}
 
-/* ── Bamboo particle floaters (appear on form card hover) ──────── */
+/* ── 4. FORM CARD: PANDA RIPPLE ENTRANCE ───────────────────── */
+@keyframes card-flip-enter {
+  0%   { opacity: 0; transform: perspective(600px) rotateY(-8deg) translateY(16px) scale(0.97); }
+  100% { opacity: 1; transform: perspective(600px) rotateY(0deg) translateY(0) scale(1); }
+}
 
-/* ── Input field — animated label float + panda border pulse ───── */
+/* ── 5. PANDA MASCOT: BOUNCE-IN ENTRANCE ───────────────────── */
+@keyframes panda-spring-in {
+  0%   { opacity: 0; transform: translateY(-20px) scale(0.7); }
+  60%  { transform: translateY(6px) scale(1.05); }
+  80%  { transform: translateY(-3px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
 
-/* ── Form card — subtle panda-green shimmer sweep on mount ─────── */
+/* ── 6. HEADING: SHIMMER TEXT SWEEP ────────────────────────── */
+@keyframes heading-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.auth-heading-shimmer {
+  background: linear-gradient(
+    105deg,
+    var(--tw-text-opacity, #111) 40%,
+    #4caf50 50%,
+    #86efac 56%,
+    var(--tw-text-opacity, #111) 66%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: heading-shimmer 4s linear 1s infinite;
+}
+.dark .auth-heading-shimmer {
+  background: linear-gradient(
+    105deg,
+    #f1f5f9 40%,
+    #86efac 50%,
+    #4ade80 56%,
+    #f1f5f9 66%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: heading-shimmer 4s linear 1s infinite;
+}
 
-/* ── PandaButton — upgraded hover + pressed + loaded state ─────── */
+/* ── 7. CARD: PANDA BORDER GLOW PULSE ──────────────────────── */
+@keyframes panda-card-border-glow {
+  0%, 100% { box-shadow: 0 0 0 1.5px rgba(76,175,80,0.18), 0 8px 40px rgba(0,0,0,0.18); }
+  50%       { box-shadow: 0 0 0 2px rgba(76,175,80,0.38), 0 16px 56px rgba(76,175,80,0.12), 0 8px 32px rgba(0,0,0,0.22); }
+}
 
-/* ── Star/sparkle burst on happy mood ──────────────────────────── */
+/* ── 8. SOCIAL BUTTON: ICON BOUNCE ON HOVER ────────────────── */
+@keyframes social-icon-bounce {
+  0%   { transform: scale(1) rotate(0deg); }
+  30%  { transform: scale(1.3) rotate(-8deg); }
+  60%  { transform: scale(0.95) rotate(4deg); }
+  100% { transform: scale(1.1) rotate(0deg); }
+}
+.auth-social-btn:hover .auth-social-btn__icon {
+  animation: social-icon-bounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
 
-/* ── Sad state — tears drip ─────────────────────────────────────── */
-.panda--sad .panda-cheek.left::after,
+/* ── 9. DIVIDER: PANDA EMOJI SPIN ON HOVER ─────────────────── */
+@keyframes panda-divider-pop {
+  0%   { transform: scale(1) rotate(0deg); }
+  50%  { transform: scale(1.4) rotate(20deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.auth-divider:hover .auth-divider__text::before {
+  display: inline-block;
+  animation: panda-divider-pop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
 
-/* ── Auth form panel — staggered field reveal ───────────────────── */
-.space-y-4 > *:nth-child(1) { animation-delay: 0.3s; }
-.space-y-4 > *:nth-child(2) { animation-delay: 0.38s; }
-.space-y-4 > *:nth-child(3) { animation-delay: 0.46s; }
-.space-y-4 > *:nth-child(4) { animation-delay: 0.52s; }
+/* ── 10. INPUT FIELD: ANIMATED FOCUS RING ──────────────────── */
+@keyframes input-focus-ring {
+  0%   { box-shadow: 0 0 0 0px rgba(76,175,80,0); }
+  50%  { box-shadow: 0 0 0 4px rgba(76,175,80,0.25); }
+  100% { box-shadow: 0 0 0 3px rgba(76,175,80,0.18); }
+}
+input:focus {
+  animation: input-focus-ring 0.3s ease forwards !important;
+}
 
-/* ── Baby pandas — speed up when loading ──────────────────────── */
-.panda-stage:has(.panda--loading) .baby-panda-leg,
+/* ── 11. PANDA STAGE: IDLE BREATHING SWAY ──────────────────── */
+@keyframes mascot-idle-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%       { transform: translateY(-3px) rotate(0.5deg); }
+  75%       { transform: translateY(1px) rotate(-0.5deg); }
+}
+.panda-stage--idle .panda-wrap {
+  animation: mascot-idle-bob 3.5s ease-in-out infinite !important;
+}
 
-/* ── Card border — panda-green pulse ring on mount ──────────────── */
+/* ── 12. REGISTER NAME FIELD SLIDE ─────────────────────────── */
+@keyframes field-slide-down {
+  0%   { opacity: 0; transform: translateY(-10px) scaleY(0.85); }
+  100% { opacity: 1; transform: translateY(0) scaleY(1); }
+}
 
-/* ── Auth toggle link — bubble pop on switch ─────────────────────── */
+/* ── 13. SUBMIT BUTTON: PANDA JUMP BOUNCE ──────────────────── */
+@keyframes panda-btn-submit-jump {
+  0%   { transform: translateY(0) scale(1); }
+  20%  { transform: translateY(-8px) scale(1.03, 0.97); }
+  45%  { transform: translateY(2px) scale(0.97, 1.03); }
+  65%  { transform: translateY(-3px) scale(1.01, 0.99); }
+  100% { transform: translateY(0) scale(1); }
+}
+.panda-svg-btn:active:not(:disabled) svg {
+  animation: panda-btn-submit-jump 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
 
-/* ── Reduced motion: disable all new animations ─────────────────── */
+/* ── 14. TOGGLE BUTTON: SPARKLE TEXT FLASH ─────────────────── */
+@keyframes toggle-text-flash {
+  0%   { color: inherit; text-shadow: none; }
+  50%  { color: #4caf50; text-shadow: 0 0 12px rgba(76,175,80,0.5); }
+  100% { color: inherit; text-shadow: none; }
+}
+
+/* ── 15. CARD SUCCESS STATE FLASH ─────────────────────────────
+   (already has .auth-success-flash but add a stronger v13 version) */
+@keyframes card-success-aura {
+  0%   { box-shadow: 0 0 0 0 rgba(76,175,80,0); }
+  30%  { box-shadow: 0 0 0 6px rgba(76,175,80,0.25), 0 0 40px rgba(76,175,80,0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(76,175,80,0); }
+}
+.auth-success-flash {
+  animation: card-success-aura 1.2s ease-out forwards !important;
+}
+
+/* ── 16. STATS: COUNT-UP ODOMETER EFFECT ─────────────────────
+   (visual shimmer on stat values) */
+@keyframes stat-count-shimmer {
+  0%   { opacity: 0.6; filter: blur(2px); transform: translateY(4px) scale(0.95); }
+  100% { opacity: 1;   filter: blur(0);   transform: translateY(0) scale(1); }
+}
+.auth-stat-card .text-2xl {
+  animation: stat-count-shimmer 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.8s both !important;
+}
+
+/* ── 17. FLOATING DECO EMOJIS: DEPTH PARALLAX ─────────────── */
+@keyframes float-sway-deep {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  33%       { transform: translateY(-8px) rotate(4deg) scale(1.05); }
+  66%       { transform: translateY(4px) rotate(-3deg) scale(0.97); }
+}
+
+/* ── 18. PANDA EYE: WINK ON HAPPY ──────────────────────────── */
+@keyframes panda-wink-v13 {
+  0%, 80%, 100% { transform: scaleY(1); }
+  10%, 30%      { transform: scaleY(0.1); }
+}
+.panda-stage--happy .panda-eye.left {
+  animation: panda-wink-v13 1.2s ease 0.3s both !important;
+}
+
+/* ── 19. LOADING DOTS: WAVE SEQUENCE ───────────────────────── */
+@keyframes loading-dot-wave {
+  0%, 80%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+  40%            { transform: translateY(-6px) scale(1.2); opacity: 1; }
+}
+.panda-loading-dot:nth-child(1) { animation: loading-dot-wave 0.9s ease-in-out infinite 0s !important; }
+.panda-loading-dot:nth-child(2) { animation: loading-dot-wave 0.9s ease-in-out infinite 0.16s !important; }
+.panda-loading-dot:nth-child(3) { animation: loading-dot-wave 0.9s ease-in-out infinite 0.32s !important; }
+
+/* ── 20. FORM VARIANT SWITCH: 3D FLIP EFFECT ──────────────── */
+@keyframes form-variant-switch {
+  0%   { opacity: 0; transform: rotateX(6deg) translateY(-6px) scale(0.98); }
+  100% { opacity: 1; transform: rotateX(0deg) translateY(0) scale(1); }
+}
+
+/* ── 21. BADGE: PANDA ICON FLOAT ────────────────────────────── */
+@keyframes badge-panda-float {
+  0%, 100% { transform: scale(1) rotate(-5deg); }
+  50%       { transform: scale(1.2) rotate(5deg) translateY(-2px); }
+}
+
+/* ── 22. TITLE BAR H1: WORD-BY-WORD STAGGER ───────────────── */
+@keyframes word-rise {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 23. SOCIAL BUTTON: GLASS SHIMMER SWEEP ───────────────── */
+.auth-social-btn__shimmer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+  background-size: 200% 100%;
+  background-position: -100% 0;
+  pointer-events: none;
+  transition: background-position 0s;
+}
+.auth-social-btn:hover .auth-social-btn__shimmer {
+  background-position: 200% 0;
+  transition: background-position 0.6s ease;
+}
+
+/* ── 24. PANDA TAIL WAG ─────────────────────────────────────── */
+@keyframes tail-wag-v13 {
+  0%, 100% { transform: rotate(-12deg); }
+  50%       { transform: rotate(12deg); }
+}
+.panda-svg-btn:hover .panda-svg-tail {
+  animation: tail-wag-v13 0.4s ease-in-out infinite !important;
+}
+
+/* ── 25. STRENGTH BAR FILL ANIMATION ───────────────────────── */
+@keyframes strength-fill-glow {
+  0%   { opacity: 0.6; transform: scaleX(0) scaleY(1); }
+  60%  { transform: scaleX(1.05) scaleY(1.15); }
+  100% { opacity: 1; transform: scaleX(1) scaleY(1); }
+}
+.auth-strength-bar-seg {
+  transform-origin: left center;
+}
+
+/* ── 26. EYE TOGGLE: PEEK REACTION ─────────────────────────── */
+@keyframes eye-peek-react {
+  0%   { transform: translateY(0) scale(1); }
+  40%  { transform: translateY(-3px) scale(1.12); }
+  100% { transform: translateY(0) scale(1); }
+}
+.auth-eye-toggle:hover {
+  animation: eye-peek-react 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+/* ── 27. FORGOT LINK: PAW PRINT BOUNCE ─────────────────────── */
+.auth-forgot-link {
+  position: relative;
+  transition: color 0.2s ease, letter-spacing 0.2s ease !important;
+}
+.auth-forgot-link:hover {
+  letter-spacing: 0.02em;
+  color: #4caf50 !important;
+  animation: none !important;
+}
+.auth-forgot-link:hover::before {
+  content: "🐾 ";
+  font-size: 10px;
+  animation: float-sway 1s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* ── 28. CHIPS: SEQUENTIAL POP-IN ──────────────────────────── */
+@keyframes chip-pop {
+  0%   { opacity: 0; transform: scale(0.6) translateY(6px); }
+  70%  { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── 29. PANDA CARD: ACTIVE TILT MICRO-INTERACTION ────────── */
+.sm\:max-w-md {
+  transform-style: preserve-3d;
+  transition: box-shadow 0.3s ease;
+}
+
+/* ── 30. PAGE ENTRANCE: STAGGER REVEAL ─────────────────────── */
+@keyframes page-stagger-reveal {
+  0%   { opacity: 0; transform: translateY(24px) scale(0.97); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* ── 31. PEEK PAW: SPRING BOUNCE ───────────────────────────── */
+@keyframes peek-paw-spring {
+  0%   { transform: translateY(20px) scale(0.8); opacity: 0; }
+  60%  { transform: translateY(-4px) scale(1.05); opacity: 1; }
+  80%  { transform: translateY(2px) scale(0.97); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.panda-stage--peek .panda-peek-paw {
+  animation: peek-paw-spring 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+}
+
+/* ── 32. BAMBOO PARTICLE: DRIFT + SWAY ─────────────────────── */
+@keyframes bamboo-sway-v13 {
+  0%, 100% { transform: scaleX(1) rotate(-1deg); }
+  50%       { transform: scaleX(1.04) rotate(1deg); }
+}
+
+/* ── 33. CARD PANEL: HOVER GLOW LIFT ───────────────────────── */
+.sm\:max-w-md:hover {
+  box-shadow:
+    0 0 0 1.5px rgba(76,175,80,0.22),
+    0 24px 64px rgba(0,0,0,0.26),
+    0 8px 24px rgba(76,175,80,0.08) !important;
+}
+
+/* ── 34. TYPING INDICATOR: DOT PULSE ───────────────────────── */
+@keyframes typing-dot {
+  0%, 80%, 100% { transform: scale(1); opacity: 0.4; background: #9ca3af; }
+  40%            { transform: scale(1.4) translateY(-3px); opacity: 1; background: #4caf50; }
+}
+
+/* ── 35. V13 REDUCED-MOTION BLOCK ──────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .panda--loading,
-  .panda--loading .panda-leg,
-  .panda--loading .panda-foot,
-  .panda--loading .panda-arm,
-  .panda--loading .panda-eye,
-  .bamboo-particle,
-  .panda-svg-btn,
-  .space-y-4 > * {
+  .panda-cursor-paw,
+  .input-leaf-particle,
+  .auth-heading-shimmer,
+  .panda-stage--idle .panda-wrap,
+  .auth-social-btn:hover .auth-social-btn__icon,
+  .panda-svg-btn:active:not(:disabled) svg,
+  .panda-svg-btn:hover .panda-svg-tail,
+  .auth-eye-toggle:hover,
+  .panda-stage--peek .panda-peek-paw,
+  .auth-success-flash,
+  .panda-loading-dot,
+  .panda-stage--happy .panda-eye.left {
     animation: none !important;
     transition: none !important;
+    filter: none !important;
+    -webkit-text-fill-color: unset !important;
+    background: unset !important;
+  }
+}
+
+/* ── V13.23: GREETING WAVE (first render) ────────────────────── */
+@keyframes panda-greeting-wave {
+  0%   { transform: rotate(20deg); }
+  15%  { transform: rotate(-30deg) translateY(-6px) scale(1.1); }
+  30%  { transform: rotate(25deg) translateY(-4px); }
+  45%  { transform: rotate(-20deg) translateY(-8px) scale(1.05); }
+  60%  { transform: rotate(15deg) translateY(-3px); }
+  75%  { transform: rotate(-8deg) translateY(-2px); }
+  100% { transform: rotate(0deg); }
+}
+/* Right arm waves hello on greeting */
+.panda-stage--greeting .panda-arm.right {
+  animation: panda-greeting-wave 1.8s cubic-bezier(0.34,1.56,0.64,1) forwards !important;
+  transform-origin: top center;
+}
+/* Subtle extra bounce of whole body during greeting */
+@keyframes panda-greeting-body {
+  0%   { transform: rotate(0deg) translateY(0); }
+  20%  { transform: rotate(-3deg) translateY(-4px); }
+  40%  { transform: rotate(2deg) translateY(-6px); }
+  60%  { transform: rotate(-2deg) translateY(-3px); }
+  80%  { transform: rotate(1deg) translateY(-1px); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+.panda-stage--greeting .panda {
+  animation: panda-greeting-body 1.8s cubic-bezier(0.22,1,0.36,1) forwards !important;
+}
+/* Greeting bubble: "Xin chào! 👋" */
+.panda-stage--greeting .panda-tooltip {
+  opacity: 1 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+/* prefers-reduced-motion for greeting */
+@media (prefers-reduced-motion: reduce) {
+  .panda-stage--greeting .panda-arm.right,
+  .panda-stage--greeting .panda {
+    animation: none !important;
   }
 }
 
 
-/* ================================================================
-   ANIMATION NÂNG CẤP — Phase 3: Premium Panda Experience
-   ================================================================ */
+/* ══════════════════════════════════════════════════════════════
+   V14 UPGRADES — New animations & greeting mood
+   ══════════════════════════════════════════════════════════════ */
 
-/* ── Confetti burst keyframe (PandaButton click) ─────────────── */
+/* ── GREETING mood particles ──────────────────────────────────── */
+.panda-mood-particles--greeting {
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.panda-mood-particles--greeting .mood-particle:nth-child(1) { --px: -55px; --py: -15px; --pr: -30deg; animation-delay: 0s; }
+.panda-mood-particles--greeting .mood-particle:nth-child(2) { --px:  15px; --py: -25px; --pr:  20deg; animation-delay: 0.1s; }
+.panda-mood-particles--greeting .mood-particle:nth-child(3) { --px: -25px; --py: -35px; --pr: -10deg; animation-delay: 0.2s; }
+.panda-mood-particles--greeting .mood-particle:nth-child(4) { --px:  50px; --py: -10px; --pr:  35deg; animation-delay: 0.3s; }
+.panda-mood-particles--greeting .mood-particle:nth-child(5) { --px:  70px; --py: -30px; --pr: -20deg; animation-delay: 0.45s; }
 
-/* ── Sparkle stars on happy panda ────────────────────────────── */
-
-/* Position the 3 sparkles at different spots */
-.panda-sparkle:nth-child(1) { left: -20px; top: 10px; }
-.panda-sparkle:nth-child(2) { right: -18px; top: 20px; }
-.panda-sparkle:nth-child(3) { left: 50%; top: -14px; transform: translateX(-50%); font-size: 14px; }
-
-/* Trigger sparkles when parent stage has happy class */
-
-/* ── Panda sad tears — enhanced drop animation ───────────────── */
-.panda-stage--sad .panda-cheek.left::after,
-
-/* ── Loading state: screen shake pulse on the stage ──────────── */
-
-/* ── Baby pandas slow down on happy (celebrating!) ───────────── */
-/* Baby pandas scatter/freeze on sad */
-
-/* ── Card glass shimmer on hover ─────────────────────────────── */
-
-/* ── Input typing indicator — cute green dot pulse ───────────── */
-
-/* ── Panda mascot idle: subtle breathing (scale y) ───────────── */
-
-/* ── Panda mascot eyes: extra long gaze, then double blink ──── */
-
-/* ── Panda nose shimmer ──────────────────────────────────────── */
-
-/* ── Auth form card: mount with 3D flip-up effect ───────────── */
-/* Apply to the card container once only on mount */
-
-/* ── Heading text — typewriter underline effect ──────────────── */
-
-/* Center variant (mobile) */
-
-/* ── Panda button: idle float animation on the SVG ──────────── */
-/* Pause idle float on hover (replaced by panda-btn-float) */
-
-/* ── Social button: icon bounce on hover ─────────────────────── */
-
-/* ── Floating panda emoji watermark on brand side ────────────── */
-
-/* ── "Đăng nhập" / "Đăng ký" transition — text swap shimmer ─── */
-
-/* ── Password reveal: panda paws smooth out + bounce ─────────── */
-.panda--peek .panda-arm.left,
-
-/* ── Baby pandas grow hearts on happy ───────────────────────── */
-
-/* ── Gradient text on the form heading ───────────────────────── */
-
-/* ── Reduced motion: disable ALL Phase 3 additions ───────────── */
-@media (prefers-reduced-motion: reduce) {
-  .panda-sparkle,
-  .panda-body,
-  .panda-nose,
-  .panda-stage--loading,
-  h2.auth-rise-2::after,
-  .auth-social-btn .auth-social-btn__icon,
-  h2.auth-rise-2::after { transform: scaleX(1); }
+/* ── GREETING: panda-wrap bounce-in ──────────────────────────── */
+.panda-wrap--greeting .panda {
+  animation:
+    mascot-entrance  0.75s cubic-bezier(0.34,1.56,0.64,1) both,
+    panda-greeting-body 1.8s cubic-bezier(0.22,1,0.36,1) 0.3s forwards !important;
+}
+.panda-wrap--greeting .panda-arm.right {
+  animation: panda-greeting-wave 1.8s cubic-bezier(0.34,1.56,0.64,1) 0.25s forwards !important;
+  transform-origin: top center;
 }
 
-/* ================================================================
-   NÂNG CẤP UI/UX — Đồng bộ chủ đề Panda toàn trang login
-   ================================================================ */
+/* ── INPUT: focus glow ring (panda green) ─────────────────────── */
+@keyframes input-focus-glow {
+  0%   { box-shadow: 0 0 0 0px rgba(76,175,80,0); }
+  60%  { box-shadow: 0 0 0 4px rgba(76,175,80,0.22), 0 0 0 8px rgba(76,175,80,0.07); }
+  100% { box-shadow: 0 0 0 3px rgba(76,175,80,0.18), 0 0 0 6px rgba(76,175,80,0.05); }
+}
 
-/* ── Panda colour tokens ──────────────────────────────────────── */
+/* ── AUTH CARD: entry shimmer sweep on load ──────────────────── */
+@keyframes card-entry-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 300% center; }
+}
+.sm\:max-w-md::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+  background-size: 300% 100%;
+  animation: card-entry-shimmer 1.2s ease 0.4s 1 forwards;
+  opacity: 0;
+  animation-fill-mode: both;
+}
+@keyframes card-entry-shimmer-fade {
+  0%   { opacity: 0; background-position: -200% center; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; background-position: 300% center; }
+}
+.sm\:max-w-md {
+  position: relative;
+  overflow: hidden;
+}
 
-/* ── Input focus ring — panda green ──────────────────────────── */
-/* Override the default blue focus ring on Input component       */
-input:focus,
+/* ── FORM HEADING: gradient text shimmer v14 ─────────────────── */
+@keyframes heading-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.auth-heading-shimmer {
+  background: linear-gradient(
+    135deg,
+    #1a2e1a 0%,
+    #2d5a27 20%,
+    #4caf50 40%,
+    #1a2e1a 60%,
+    #2d5a27 80%,
+    #4caf50 100%
+  ) !important;
+  background-size: 300% 300% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: heading-gradient-shift 5s ease infinite !important;
+}
+.dark .auth-heading-shimmer {
+  background: linear-gradient(
+    135deg,
+    #a8e6a0 0%,
+    #86efac 25%,
+    #4ade80 50%,
+    #a8e6a0 75%,
+    #86efac 100%
+  ) !important;
+  background-size: 300% 300% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* ── PANDA MASCOT WRAPPER: subtle float entrance ─────────────── */
+.panda-mascot-wrapper {
+  animation: mascot-area-rise 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;
+}
+@keyframes mascot-area-rise {
+  0%   { opacity: 0; transform: translateY(20px) scale(0.92); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── VARIANT SWITCH: 3D flip card effect ────────────────────── */
+@keyframes form-flip-in {
+  0%   { opacity: 0; transform: rotateX(10deg) translateY(-10px) scale(0.97); filter: blur(3px); }
+  100% { opacity: 1; transform: rotateX(0deg) translateY(0) scale(1); filter: blur(0); }
+}
+
+/* ── PANDA SVG BUTTON: idle pulse glow ─────────────────────── */
+@keyframes btn-idle-pulse {
+  0%, 100% { filter: drop-shadow(0 4px 12px rgba(76,175,80,0.15)); }
+  50%       { filter: drop-shadow(0 6px 20px rgba(76,175,80,0.35)); }
+}
+.panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading) {
+  animation: btn-idle-pulse 3s ease-in-out infinite;
+}
+/* Stop the idle pulse on hover — but the base .panda-svg-btn has
+   `opacity: 0` and relies on panda-btn-appear (fill both) to stay
+   visible, so `animation: none` would make the button vanish.
+   Keep the (already finished) appear animation instead. */
+.panda-svg-btn:hover:not(:disabled) {
+  animation: panda-btn-appear 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s both;
+}
+
+/* ── SOCIAL BUTTONS: stagger entrance ───────────────────────── */
+@keyframes social-btn-pop {
+  0%   { opacity: 0; transform: scale(0.85) translateY(8px); }
+  70%  { transform: scale(1.04) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.auth-social-btn:nth-child(1) {
+  animation: social-btn-pop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.5s both;
+}
+.auth-social-btn:nth-child(2) {
+  animation: social-btn-pop 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.62s both;
+}
+
+/* ── PASSWORD TOGGLE: icon spin on switch ───────────────────── */
+@keyframes eye-icon-spin {
+  0%   { transform: rotateY(0deg) scale(1); }
+  50%  { transform: rotateY(90deg) scale(0.8); }
+  100% { transform: rotateY(0deg) scale(1); }
+}
+.auth-eye-icon {
+  animation: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.auth-eye-icon--open {
+  animation: eye-icon-spin 0.3s ease both !important;
+}
+
+/* ── DIVIDER: panda paw grow animation ──────────────────────── */
+@keyframes divider-grow {
+  0%   { transform: scaleX(0); opacity: 0; }
+  100% { transform: scaleX(1); opacity: 1; }
+}
+.auth-divider__line {
+  animation: divider-grow 0.6s cubic-bezier(0.22,1,0.36,1) 0.4s both;
+  transform-origin: center;
+}
+
+/* ── FORGOT LINK: shimmer border on hover ───────────────────── */
+.auth-forgot-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ── TOGGLE LINK: underline grow ────────────────────────────── */
+@keyframes toggle-link-underline {
+  0%   { background-size: 0% 2px; }
+  100% { background-size: 100% 2px; }
+}
+.auth-toggle-link {
+  background-image: linear-gradient(#4caf50, #4caf50);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1.5px;
+  transition: background-size 0.3s ease, color 0.2s ease !important;
+}
+.auth-toggle-link:hover {
+  background-size: 100% 1.5px !important;
+}
+
+/* ── PANDA CURSOR PAW: v14 improved trail ───────────────────── */
+.panda-cursor-paw {
+  animation: panda-cursor-fade 0.7s cubic-bezier(0.22,1,0.36,1) forwards !important;
+}
+@keyframes panda-cursor-fade {
+  0%   { opacity: 0.9; transform: scale(1.1) rotate(var(--paw-rot,0deg)); }
+  60%  { opacity: 0.6; transform: scale(0.9) rotate(var(--paw-rot,0deg)); }
+  100% { opacity: 0; transform: scale(0.5) translateY(-8px) rotate(calc(var(--paw-rot,0deg) * 1.5)); }
+}
+
+/* ── PANDA TOUCH PAW: more visible on mobile ────────────────── */
+.panda-touch-paw {
+  font-size: 18px !important;
+  animation: panda-cursor-fade 0.9s ease forwards !important;
+}
+
+/* ── STAT CARDS: glass hover lift ───────────────────────────── */
+.auth-stat-card {
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.2s ease, box-shadow 0.2s ease !important;
+}
+.auth-stat-card:hover {
+  transform: translateY(-4px) scale(1.06) !important;
+  background: rgba(255,255,255,0.16) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
+}
+
+/* ── FORM SECTION: loading overlay pulse ───────────────────── */
+.panda-btn-submitting {
+  position: relative;
+}
+.panda-btn-submitting::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 16px;
+  border: 2px solid rgba(76,175,80,0.4);
+  animation: loading-ring-pulse 1.2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+@keyframes loading-ring-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50%       { opacity: 0.8; transform: scale(1.02); }
+}
+
+/* ── BACKGROUND PAW PRINT: enhanced float ───────────────────── */
+.bg-paw-print {
+  animation: paw-float var(--dur, 10s) ease-in-out var(--delay, 0s) infinite !important;
+  transform: rotate(var(--rot, 0deg)) !important;
+  font-size: var(--sz, 12px) !important;
+}
+@keyframes paw-float {
+  0%   { opacity: 0; transform: rotate(var(--rot,0deg)) translateY(0) scale(0.8); }
+  15%  { opacity: 0.4; }
+  50%  { opacity: 0.35; transform: rotate(calc(var(--rot,0deg) + 15deg)) translateY(-18px) scale(1.1); }
+  85%  { opacity: 0.3; }
+  100% { opacity: 0; transform: rotate(var(--rot,0deg)) translateY(0) scale(0.8); }
+}
+
+/* ── HEADING SUBTITLE: fade-type entrance ──────────────────── */
+@keyframes subtitle-in {
+  0%   { opacity: 0; letter-spacing: 0.08em; filter: blur(2px); }
+  100% { opacity: 1; letter-spacing: normal; filter: blur(0); }
+}
+
+/* ── PANDA MASCOT: head tilt now active ────────────────────── */
+.panda-stage--idle .panda-head {
+  animation: head-tilt-look 7s ease-in-out infinite;
+}
+
+/* ── V14 REDUCED MOTION ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-mood-particles--greeting .mood-particle,
+  .panda-mascot-wrapper,
+  .auth-heading-shimmer,
+  .panda-svg-btn:not(:disabled),
+  .auth-social-btn:nth-child(1),
+  .auth-social-btn:nth-child(2),
+  .auth-stat-card:hover,
+  .panda-btn-submitting::after,
+  .auth-eye-icon--open,
+  .panda-stage--idle .panda-head {
+    animation: none !important;
+    transition: none !important;
+    -webkit-text-fill-color: unset !important;
+    background: unset !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   V14 POLISH — Card top-glow border, mobile logo, input focus
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── FORM CARD: animated top border glow ────────────────────── */
+@keyframes card-top-glow {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+.sm\:max-w-md {
+  border-top: 1.5px solid transparent;
+  background-image: linear-gradient(var(--tw-bg-opacity, 1), var(--tw-bg-opacity, 1)),
+    linear-gradient(90deg, transparent 0%, rgba(76,175,80,0.5) 30%, rgba(134,239,172,0.8) 50%, rgba(76,175,80,0.5) 70%, transparent 100%);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+/* Simpler approach — just an inner top highlight */
+.sm\:max-w-md::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(76,175,80,0.6) 40%, rgba(134,239,172,0.9) 50%, rgba(76,175,80,0.6) 60%, transparent);
+  border-radius: 99px;
+  animation: card-top-glow 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── INPUT FIELDS: focus glow ring ──────────────────────────── */
+/* Works with Tailwind Input component via focus-within */
+.auth-password-wrapper:focus-within,
 input[type="email"]:focus,
 input[type="password"]:focus,
+input[type="text"]:focus {
+  outline: none;
+}
 
-/* Floating label colour when focused */
-input:focus ~ label,
+/* ── MOBILE LOGO: bounce entrance ───────────────────────────── */
+@keyframes logo-bounce-in {
+  0%   { opacity: 0; transform: scale(0.6) rotate(-10deg); }
+  60%  { transform: scale(1.15) rotate(5deg); }
+  80%  { transform: scale(0.95) rotate(-2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.auth-rise.auth-rise-1 .h-12 {
+  animation: logo-bounce-in 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.05s both;
+}
 
-/* ── Auth divider (replaces the old inline flex version) ─────── */
+/* ── BABY PANDA ORBIT: v14 glow ─────────────────────────────── */
+.baby-panda {
+  filter: drop-shadow(0 2px 6px rgba(76,175,80,0.25));
+  transition: filter 0.3s ease;
+}
+.panda-stage--happy .baby-panda {
+  filter: drop-shadow(0 0 8px rgba(76,175,80,0.6)) drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
 
-/* ── Social button — panda-themed ───────────────────────────── */
+/* ── PANDA SVG TAIL: extra wag on loading ───────────────────── */
+@keyframes tail-wag-loading {
+  0%, 100% { transform: rotate(-20deg); }
+  50%       { transform: rotate(20deg); }
+}
+.panda-svg-btn--loading .panda-svg-tail {
+  animation: tail-wag-loading 0.3s ease-in-out infinite !important;
+}
 
-/* Paw print watermark (hidden by default) */
+/* ── SPARKLE STARS: enhanced idle twinkle ───────────────────── */
+@keyframes sparkle-v14 {
+  0%   { opacity: 0; transform: scale(0) rotate(0deg) translate(var(--bx,0), var(--by,0)); }
+  30%  { opacity: 1; transform: scale(1.2) rotate(20deg) translate(var(--bx,0), var(--by,0)); }
+  70%  { opacity: 0.8; }
+  100% { opacity: 0; transform: scale(0.6) rotate(40deg) translate(var(--bx,0), calc(var(--by,0) - 8px)); }
+}
+.panda-stage--idle .panda-sparkle {
+  animation: sparkle-v14 2.8s ease-in-out infinite !important;
+}
 
+/* ── SOCIAL BUTTON ICONS: provider color on hover ───────────── */
+.auth-social-btn[data-provider="github"]:hover .auth-social-btn__icon {
+  color: #fff;
+}
+.auth-social-btn[data-provider="google"]:hover .auth-social-btn__icon {
+  color: #4285F4;
+}
 
+/* ── AUTH DIVIDER TEXT: panda decoration ────────────────────── */
+.auth-divider__text::before {
+  content: "🐾 ";
+  font-size: 9px;
+  opacity: 0.6;
+  animation: float-sway 2s ease-in-out infinite;
+  display: inline-block;
+}
+.auth-divider__text::after {
+  content: " 🐾";
+  font-size: 9px;
+  opacity: 0.6;
+  animation: float-sway 2.4s ease-in-out infinite 0.5s;
+  display: inline-block;
+}
 
-
-
-
-/* Shimmer sweep on social button hover */
-
-/* ── Forgot password link ────────────────────────────────────── */
-
-/* ── Toggle link (Tạo tài khoản / Đăng nhập) ────────────────── */
-
-/* ── Policy links — panda green ─────────────────────────────── */
-.auth-policy-link,
-.auth-policy-link:hover,
-
-/* ── Glass card hover — subtle panda-green ring glow ─────────── */
-/* Targets the form card on the right panel */
-
-/* ── Panda mascot — tighter top margin on register (3 fields) ── */
-/* Already handled by panda-stage min-height, but ensure no overflow */
-
-/* ── Entrance animation for social grid ─────────────────────── */
-
-/* ── Bamboo-green chip tags on brand side ─────────────────────── */
-/* Already in page.tsx via Tailwind; add a subtle panda-themed glow on hover */
-
-/* ── Toast customisation — panda green success ───────────────── */
-/* react-hot-toast uses inline styles, but the icon class is overrideable */
-
-/* ── Reduced motion additions ────────────────────────────────── */
+/* ── V14 REDUCED MOTION EXTRA ───────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .auth-social-btn,
-  .auth-social-btn::before,
-  .auth-forgot-link::after {
-    transition: none !important;
+  .sm\:max-w-md::before,
+  .sm\:max-w-md::after,
+  .baby-panda,
+  .panda-svg-btn--loading .panda-svg-tail,
+  .panda-stage--idle .panda-sparkle,
+  .auth-divider__text::before,
+  .auth-divider__text::after {
     animation: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   V16 — PANDA THEME SYNC: các chi tiết còn thiếu + animation xịn
+   (chỉ trang login). Quy tắc an toàn rút từ các bug trước:
+   - Không ghi đè transform định vị (translateX/-Y centering).
+   - Không animate opacity của element tương tác với `forwards`.
+   - Không khai báo lại `animation` shorthand trên element có
+     animation-delay theo biến (--delay).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── V16.1: HEADING PANDA 🐼 — bob nhẹ, vẫy khi hover ─────────── */
+@keyframes heading-panda-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%       { transform: translateY(-3px) rotate(6deg); }
+}
+@keyframes heading-panda-wave {
+  0%   { transform: rotate(0deg) scale(1); }
+  30%  { transform: rotate(-18deg) scale(1.25); }
+  60%  { transform: rotate(14deg) scale(1.2); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+.auth-heading-panda {
+  display: inline-block;
+  /* Emoji giữ màu gốc, không bị gradient text-clip của heading nuốt */
+  -webkit-text-fill-color: initial;
+  animation: heading-panda-bob 2.8s ease-in-out infinite;
+  transform-origin: 50% 90%;
+  cursor: default;
+}
+.auth-heading-shimmer:hover .auth-heading-panda {
+  animation: heading-panda-wave 0.7s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ── V16.2: CARET + SELECTION màu tre (đồng bộ theme khi gõ) ──── */
+.relative.h-screen input {
+  caret-color: #4caf50;
+}
+.relative.h-screen ::selection {
+  background: rgba(76, 175, 80, 0.28);
+  color: inherit;
+}
+.dark .relative.h-screen ::selection {
+  background: rgba(134, 239, 172, 0.30);
+}
+
+/* ── V16.3: DIVIDER — dấu chân 🐾 đi bộ ngang đường kẻ ────────── */
+@keyframes divider-paw-walk {
+  0%   { left: 2%;  opacity: 0; transform: translateY(-50%) rotate(8deg) scaleX(1); }
+  6%   { opacity: 0.55; }
+  44%  { opacity: 0.55; }
+  50%  { left: 96%; opacity: 0; transform: translateY(-50%) rotate(8deg) scaleX(1); }
+  /* quay đầu đi ngược lại */
+  51%  { left: 96%; opacity: 0; transform: translateY(-50%) rotate(-8deg) scaleX(-1); }
+  56%  { opacity: 0.55; }
+  94%  { opacity: 0.55; }
+  100% { left: 2%;  opacity: 0; transform: translateY(-50%) rotate(-8deg) scaleX(-1); }
+}
+@keyframes divider-paw-step {
+  0%, 100% { margin-top: 0; }
+  50%       { margin-top: -2px; }
+}
+.auth-divider {
+  position: relative;
+}
+.auth-divider::after {
+  content: "🐾";
+  position: absolute;
+  top: 50%;
+  left: 2%;
+  font-size: 10px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 1;
+  animation: divider-paw-walk 13s linear 2s infinite,
+             divider-paw-step 0.45s ease-in-out infinite;
+}
+
+/* ── V16.4: PANDA NGỦ GẬT 💤 — idle lâu thì thiu thiu, hover tỉnh ─ */
+@keyframes panda-zzz-float {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.6) rotate(0deg); }
+  25%  { opacity: 0.9; }
+  70%  { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(10px, -22px) scale(1.15) rotate(14deg); }
+}
+.panda-zzz {
+  position: absolute;
+  top: 4px;
+  right: 22%;
+  font-size: 15px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 18;
+}
+/* Chỉ "ngủ" khi idle: lặp sau 8s không có gì xảy ra */
+.panda-stage--idle .panda-zzz {
+  animation: panda-zzz-float 2.6s ease-in-out 8s infinite;
+}
+/* Tỉnh dậy khi hover, đang gõ, hoặc panda đang che mắt */
+.panda-stage--idle:hover .panda-zzz,
+.panda-stage--typing .panda-zzz,
+.panda-stage--peek .panda-zzz {
+  animation: none;
+  opacity: 0;
+}
+
+/* ── V16.5: MASCOT HOVER — hồi sinh cú nhấc mình + babies hứng chí ─ */
+/* Rule cũ (panda-hover-lift trên .panda) bị `.panda { ... !important }`
+   đè chết. Áp lên .panda-wrap (idle không có animation riêng) để
+   không xung đột. */
+@keyframes panda-wrap-hop {
+  0%   { transform: translateY(0) scale(1); }
+  45%  { transform: translateY(-7px) scale(1.025); }
+  100% { transform: translateY(-4px) scale(1.015); }
+}
+.panda-stage--idle:hover .panda-wrap {
+  animation: panda-wrap-hop 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+/* Babies chạy nhanh hơn khi hover (giữ nguyên --delay stagger) */
+.panda-stage--idle:hover .baby-panda-orbit {
+  animation-duration: 5.2s !important;
+}
+.panda-stage--idle:hover .baby-panda {
+  animation-duration: 0.3s !important;
+}
+
+/* ── V16.6: CÀNH TRÚC 🎋 GÓC CARD — đung đưa, nghiêng khi hover ── */
+@keyframes corner-bamboo-sway {
+  0%, 100% { transform: rotate(-6deg); }
+  50%       { transform: rotate(7deg); }
+}
+.card-corner-bamboo {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  font-size: 21px;
+  opacity: 0.65;
+  pointer-events: none;
+  z-index: 2;
+  transform-origin: 50% 100%;
+  animation: corner-bamboo-sway 4.5s ease-in-out infinite;
+  filter: drop-shadow(0 2px 4px rgba(45, 90, 39, 0.25));
+  transition: opacity 0.3s ease, font-size 0.3s ease;
+}
+.sm\:max-w-md:hover .card-corner-bamboo {
+  opacity: 0.9;
+  animation-duration: 2.2s;
+}
+
+/* ── V16.7: REDUCED MOTION — tắt toàn bộ V16, giữ hiển thị đúng ── */
+@media (prefers-reduced-motion: reduce) {
+  .auth-heading-panda,
+  .auth-divider::after,
+  .panda-zzz,
+  .panda-stage--idle:hover .panda-wrap,
+  .card-corner-bamboo {
+    animation: none !important;
+  }
+  /* zzz & paw là trang trí thuần — ẩn hẳn khi reduce motion */
+  .panda-zzz,
+  .auth-divider::after {
+    opacity: 0 !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   V17 — INTERACTIVE PREMIUM: 3D tilt card, magnetic button,
+   mascot clickable, bamboo shimmer thanh mật khẩu (login only)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── V17.1: CARD TILT 3D — wrapper do CardTilt.tsx điều khiển ──── */
+/* JS chỉ set transform + --glare-x/y; CSS lo transition & glare.  */
+.card-tilt {
+  position: relative;
+  transition: transform 0.18s ease-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+/* Vệt sáng (glare) chạy theo con trỏ trên mặt kính */
+.card-tilt::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 20px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 30;
+  background: radial-gradient(
+    280px circle at var(--glare-x, 50%) var(--glare-y, 50%),
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(134, 239, 172, 0.06) 35%,
+    transparent 65%
+  );
+  transition: opacity 0.3s ease;
+}
+.card-tilt--active::after {
+  opacity: 1;
+}
+.dark .card-tilt::after {
+  background: radial-gradient(
+    280px circle at var(--glare-x, 50%) var(--glare-y, 50%),
+    rgba(134, 239, 172, 0.10) 0%,
+    rgba(134, 239, 172, 0.04) 35%,
+    transparent 65%
+  );
+}
+
+/* ── V17.2: MAGNETIC SUBMIT — wrapper trượt theo --magnet-x/y ──── */
+.panda-btn-magnet {
+  transform: translate(var(--magnet-x, 0px), var(--magnet-y, 0px));
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+
+/* ── V17.3: MASCOT CLICKABLE — mời gọi click ───────────────────── */
+.panda-mascot-clickable {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Dùng animation (không phải transform tĩnh) vì .panda-wrap đang bị
+   animation hop fill-forwards giữ thuộc tính transform khi hover. */
+@keyframes mascot-press {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+.panda-mascot-clickable:active .panda-wrap {
+  animation: mascot-press 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+/* ── V17.4: PASSWORD STRENGTH — bamboo shine trên đoạn đã đầy ──── */
+@keyframes seg-bamboo-shine {
+  0%   { transform: translateX(-130%); }
+  100% { transform: translateX(260%); }
+}
+.auth-strength-bar-seg {
+  position: relative;
+  overflow: hidden;
+}
+.auth-strength-bar-seg[style*="scaleX(1)"]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 55%;
+  background: linear-gradient(
+    105deg,
+    transparent 10%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 90%
+  );
+  animation: seg-bamboo-shine 1.9s ease-in-out infinite;
+}
+
+/* ── V17.5: REDUCED MOTION — vô hiệu hoá toàn bộ V17 ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  .card-tilt,
+  .panda-btn-magnet {
+    transform: none !important;
+    transition: none !important;
+  }
+  .card-tilt::after {
+    opacity: 0 !important;
+  }
+  .auth-strength-bar-seg[style*="scaleX(1)"]::after {
+    animation: none !important;
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   V18 — BRAND SIDE POLISH: fireflies, logo tai panda, chips hop,
+   footer panda walk, stat counter (login only)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── V18.1: FIREFLIES — đom đóm xanh lập lòe ──────────────────── */
+@keyframes firefly-drift {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(28px, -22px); }
+  50%  { transform: translate(-14px, -40px); }
+  75%  { transform: translate(-32px, -12px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes firefly-glow {
+  0%, 100% { opacity: 0.12; box-shadow: 0 0 4px 1px rgba(134, 239, 172, 0.25); }
+  50%       { opacity: 0.85; box-shadow: 0 0 10px 3px rgba(134, 239, 172, 0.55); }
+}
+.auth-firefly {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #a7f3c0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.2;
+  animation: firefly-drift var(--dur, 10s) ease-in-out infinite,
+             firefly-glow 2.6s ease-in-out infinite;
+}
+
+/* ── V18.2: LOGO — mọc tai gấu trúc khi hover ─────────────────── */
+.auth-logo-box::before,
+.auth-logo-box::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #2a3142 0%, #141821 80%);
+  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+  z-index: -1;
+  transform: scale(0);
+  transform-origin: 50% 100%;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.auth-logo-box::before { left: -3px; }
+.auth-logo-box::after  { right: -3px; }
+.auth-logo-box:hover::before,
+.auth-logo-box:hover::after {
+  transform: scale(1);
+}
+@keyframes logo-ear-wiggle {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  30%       { transform: scale(1.1) rotate(-8deg); }
+  60%       { transform: scale(1.05) rotate(6deg); }
+}
+.auth-logo-box:hover::before { animation: logo-ear-wiggle 0.6s ease 0.3s; }
+.auth-logo-box:hover::after  { animation: logo-ear-wiggle 0.6s ease 0.42s; }
+
+/* ── V18.3: CHIPS — nhún nảy khi hover ────────────────────────── */
+/* Dùng animation (chip-pop fill-both đang giữ transform tĩnh).    */
+@keyframes chip-hop {
+  0%   { transform: translateY(0) scale(1); }
+  40%  { transform: translateY(-5px) scale(1.06); }
+  70%  { transform: translateY(1px) scale(0.99); }
+  100% { transform: translateY(0) scale(1.03); }
+}
+.auth-chip {
+  cursor: default;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.auth-chip:hover {
+  animation: chip-hop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  background: rgba(76, 175, 80, 0.28) !important;
+  border-color: rgba(134, 239, 172, 0.55) !important;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+}
+
+/* ── V18.4: FOOTER — panda con đi bộ ngang khi hover ──────────── */
+@keyframes footer-panda-walk {
+  0%   { left: 0%;  opacity: 0; transform: translateY(-100%) scaleX(1); }
+  8%   { opacity: 0.9; }
+  92%  { opacity: 0.9; }
+  100% { left: 92%; opacity: 0; transform: translateY(-100%) scaleX(1); }
+}
+@keyframes footer-panda-bob {
+  0%, 100% { margin-top: 0; }
+  50%       { margin-top: -2px; }
+}
+.auth-footer {
+  position: relative;
+}
+.auth-footer::before {
+  content: "🐼";
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+}
+.auth-footer:hover::before {
+  animation: footer-panda-walk 3.2s linear infinite,
+             footer-panda-bob 0.4s ease-in-out infinite;
+}
+
+/* ── V18.5: STAT VALUE — nảy nhẹ khi đếm xong ─────────────────── */
+@keyframes stat-value-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.auth-stat-card:hover .text-2xl {
+  animation: stat-value-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
+
+/* ── V18.6: REDUCED MOTION — tắt toàn bộ V18 ──────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .auth-firefly,
+  .auth-logo-box:hover::before,
+  .auth-logo-box:hover::after,
+  .auth-chip:hover,
+  .auth-footer:hover::before,
+  .auth-stat-card:hover .text-2xl {
+    animation: none !important;
+  }
+  .auth-firefly,
+  .auth-footer::before {
+    opacity: 0 !important;
+  }
+  .auth-logo-box::before,
+  .auth-logo-box::after {
+    transition: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   V19 — FORM UX PANDA: caps lock tip, email check, heading
+   underline vẽ dần, focus-visible ring (login only)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── V19.1: CAPS LOCK TIP — panda nhắc bên trên ô mật khẩu ────── */
+@keyframes capslock-pop {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.85); }
+  60%  { opacity: 1; transform: translateY(-2px) scale(1.04); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.auth-capslock-tip {
+  position: absolute;
+  top: -10px;
+  right: 8px;
+  z-index: 12;
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400e;
+  background: linear-gradient(180deg, #fef3c7, #fde68a);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  border-radius: 99px;
+  padding: 3px 10px;
+  pointer-events: none;
+  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.2);
+  animation: capslock-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.dark .auth-capslock-tip {
+  color: #fde68a;
+  background: linear-gradient(180deg, rgba(120, 80, 10, 0.9), rgba(90, 60, 8, 0.9));
+  border-color: rgba(253, 230, 138, 0.3);
+}
+
+/* ── V19.2: EMAIL CHECK — 🍀 pop khi email hợp lệ ─────────────── */
+.auth-email-wrapper {
+  position: relative;
+}
+@keyframes email-check-pop {
+  /* Phải giữ translateY(-50%) — element căn giữa dọc bằng nó */
+  0%   { opacity: 0; transform: translateY(-50%) scale(0) rotate(-90deg); }
+  65%  { opacity: 1; transform: translateY(-50%) scale(1.25) rotate(8deg); }
+  100% { opacity: 1; transform: translateY(-50%) scale(1) rotate(0deg); }
+}
+.auth-email-check {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  /* Đồng bộ cách bù label nổi như .auth-eye-toggle */
+  margin-top: -2px;
+  transform: translateY(-50%);
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 10;
+  animation: email-check-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  filter: drop-shadow(0 1px 3px rgba(76, 175, 80, 0.4));
+}
+
+/* ── V19.3: HEADING UNDERLINE — nét tre vẽ dần + lá ở cuối ────── */
+.auth-heading-wrap {
+  position: relative;
+}
+@keyframes heading-underline-draw {
+  0%   { width: 0; opacity: 0; }
+  15%  { opacity: 1; }
+  100% { width: 88px; opacity: 1; }
+}
+@keyframes heading-underline-leaf {
+  0%, 60% { opacity: 0; transform: scale(0) rotate(-40deg); }
+  80%      { opacity: 1; transform: scale(1.2) rotate(10deg); }
+  100%     { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.auth-heading-underline {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -7px;
+  height: 3px;
+  width: 0;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #2d5a27, #4caf50 60%, #86efac);
+  animation: heading-underline-draw 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.1s forwards;
+}
+.auth-heading-underline::after {
+  content: "🍃";
+  position: absolute;
+  right: -14px;
+  top: -8px;
+  font-size: 11px;
+  opacity: 0;
+  animation: heading-underline-leaf 1.9s ease 1.1s forwards;
+}
+@media (min-width: 1024px) {
+  .auth-heading-underline {
+    left: 0;
+    transform: none;
+  }
+}
+
+/* ── V19.4: FOCUS-VISIBLE — ring tre cho điều hướng bàn phím ──── */
+.relative.h-screen .auth-toggle-link:focus-visible,
+.relative.h-screen .auth-forgot-link:focus-visible,
+.relative.h-screen .auth-social-btn:focus-visible,
+.relative.h-screen .panda-svg-btn:focus-visible,
+.relative.h-screen .auth-eye-toggle:focus-visible {
+  outline: none !important;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.9),
+    0 0 0 4.5px rgba(76, 175, 80, 0.65) !important;
+  border-radius: 10px;
+}
+
+/* ── V19.5: REDUCED MOTION — tắt animation V19, giữ hiển thị ──── */
+@media (prefers-reduced-motion: reduce) {
+  .auth-capslock-tip,
+  .auth-email-check,
+  .auth-heading-underline,
+  .auth-heading-underline::after {
+    animation: none !important;
+  }
+  /* Giữ trạng thái cuối thay vì biến mất */
+  .auth-capslock-tip,
+  .auth-email-check {
+    opacity: 1;
+  }
+  .auth-heading-underline {
+    width: 88px;
+    opacity: 1;
+  }
+  .auth-heading-underline::after {
+    opacity: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   V20 — LIVING MASCOT: mắt theo con trỏ, tò mò social, lời chào
+   theo giờ, panda đu dây trúc (login only)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── V20.1: MASCOT TÒ MÒ khi hover social buttons ─────────────── */
+/* Class .mascot-curious gắn trên wrapper bởi AuthForm.            */
+@keyframes curious-head-tilt {
+  0%   { transform: rotate(0deg) translateY(0); }
+  100% { transform: rotate(-7deg) translateY(2px); }
+}
+@keyframes curious-ear-perk {
+  0%   { transform: rotate(0deg) scale(1); }
+  60%  { transform: rotate(-10deg) scale(1.12); }
+  100% { transform: rotate(-4deg) scale(1.06); }
+}
+.mascot-curious .panda-head {
+  animation: curious-head-tilt 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+.mascot-curious .panda-ear.left {
+  animation: curious-ear-perk 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+.mascot-curious .panda-ear.right {
+  animation: curious-ear-perk 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s forwards !important;
+}
+
+/* ── V20.2: LỜI CHÀO THEO GIỜ — fade vào khi client xác định ──── */
+@keyframes time-greeting-in {
+  0%   { opacity: 0; transform: translateY(4px); filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.auth-time-greeting {
+  display: inline-block;
+  animation: time-greeting-in 0.5s ease both;
+}
+
+/* ── V20.3: PANDA ĐU DÂY TRÚC — lủng lẳng từ mép trên ─────────── */
+@keyframes swing-pendulum {
+  0%, 100% { transform: rotate(-6deg); }
+  50%       { transform: rotate(6deg); }
+}
+@keyframes swing-drop-in {
+  0%   { transform: translateY(-120px); }
+  60%  { transform: translateY(12px); }
+  80%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+.auth-swing-panda {
+  position: absolute;
+  top: 0;
+  right: 9%;
+  z-index: 6;
+  pointer-events: none;
+  transform-origin: 50% 0;
+}
+.auth-swing-rope {
+  display: block;
+  width: 3px;
+  height: 74px;
+  margin: 0 auto;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    180deg,
+    #2d5a27 0px, #2d5a27 9px,
+    #4caf50 9px, #4caf50 11px
+  );
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.auth-swing-body {
+  display: block;
+  text-align: center;
+  font-size: 26px;
+  margin-top: -4px;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+}
+/* Cả cụm lắc lư như con lắc quanh điểm treo trên cùng */
+.auth-swing-panda {
+  animation: swing-drop-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) 1.6s both,
+             swing-pendulum 3.4s ease-in-out 2.7s infinite;
+}
+
+/* ── V20.4: REDUCED MOTION — tắt V20 ──────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .mascot-curious .panda-head,
+  .mascot-curious .panda-ear.left,
+  .mascot-curious .panda-ear.right,
+  .auth-time-greeting,
+  .auth-swing-panda {
+    animation: none !important;
+  }
+  /* Panda đu dây đứng yên tại vị trí cuối */
+  .auth-swing-panda {
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   V21 — SMART UX PANDA: gợi ý quên mật khẩu, offline tip,
+   autofill xanh tre, strength emoji, flip easter egg (login only)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── V21.1: QUÊN MẬT KHẨU — kêu gọi chú ý sau 2 lần sai ───────── */
+@keyframes forgot-attention-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+  50%       { box-shadow: 0 0 0 5px rgba(76, 175, 80, 0.18); }
+}
+.auth-forgot-link--attention {
+  color: #2d5a27 !important;
+  font-weight: 800 !important;
+  border-radius: 8px;
+  padding: 1px 6px;
+  animation: forgot-attention-pulse 1.4s ease-in-out infinite;
+}
+.dark .auth-forgot-link--attention {
+  color: #86efac !important;
+}
+@keyframes forgot-hint-in {
+  0%   { opacity: 0; transform: translateX(8px) scale(0.85); }
+  60%  { opacity: 1; transform: translateX(-2px) scale(1.05); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes forgot-hint-nudge {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(3px); }
+}
+.auth-forgot-hint {
+  font-size: 11px;
+  font-weight: 700;
+  color: #2d5a27;
+  background: rgba(76, 175, 80, 0.14);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 99px;
+  padding: 2px 9px;
+  pointer-events: none;
+  white-space: nowrap;
+  animation: forgot-hint-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             forgot-hint-nudge 1.2s ease-in-out 0.5s infinite;
+}
+.dark .auth-forgot-hint {
+  color: #86efac;
+  background: rgba(134, 239, 172, 0.12);
+  border-color: rgba(134, 239, 172, 0.3);
+}
+
+/* ── V21.2: OFFLINE TIP — panda báo mất mạng ──────────────────── */
+@keyframes offline-tip-pop {
+  0%   { opacity: 0; transform: translate(-50%, 8px) scale(0.85); }
+  60%  { opacity: 1; transform: translate(-50%, -3px) scale(1.05); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+.auth-offline-tip {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 25;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #991b1b;
+  background: linear-gradient(180deg, #fee2e2, #fecaca);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: 99px;
+  padding: 3px 11px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.2);
+  animation: offline-tip-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.dark .auth-offline-tip {
+  color: #fecaca;
+  background: linear-gradient(180deg, rgba(127, 29, 29, 0.95), rgba(100, 20, 20, 0.95));
+  border-color: rgba(254, 202, 202, 0.3);
+}
+
+/* ── V21.3: AUTOFILL — bỏ nền vàng Chrome, thay xanh tre ──────── */
+.relative.h-screen input:-webkit-autofill,
+.relative.h-screen input:-webkit-autofill:hover,
+.relative.h-screen input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #f0f7f0 inset !important;
+  -webkit-text-fill-color: #1a2e1a !important;
+  caret-color: #4caf50;
+  transition: background-color 9999s ease-in-out 0s;
+}
+.dark .relative.h-screen input:-webkit-autofill,
+.dark .relative.h-screen input:-webkit-autofill:hover,
+.dark .relative.h-screen input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #1d2b1f inset !important;
+  -webkit-text-fill-color: #d1fae5 !important;
+}
+
+/* ── V21.4: STRENGTH PANDA EMOJI — pop khi đổi mức ────────────── */
+@keyframes strength-panda-pop {
+  0%   { transform: scale(0) rotate(-30deg); }
+  65%  { transform: scale(1.3) rotate(8deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.auth-strength-panda {
+  display: inline-block;
+  animation: strength-panda-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── V21.5: FLIP EASTER EGG — double-click panda lộn nhào ─────── */
+@keyframes mascot-backflip {
+  0%   { transform: rotate(0deg) translateY(0) scale(1); }
+  30%  { transform: rotate(-120deg) translateY(-26px) scale(0.95); }
+  60%  { transform: rotate(-260deg) translateY(-30px) scale(0.95); }
+  85%  { transform: rotate(-360deg) translateY(-4px) scale(1.02); }
+  100% { transform: rotate(-360deg) translateY(0) scale(1); }
+}
+.mascot-flipping .panda-wrap {
+  animation: mascot-backflip 0.85s cubic-bezier(0.45, 0.05, 0.35, 1) !important;
+  transform-origin: 50% 60%;
+}
+
+/* ── V21.6: REDUCED MOTION — tắt V21, giữ hiển thị ────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .auth-forgot-link--attention,
+  .auth-forgot-hint,
+  .auth-offline-tip,
+  .auth-strength-panda,
+  .mascot-flipping .panda-wrap {
+    animation: none !important;
+  }
+  .auth-forgot-hint,
+  .auth-offline-tip {
+    opacity: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   V22 — PROGRESS & ENGAGEMENT: thanh tre tiến độ + panda đi bộ,
+   mascot cổ vũ, visit tip (login only)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── V22.1: THANH TRE TIẾN ĐỘ — panda đi bộ theo % điền form ──── */
+.auth-progress {
+  position: relative;
+  height: 18px;
+  margin-bottom: 2px;
+}
+.auth-progress-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: 99px;
+  background: rgba(76, 175, 80, 0.14);
+  overflow: hidden;
+}
+.dark .auth-progress-track {
+  background: rgba(134, 239, 172, 0.12);
+}
+.auth-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: repeating-linear-gradient(
+    90deg,
+    #2d5a27 0px, #2d5a27 10px,
+    #4caf50 10px, #4caf50 14px
+  );
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes progress-panda-walk {
+  0%, 100% { transform: translate(-50%, -55%) rotate(-4deg); }
+  50%       { transform: translate(-50%, -70%) rotate(4deg); }
+}
+.auth-progress-panda {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -60%);
+  font-size: 13px;
+  pointer-events: none;
+  transition: left 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: progress-panda-walk 0.5s ease-in-out infinite;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+/* Hoàn thành 100%: măng 🎍 nảy lên + thanh sáng xanh */
+@keyframes progress-done-pop {
+  0%   { transform: translate(-50%, -60%) scale(0.6); }
+  55%  { transform: translate(-50%, -85%) scale(1.35); }
+  100% { transform: translate(-50%, -60%) scale(1); }
+}
+.auth-progress--done .auth-progress-panda {
+  animation: progress-done-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.auth-progress--done .auth-progress-fill {
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.55);
+}
+
+/* ── V22.2: MASCOT CỔ VŨ — hover nút đăng nhập ────────────────── */
+@keyframes cheer-arm-up-left {
+  0%   { transform: rotate(28deg); }
+  100% { transform: translate(-16px, -34px) rotate(-130deg); }
+}
+@keyframes cheer-arm-up-right {
+  0%   { transform: rotate(0deg); }
+  100% { transform: translate(16px, -34px) rotate(130deg); }
+}
+@keyframes cheer-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-7px); }
+}
+/* :not(.panda--peek) — đang che mắt (nhập mật khẩu) thì không cổ vũ,
+   vì tư thế peek định vị tay bằng transform tĩnh sẽ bị animation đè.
+   Tay trái nằm SAU thân theo DOM nên phải translate ra ngoài + nâng
+   z-index, chỉ xoay tại chỗ sẽ bị thân che mất. */
+.mascot-cheer .panda:not(.panda--peek) .panda-arm.left,
+.mascot-cheer .panda:not(.panda--peek) .panda-arm.right {
+  z-index: 7;
+}
+.mascot-cheer .panda:not(.panda--peek) .panda-arm.left {
+  animation: cheer-arm-up-left 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  transform-origin: 50% 12px;
+}
+.mascot-cheer .panda:not(.panda--peek) .panda-arm.right {
+  animation: cheer-arm-up-right 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  transform-origin: 50% 12px;
+}
+.mascot-cheer .panda-wrap {
+  animation: cheer-bounce 0.55s ease-in-out infinite;
+}
+
+/* ── V22.3: VISIT TIP — chào khách quen/mới ───────────────────── */
+@keyframes visit-tip-in {
+  0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
+  60%  { opacity: 1; transform: translate(-50%, -3px) scale(1.06); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+.auth-visit-tip {
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 26;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #1a2e1a;
+  background: linear-gradient(180deg, #ecfdf5, #d1fae5);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  border-radius: 99px;
+  padding: 3px 11px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.25);
+  animation: visit-tip-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.dark .auth-visit-tip {
+  color: #d1fae5;
+  background: linear-gradient(180deg, rgba(20, 60, 35, 0.95), rgba(15, 45, 28, 0.95));
+  border-color: rgba(134, 239, 172, 0.35);
+}
+
+/* ── V22.4: REDUCED MOTION — tắt V22, giữ thông tin ──────────── */
+@media (prefers-reduced-motion: reduce) {
+  .auth-progress-panda,
+  .auth-progress--done .auth-progress-panda,
+  .mascot-cheer .panda-arm.left,
+  .mascot-cheer .panda-arm.right,
+  .mascot-cheer .panda-wrap,
+  .auth-visit-tip {
+    animation: none !important;
+  }
+  .auth-progress-fill,
+  .auth-progress-panda {
+    transition: none;
+  }
+  .auth-visit-tip {
+    opacity: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   V23 — SUCCESS TRANSITION: màn chuyển cảnh panda khi đăng nhập
+   thành công (login only)
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes success-overlay-wipe {
+  0%   { clip-path: circle(0% at 50% 50%); }
+  100% { clip-path: circle(140% at 50% 50%); }
+}
+@keyframes success-panda-zoom {
+  0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+  55%  { transform: scale(1.25) rotate(6deg); opacity: 1; }
+  75%  { transform: scale(0.95) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes success-text-up {
+  0%   { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.auth-success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 38%, rgba(134, 239, 172, 0.25) 0%, transparent 60%),
+    linear-gradient(160deg, #1a2e1a 0%, #2d5a27 55%, #1f3d1c 100%);
+  animation: success-overlay-wipe 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.auth-success-overlay__panda {
+  font-size: 64px;
+  animation: success-panda-zoom 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.35));
+}
+.auth-success-overlay__text {
+  color: #ecfdf5;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  animation: success-text-up 0.45s ease 0.4s both;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+.auth-success-overlay__sub {
+  color: rgba(209, 250, 229, 0.75);
+  font-size: 13px;
+  font-weight: 600;
+  animation: success-text-up 0.45s ease 0.55s both;
+}
+
+/* Reduced motion: hiện ngay, không wipe/zoom */
+@media (prefers-reduced-motion: reduce) {
+  .auth-success-overlay,
+  .auth-success-overlay__panda,
+  .auth-success-overlay__text,
+  .auth-success-overlay__sub {
+    animation: none !important;
+    clip-path: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   V24 — AMBIENT PACK: sao băng, sương mù, swing panda tương tác
+   (login only)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── V24.1: SAO BĂNG XANH — vụt chéo qua brand panel ──────────── */
+@keyframes shooting-star {
+  0%, 88% { opacity: 0; transform: translate(0, 0) rotate(-32deg); }
+  89%      { opacity: 1; }
+  96%      { opacity: 0.9; }
+  100%     { opacity: 0; transform: translate(-340px, 210px) rotate(-32deg); }
+}
+.auth-shooting-star {
+  position: absolute;
+  top: 12%;
+  left: 38%;
+  width: 90px;
+  height: 2px;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: 99px;
+  background: linear-gradient(
+    270deg,
+    rgba(134, 239, 172, 0.95) 0%,
+    rgba(134, 239, 172, 0.35) 45%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px rgba(134, 239, 172, 0.5);
+  opacity: 0;
+  animation: shooting-star 11s linear 3s infinite;
+}
+.auth-shooting-star--2 {
+  top: 6%;
+  left: 20%;
+  width: 64px;
+  animation-duration: 14s;
+  animation-delay: 9s;
+}
+
+/* ── V24.2: SƯƠNG MÙ — trôi lững lờ dưới đáy brand panel ──────── */
+@keyframes mist-drift {
+  0%   { transform: translateX(-6%) scaleY(1); }
+  50%  { transform: translateX(5%) scaleY(1.08); }
+  100% { transform: translateX(-6%) scaleY(1); }
+}
+.auth-mist {
+  position: absolute;
+  bottom: 0;
+  left: -10%;
+  width: 70%;
+  height: 120px;
+  z-index: 4;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 65% 90% at 40% 100%,
+    rgba(220, 240, 225, 0.10) 0%,
+    rgba(220, 240, 225, 0.05) 50%,
+    transparent 80%
+  );
+  filter: blur(6px);
+  animation: mist-drift 16s ease-in-out infinite;
+}
+.auth-mist--2 {
+  left: 15%;
+  width: 55%;
+  height: 90px;
+  animation-duration: 21s;
+  animation-delay: 4s;
+}
+
+/* ── V24.3: SWING PANDA TƯƠNG TÁC — hover đẩy đu mạnh hơn ─────── */
+@keyframes swing-pendulum-wild {
+  0%, 100% { transform: rotate(-16deg); }
+  50%       { transform: rotate(16deg); }
+}
+.auth-swing-panda {
+  pointer-events: auto;
+  cursor: grab;
+}
+.auth-swing-panda:hover {
+  animation: swing-drop-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) 1.6s both,
+             swing-pendulum-wild 1.6s ease-in-out infinite;
+}
+@keyframes swing-bubble-pop {
+  0%   { opacity: 0; transform: translate(-50%, 6px) scale(0.7); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+.auth-swing-bubble {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(45, 90, 39, 0.85);
+  border-radius: 99px;
+  padding: 2px 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  backdrop-filter: blur(4px);
+}
+.auth-swing-panda:hover .auth-swing-bubble {
+  animation: swing-bubble-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── V24.4: REDUCED MOTION — tắt V24 ──────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .auth-shooting-star,
+  .auth-mist,
+  .auth-swing-panda:hover,
+  .auth-swing-panda:hover .auth-swing-bubble {
+    animation: none !important;
+  }
+  .auth-shooting-star {
+    opacity: 0 !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   V25 — DEPTH PARALLAX: 3 lớp ambient dịch theo con trỏ
+   (MouseParallax.tsx đặt --par-x/--par-y trên root, login only)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Lớp bọc: phủ toàn trang, không bắt chuột. Transform đặt ở ĐÂY
+   (lớp bọc không có animation) — phần tử bên trong tự animate
+   transform nên không thể parallax trực tiếp. */
+.auth-par {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  will-change: transform;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Càng "gần mắt" dịch càng nhiều — ngược hướng con trỏ tạo chiều sâu */
+.auth-par-deep {
+  transform: translate3d(
+    calc(var(--par-x, 0) * -8px),
+    calc(var(--par-y, 0) * -5px),
+    0
+  );
+}
+.auth-par-mid {
+  transform: translate3d(
+    calc(var(--par-x, 0) * -16px),
+    calc(var(--par-y, 0) * -10px),
+    0
+  );
+}
+.auth-par-near {
+  transform: translate3d(
+    calc(var(--par-x, 0) * -28px),
+    calc(var(--par-y, 0) * -18px),
+    0
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-par {
+    transform: none !important;
+    transition: none !important;
   }
 }

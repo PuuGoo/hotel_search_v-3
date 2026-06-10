@@ -2,19 +2,15 @@
 
 import clsx from "clsx";
 
-export type PandaMood = "idle" | "happy" | "sad" | "loading";
+export type PandaMood = "idle" | "happy" | "sad" | "loading" | "greeting";
 
 interface PandaMascotProps {
   mood?: PandaMood;
   peek?: boolean;
   lookX?: number;
-  typing?: boolean; // NEW: bounces gently while user types
+  typing?: boolean;
 }
 
-// A CSS-only chibi panda (styles live in globals.css under ".panda *"). It
-// reacts to the auth form: eyes track the email being typed, the paws cover
-// the eyes while a password is entered, and the face cheers on success or
-// droops on error. Purely decorative, so it is hidden from assistive tech.
 const PandaMascot: React.FC<PandaMascotProps> = ({
   mood = "idle",
   peek = false,
@@ -27,30 +23,33 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
     <div
       className={clsx(
         "panda-stage",
-        mood === "idle"    && "panda-stage--idle",
-        mood === "happy"   && "panda-stage--happy",
-        mood === "sad"     && "panda-stage--sad",
-        mood === "loading" && "panda-stage--loading",
-        peek               && "panda-stage--peek",
-        typing             && "panda-stage--typing",
+        mood === "idle"     && "panda-stage--idle",
+        mood === "happy"    && "panda-stage--happy",
+        mood === "sad"      && "panda-stage--sad",
+        mood === "loading"  && "panda-stage--loading",
+        mood === "greeting" && "panda-stage--greeting",
+        peek                && "panda-stage--peek",
+        typing              && "panda-stage--typing",
       )}
       aria-hidden="true"
     >
       <div className={clsx(
         "panda-wrap",
-        peek    && "panda-wrap--peek",
-        typing  && "panda-wrap--typing",
-        mood === "happy"   && "panda-wrap--happy",
-        mood === "sad"     && "panda-wrap--sad",
-        mood === "loading" && "panda-wrap--loading",
+        peek     && "panda-wrap--peek",
+        typing   && "panda-wrap--typing",
+        mood === "happy"    && "panda-wrap--happy",
+        mood === "sad"      && "panda-wrap--sad",
+        mood === "loading"  && "panda-wrap--loading",
+        mood === "greeting" && "panda-wrap--greeting",
       )}>
         <div
           className={clsx(
             "panda",
-            peek              && "panda--peek",
-            mood === "happy"  && "panda--happy",
-            mood === "sad"    && "panda--sad",
-            mood === "loading"&& "panda--loading"
+            peek               && "panda--peek",
+            mood === "happy"   && "panda--happy",
+            mood === "sad"     && "panda--sad",
+            mood === "loading" && "panda--loading",
+            mood === "greeting"&& "panda--greeting",
           )}
           style={
             {
@@ -110,7 +109,10 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
           <span className="panda-peek-paw right" aria-hidden="true">🐾</span>
         </div>
 
-        {/* Floating sparkles that appear on happy mood */}
+        {/* Sleepy bubbles — appear after a while of idle, wake on hover/typing */}
+        <span className="panda-zzz" aria-hidden="true">💤</span>
+
+        {/* Floating sparkles */}
         {["✨", "⭐", "💫"].map((star, i) => (
           <div
             key={`star-${i}`}
@@ -122,7 +124,7 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
           </div>
         ))}
 
-        {/* 3 baby pandas orbiting around the big panda */}
+        {/* 3 baby pandas orbiting */}
         {[0, 1, 2].map((i) => (
           <div
             key={i}
@@ -160,10 +162,17 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
           </div>
         )}
 
-        {/* Mood particles: bamboo leaves on idle, stars on happy, rain drops on sad */}
+        {/* Mood particles */}
         {mood === "idle" && (
           <div className="panda-mood-particles panda-mood-particles--idle" aria-hidden="true">
             {["🎋", "🍃", "🌿"].map((p, i) => (
+              <span key={i} className="mood-particle" style={{ "--pi": i } as React.CSSProperties}>{p}</span>
+            ))}
+          </div>
+        )}
+        {mood === "greeting" && (
+          <div className="panda-mood-particles panda-mood-particles--greeting" aria-hidden="true">
+            {["👋", "🌸", "✨", "💚", "🐼"].map((p, i) => (
               <span key={i} className="mood-particle" style={{ "--pi": i } as React.CSSProperties}>{p}</span>
             ))}
           </div>
@@ -190,7 +199,7 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
           </div>
         )}
 
-        {/* Tooltip bubble: mood message */}
+        {/* Tooltip bubble */}
         <div
           className="panda-tooltip"
           style={{
@@ -206,7 +215,7 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
             borderRadius: 99,
             pointerEvents: "none",
             whiteSpace: "nowrap",
-            opacity: mood === "happy" ? 1 : mood === "sad" ? 1 : 0,
+            opacity: mood === "happy" ? 1 : mood === "sad" ? 1 : mood === "greeting" ? 1 : 0,
             transition: "opacity 0.3s ease",
             backdropFilter: "blur(6px)",
             boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
@@ -214,23 +223,51 @@ const PandaMascot: React.FC<PandaMascotProps> = ({
           }}
           aria-hidden="true"
         >
-          {mood === "happy" ? "🐼 Xin chào!" : mood === "sad" ? "😢 Thử lại nhé!" : ""}
+          {mood === "happy" ? "🐼 Xin chào!" : mood === "sad" ? "😢 Thử lại nhé!" : mood === "greeting" ? "👋 Chào mừng!" : ""}
         </div>
 
-        {/* Peek bubble — shown when peek=true */}
-        <div
-          className="panda-peek-bubble"
-          aria-hidden="true"
-        >
+        {/* Peek bubble */}
+        <div className="panda-peek-bubble" aria-hidden="true">
           {peek ? "🙈 Không nhìn nha!" : ""}
         </div>
 
-        {/* Typing indicator dots — shown while typing */}
+        {/* Typing indicator dots */}
         <div className="panda-typing-indicator" aria-hidden="true">
           <span />
           <span />
           <span />
         </div>
+
+        {/* Heart burst on happy — extra v13 */}
+        {mood === "happy" && (
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              top: "10%",
+              right: "-10px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              pointerEvents: "none",
+            }}
+          >
+            {["💚", "🌸", "💫"].map((h, i) => (
+              <span
+                key={i}
+                style={{
+                  fontSize: 10 + i * 2,
+                  animation: `float-sway ${0.8 + i * 0.2}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.15}s`,
+                  display: "inline-block",
+                  opacity: 0.9,
+                }}
+              >
+                {h}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -38,6 +38,9 @@ function getPasswordStrength(pw: string): { score: number; label: string; color:
   return { score: 5, label: "Rất mạnh 🐼", color: "#16a34a" };
 }
 
+/* Panda mood theo độ mạnh mật khẩu */
+const STRENGTH_PANDA = ["", "😟", "😕", "🙂", "😄", "🤩"];
+
 const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) => {
   const session = useSession();
   const router = useRouter();
@@ -51,7 +54,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
 
   // Mascot reactions
   const [peek, setPeek] = useState(false);
-  const [mood, setMood] = useState<PandaMood>("idle");
+  const [mood, setMood] = useState<PandaMood>("greeting");
+  const greetingDoneRef = useRef(false);
 
   // Typing state — panda bobs when user types in email
   const [typing, setTyping] = useState(false);
@@ -63,11 +67,93 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
   // Password visibility toggle
   const [showPassword, setShowPassword] = useState(false);
 
+  // Caps Lock warning on password field
+  const [capsOn, setCapsOn] = useState(false);
+
+  // Mascot tò mò khi hover các nút social
+  const [socialHover, setSocialHover] = useState(false);
+
+  // Đếm số lần đăng nhập sai → gợi ý "Quên mật khẩu?"
+  const [failCount, setFailCount] = useState(0);
+
+  // Trạng thái mạng — panda báo khi offline
+  const [online, setOnline] = useState(true);
+
+  // Easter egg: double-click mascot → lộn nhào
+  const [flipping, setFlipping] = useState(false);
+
+  // Mascot cổ vũ khi hover nút đăng nhập
+  const [submitHover, setSubmitHover] = useState(false);
+
+  // Màn chuyển cảnh khi đăng nhập thành công
+  const [loginSuccess, setLoginSuccess] = useState(false);
+
+  // Easter egg: gõ "panda" trong email → panda vui (1 lần/phiên)
+  const pandaEggDoneRef = useRef(false);
+
+  // Thưởng mật khẩu "Rất mạnh" lần đầu (1 lần/phiên REGISTER)
+  const strongRewardDoneRef = useRef(false);
+
+  // Lời chào khách quen / khách mới (localStorage)
+  const [visitMsg, setVisitMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const KEY = "panda-last-visit";
+      const last = Number(localStorage.getItem(KEY) || 0);
+      const now = Date.now();
+      if (!last) setVisitMsg("👋 Chào lần đầu ghé thăm!");
+      else if (now - last > 24 * 60 * 60 * 1000)
+        setVisitMsg("🐼 Lâu rồi không gặp!");
+      localStorage.setItem(KEY, String(now));
+    } catch {
+      /* localStorage bị chặn — bỏ qua */
+    }
+    const t = setTimeout(() => setVisitMsg(null), 4000);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Rời tab → đổi title níu kéo; quay lại → mascot vẫy tay chào
+  useEffect(() => {
+    const original = document.title;
+    let away = false;
+    const onVis = () => {
+      if (document.hidden) {
+        away = true;
+        document.title = "🐼 Quay lại nhé!";
+      } else {
+        document.title = original;
+        if (away) {
+          away = false;
+          setMood("greeting");
+          setTimeout(() => setMood("idle"), 1500);
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      document.title = original;
+    };
+  }, []);
+
+  useEffect(() => {
+    setOnline(navigator.onLine);
+    const goOn = () => setOnline(true);
+    const goOff = () => setOnline(false);
+    window.addEventListener("online", goOn);
+    window.addEventListener("offline", goOff);
+    return () => {
+      window.removeEventListener("online", goOn);
+      window.removeEventListener("offline", goOff);
+    };
+  }, []);
+
   // Success flash on form card
   const [successFlash, setSuccessFlash] = useState(false);
 
-  // Derive loading mood from isLoading state
-  const mascotMood: PandaMood = isLoading ? "loading" : mood;
+  // Derive loading mood from isLoading state; offline → panda buồn
+  const mascotMood: PandaMood = isLoading ? "loading" : !online ? "sad" : mood;
 
   const {
     register,
@@ -85,7 +171,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
   // Eyes track the email as it's typed
   const emailValue = (watch("email") as string) ?? "";
   const passwordValue = (watch("password") as string) ?? "";
+  const nameValue = (watch("name") as string) ?? "";
   const lookX = peek ? 0 : Math.min(emailValue.length, 14) * 0.45;
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailValue);
+
+  // Tiến độ điền form — panda đi bộ trên thanh tre
+  const progressParts =
+    variant === "REGISTER"
+      ? [nameValue.trim().length > 0, emailValid, passwordValue.length >= 6]
+      : [emailValid, passwordValue.length >= 6];
+  const progressPct = Math.round(
+    (progressParts.filter(Boolean).length / progressParts.length) * 100
+  );
 
   // Password strength (only shown in REGISTER mode)
   const pwStrength = variant === "REGISTER" ? getPasswordStrength(passwordValue) : null;
@@ -106,16 +203,17 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
     if (next === "happy") {
       setSuccessFlash(true);
       setTimeout(() => setSuccessFlash(false), 1200);
-      // Confetti burst from mascot area
-      const emojis = ["🎉", "🐼", "🌿", "💚", "🎋", "✨", "🌸"];
+      // Full-screen confetti rain
+      const emojis = ["🎉", "🐼", "🌿", "💚", "🎋", "✨", "🌸", "🎊", "🍀", "⭐"];
       const container = document.querySelector(".panda-mascot-wrapper");
       if (container) {
         const rect = container.getBoundingClientRect();
-        for (let i = 0; i < 12; i++) {
+        // Local burst from mascot
+        for (let i = 0; i < 16; i++) {
           const el = document.createElement("span");
           el.textContent = emojis[i % emojis.length];
-          const angle = (i / 12) * 360;
-          const dist = 50 + Math.random() * 60;
+          const angle = (i / 16) * 360;
+          const dist = 55 + Math.random() * 70;
           const rad = (angle * Math.PI) / 180;
           const tx = Math.cos(rad) * dist;
           const ty = Math.sin(rad) * dist - 20;
@@ -123,19 +221,80 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
             position:fixed;
             left:${rect.left + rect.width / 2}px;
             top:${rect.top + rect.height / 2}px;
-            font-size:${12 + Math.random() * 8}px;
+            font-size:${10 + Math.random() * 10}px;
             pointer-events:none;
             z-index:9999;
-            animation:confettiBurst 0.75s ease-out forwards;
+            animation:confettiBurst 0.85s ease-out forwards;
             --angle:${angle}deg;
             transform:translate(-50%,-50%);
           `;
           document.body.appendChild(el);
-          setTimeout(() => el.remove(), 800);
+          setTimeout(() => el.remove(), 900);
+        }
+        // Ambient falling confetti from top
+        for (let i = 0; i < 20; i++) {
+          const el = document.createElement("span");
+          el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          const startX = Math.random() * window.innerWidth;
+          const delay = Math.random() * 600;
+          el.style.cssText = `
+            position:fixed;
+            left:${startX}px;
+            top:-20px;
+            font-size:${8 + Math.random() * 12}px;
+            pointer-events:none;
+            z-index:9998;
+            animation:confetti-fall 1.2s ease-in ${delay}ms forwards;
+          `;
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 1900 + delay);
         }
       }
     }
     setTimeout(() => setMood("idle"), next === "happy" ? 1400 : 900);
+  }, []);
+
+  // Easter egg: email chứa "panda" → mascot vui (1 lần/phiên)
+  useEffect(() => {
+    if (!pandaEggDoneRef.current && /panda/i.test(emailValue)) {
+      pandaEggDoneRef.current = true;
+      flashMood("happy");
+    }
+  }, [emailValue, flashMood]);
+
+  // Mật khẩu đạt "Rất mạnh" lần đầu → mưa lá tre quanh ô mật khẩu
+  useEffect(() => {
+    if (strongRewardDoneRef.current || pwStrength?.score !== 5) return;
+    strongRewardDoneRef.current = true;
+    const track = document.querySelector(".auth-strength-bar-track");
+    if (!track) return;
+    const rect = track.getBoundingClientRect();
+    const leaves = ["🍃", "🌿", "🎋", "✨", "🍀"];
+    for (let i = 0; i < 8; i++) {
+      const el = document.createElement("span");
+      el.textContent = leaves[i % leaves.length];
+      const x = rect.left + (rect.width * i) / 7;
+      el.style.cssText = `
+        position:fixed;
+        left:${x}px;
+        top:${rect.top}px;
+        font-size:${9 + Math.random() * 6}px;
+        pointer-events:none;
+        z-index:9999;
+        animation:confettiBurst 0.8s ease-out ${i * 40}ms forwards;
+        --angle:${260 + Math.random() * 20}deg;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 900 + i * 40);
+    }
+  }, [pwStrength?.score]);
+
+  // Greeting wave on first render → auto-transition to idle
+  useEffect(() => {
+    if (greetingDoneRef.current) return;
+    greetingDoneRef.current = true;
+    const t = setTimeout(() => setMood("idle"), 2200);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -149,16 +308,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
   }, []);
 
-  // ── Panda cursor trail effect ──────────────────────────────────
+  // ── Panda cursor trail effect (mouse + touch) ─────────────────
   useEffect(() => {
     let lastX = 0, lastY = 0, frameId: number;
     const minDist = 28;
     const paws = ["🐾", "🐼", "🐾"];
     let pawIdx = 0;
 
-    const spawnPaw = (x: number, y: number) => {
+    const spawnPaw = (x: number, y: number, isTouchClass = false) => {
       const el = document.createElement("span");
-      el.className = "panda-cursor-paw";
+      el.className = isTouchClass ? "panda-touch-paw" : "panda-cursor-paw";
       el.textContent = paws[pawIdx % paws.length];
       pawIdx++;
       const rot = -20 + Math.random() * 40;
@@ -173,42 +332,62 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
         const dx = e.clientX - lastX;
         const dy = e.clientY - lastY;
         if (Math.sqrt(dx * dx + dy * dy) > minDist) {
-          spawnPaw(e.clientX, e.clientY);
+          spawnPaw(e.clientX, e.clientY, false);
           lastX = e.clientX;
           lastY = e.clientY;
         }
       });
     };
 
+    // Touch trail for mobile
+    let lastTX = 0, lastTY = 0;
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t) return;
+      const dx = t.clientX - lastTX;
+      const dy = t.clientY - lastTY;
+      if (Math.sqrt(dx * dx + dy * dy) > 40) {
+        spawnPaw(t.clientX, t.clientY, true);
+        lastTX = t.clientX;
+        lastTY = t.clientY;
+      }
+    };
+
     document.addEventListener("mousemove", onMouseMove, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: true });
     return () => {
       document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("touchmove", onTouchMove);
       cancelAnimationFrame(frameId);
     };
   }, []);
 
-  // ── Card parallax tilt on mouse move ──────────────────────────
+  // ── Card tilt: do CardTilt.tsx (bọc ngoài, V17) đảm nhiệm — tilt cũ
+  //    trên cardRef đã gỡ để tránh double-tilt lồng nhau. ──────────
+
+  // ── Mắt panda nhìn theo con trỏ toàn trang (khi không gõ email) ─
   useEffect(() => {
-    const card = cardRef.current;
-    if (!card) return;
+    let frameId = 0;
     const onMove = (e: MouseEvent) => {
-      const rect = card.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const rx = ((e.clientY - cy) / rect.height) * -6;
-      const ry = ((e.clientX - cx) / rect.width) * 6;
-      card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      cancelAnimationFrame(frameId);
+      frameId = requestAnimationFrame(() => {
+        const panda = document.querySelector<HTMLElement>(".panda-mascot-wrapper .panda");
+        if (!panda) return;
+        // Đang gõ email / che mắt thì để logic prop điều khiển
+        if (panda.classList.contains("panda--peek")) return;
+        const r = panda.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height * 0.35; // tâm mắt ~ phần đầu
+        const gx = Math.max(-5, Math.min(5, (e.clientX - cx) / 40));
+        const gy = Math.max(-2, Math.min(3, (e.clientY - cy) / 60));
+        panda.style.setProperty("--look-x", `${gx.toFixed(1)}px`);
+        panda.style.setProperty("--look-y", `${gy.toFixed(1)}px`);
+      });
     };
-    const onLeave = () => {
-      card.style.transform = "perspective(800px) rotateX(0deg) rotateY(0deg)";
-      card.style.transition = "transform 0.5s ease";
-      setTimeout(() => { if (card) card.style.transition = ""; }, 500);
-    };
-    card.addEventListener("mousemove", onMove);
-    card.addEventListener("mouseleave", onLeave);
+    document.addEventListener("mousemove", onMove, { passive: true });
     return () => {
-      card.removeEventListener("mousemove", onMove);
-      card.removeEventListener("mouseleave", onLeave);
+      document.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(frameId);
     };
   }, []);
 
@@ -219,6 +398,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
     setTimeout(() => {
       setVariant((v) => (v === "LOGIN" ? "REGISTER" : "LOGIN"));
       setFormAnimating(false);
+      // Mascot vẫy tay chào mừng sang form mới
+      setMood("greeting");
+      setTimeout(() => setMood("idle"), 1500);
     }, 180);
   }, [variant]);
 
@@ -266,14 +448,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
         .then((callback) => {
           if (callback?.error) {
             flashMood("sad");
+            setFailCount((c) => c + 1);
             toast.error("Thông tin đăng nhập không hợp lệ!");
             return;
           }
 
           if (callback?.ok) {
             flashMood("happy");
+            setFailCount(0);
             toast.success("Đã đăng nhập 🐼");
-            router.push(callbackUrl);
+            // Màn chuyển cảnh panda trước khi vào trong
+            setLoginSuccess(true);
+            setTimeout(() => router.push(callbackUrl), 950);
           }
         })
         .finally(() => setIsLoading(false));
@@ -303,8 +489,35 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
     <div ref={cardRef}>
       {session?.status === "loading" && <LoadingModal />}
 
-      {/* Panda mascot */}
-      <div className="panda-mascot-wrapper -mt-2 mb-1 flex justify-center auth-rise auth-rise-3">
+      {/* Màn chuyển cảnh đăng nhập thành công */}
+      {loginSuccess && (
+        <div className="auth-success-overlay" role="status">
+          <span className="auth-success-overlay__panda" aria-hidden="true">🐼</span>
+          <p className="auth-success-overlay__text">Chào mừng trở lại!</p>
+          <span className="auth-success-overlay__sub">Đang đưa bạn vào trong... 🎋</span>
+        </div>
+      )}
+
+      {/* Panda mascot — click: vui, double-click: lộn nhào (easter egg) */}
+      <div
+        className={`panda-mascot-wrapper -mt-2 mb-1 flex justify-center auth-rise auth-rise-3 panda-mascot-clickable${socialHover ? " mascot-curious" : ""}${flipping ? " mascot-flipping" : ""}${submitHover ? " mascot-cheer" : ""}`}
+        onClick={() => { if (mood === "idle") flashMood("happy"); }}
+        onDoubleClick={() => {
+          if (flipping) return;
+          setFlipping(true);
+          setTimeout(() => setFlipping(false), 900);
+        }}
+      >
+        {/* Khách quen / khách mới */}
+        {visitMsg && (
+          <span className="auth-visit-tip" role="status">{visitMsg}</span>
+        )}
+        {/* Mất mạng — panda báo offline */}
+        {!online && (
+          <span className="auth-offline-tip" role="status">
+            📡 Mất kết nối mạng rồi!
+          </span>
+        )}
         <PandaMascot
           mood={mascotMood}
           peek={peek}
@@ -335,6 +548,24 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
           method="post"
           onSubmit={handleSubmit(onSubmit)}
         >
+          {/* Thanh tre tiến độ — panda đi bộ theo % điền form */}
+          <div
+            className={`auth-progress${progressPct === 100 ? " auth-progress--done" : ""}`}
+            aria-hidden="true"
+          >
+            <div className="auth-progress-track">
+              <div
+                className="auth-progress-fill"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+            <span
+              className="auth-progress-panda"
+              style={{ left: `${progressPct}%` }}
+            >
+              {progressPct === 100 ? "🎍" : "🐼"}
+            </span>
+          </div>
           {/* Name field slides in for REGISTER */}
           <div
             style={{
@@ -352,23 +583,34 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
               required={variant === "REGISTER"}
               id="name"
               label="Tên"
+              onFocus={spawnLeaves}
             />
           </div>
 
-          <Input
-            disabled={isLoading}
-            register={register}
-            errors={errors}
-            required
-            id="email"
-            label="Địa chỉ email"
-            type="email"
-            onChange={handleEmailChange}
-            onFocus={(e: any) => spawnLeaves(e)}
-          />
+          {/* Email field — 🍀 hiện khi email hợp lệ */}
+          <div className="auth-email-wrapper">
+            <Input
+              disabled={isLoading}
+              register={register}
+              errors={errors}
+              required
+              id="email"
+              label="Địa chỉ email"
+              type="email"
+              onChange={handleEmailChange}
+              onFocus={spawnLeaves}
+            />
+            {emailValid && (
+              <span className="auth-email-check" aria-hidden="true">🍀</span>
+            )}
+          </div>
 
-          {/* Password field with show/hide toggle */}
-          <div className="auth-password-wrapper">
+          {/* Password field with show/hide toggle + Caps Lock warning */}
+          <div
+            className="auth-password-wrapper"
+            onKeyUp={(e) => setCapsOn(e.getModifierState?.("CapsLock") ?? false)}
+            onBlur={() => setCapsOn(false)}
+          >
             <Input
               disabled={isLoading}
               register={register}
@@ -402,6 +644,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
               </span>
             </button>
 
+            {/* Caps Lock đang bật — panda nhắc nhở */}
+            {capsOn && (
+              <span className="auth-capslock-tip" role="status">
+                🐼 Caps Lock đang bật!
+              </span>
+            )}
+
             {/* Password strength bar — only in REGISTER mode */}
             <div
               className="auth-strength-bar-wrap"
@@ -434,6 +683,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
                   className="auth-strength-label"
                   style={{ color: pwStrength.color }}
                 >
+                  <span
+                    className="auth-strength-panda"
+                    key={pwStrength.score}
+                    aria-hidden="true"
+                  >
+                    {STRENGTH_PANDA[pwStrength.score]}
+                  </span>{" "}
                   {pwStrength.label}
                 </span>
               )}
@@ -449,22 +705,46 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
               transition: "max-height 0.28s ease, opacity 0.22s ease",
             }}
           >
-            <div className="flex justify-end">
-              <a href="/forgot-password" className="auth-forgot-link">
+            <div className="flex justify-end items-center gap-2">
+              {failCount >= 2 && (
+                <span className="auth-forgot-hint" aria-hidden="true">
+                  🐼 Thử cái này nè!
+                </span>
+              )}
+              <a
+                href="/forgot-password"
+                className={`auth-forgot-link${failCount >= 2 ? " auth-forgot-link--attention" : ""}`}
+              >
                 Quên mật khẩu?
               </a>
             </div>
           </div>
 
-          {/* PandaButton submit */}
+          {/* PandaButton submit — wrapper "hút" theo con trỏ (magnetic).
+              Transform đặt trên wrapper vì .panda-svg-btn bị các CSS
+              animation fill-both giữ chặt thuộc tính transform. */}
           <div
             style={{ display: "flex", justifyContent: "center", paddingTop: "16px" }}
-            className={isLoading ? "panda-btn-submitting" : ""}
+            className={`panda-btn-magnet${isLoading ? " panda-btn-submitting" : ""}`}
+            onMouseMove={(e) => {
+              const t = e.currentTarget;
+              const r = t.getBoundingClientRect();
+              const x = ((e.clientX - r.left) / r.width - 0.5) * 10;
+              const y = ((e.clientY - r.top) / r.height - 0.5) * 8;
+              t.style.setProperty("--magnet-x", `${x.toFixed(1)}px`);
+              t.style.setProperty("--magnet-y", `${y.toFixed(1)}px`);
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.setProperty("--magnet-x", "0px");
+              e.currentTarget.style.setProperty("--magnet-y", "0px");
+              setSubmitHover(false);
+            }}
+            onMouseEnter={() => setSubmitHover(true)}
           >
             <PandaButton
               type="submit"
               loading={isLoading}
-              disabled={isLoading}
+              disabled={isLoading || !online}
               labelStyle={
                 variant === "REGISTER"
                   ? { background: "#007aff", boxShadow: "0 2px 0 #0051d5" }
@@ -483,8 +763,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl = "/conversations" }) =
           <div className="auth-divider__line" />
         </div>
 
-        {/* Social buttons */}
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        {/* Social buttons — mascot nghiêng đầu tò mò khi hover */}
+        <div
+          className="mt-4 grid grid-cols-2 gap-3"
+          onMouseEnter={() => setSocialHover(true)}
+          onMouseLeave={() => setSocialHover(false)}
+        >
           <AuthSocialButton
             icon={BsGithub}
             label="GitHub"
