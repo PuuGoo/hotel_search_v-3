@@ -472,8 +472,6 @@ html {
   background: radial-gradient(120% 100% at 50% 16%, var(--cream) 58%, #e7ebf3 100%);
   border-radius: 50% 50% 48% 48%;
   box-shadow: inset 0 -6px 12px rgba(0,0,0,0.06);
-  animation: panda-breathe 3.8s ease-in-out infinite;
-  transform-origin: 50% 100%;
 }
 /* belly patch */
 .panda-belly {
@@ -826,9 +824,6 @@ html {
 /* Pupils follow the typed email (look-x) / droop when sad (look-y). The eye
    itself keeps its blink animation; only the pupil + catchlight translate. */
 .panda-eye::before,
-.panda-eye::after {
-  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-}
 .panda-eye::before { transform: translate(var(--look-x, 0), var(--look-y, 0)); }
 .panda-eye::after  { transform: translate(var(--look-x, 0), var(--look-y, 0)); }
 
@@ -1095,10 +1090,6 @@ html {
   .panda-svg-spinner {
     animation: none !important;
   }
-  .panda-svg-body,
-  .panda-svg-shadow {
-    transition: none !important;
-  }
 }
 
 /* ── Baby pandas orbiting the big panda ─────────────────────────────── */
@@ -1309,33 +1300,12 @@ html {
 /* ── Responsive panda scaling ──────────────────────────────────────── */
 /* Mobile (< 640px): compact panda */
 @media (max-width: 639px) {
-  .panda-stage {
-    min-height: 170px;
-  }
-  .panda-wrap {
-    transform: scale(0.65);
-    transform-origin: 50% 100%;
-  }
 }
 /* Tablet (640–767px) */
 @media (min-width: 640px) and (max-width: 767px) {
-  .panda-stage {
-    min-height: 195px;
-  }
-  .panda-wrap {
-    transform: scale(0.75);
-    transform-origin: 50% 100%;
-  }
 }
 /* Small desktop / large tablet (768–1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
-  .panda-stage {
-    min-height: 220px;
-  }
-  .panda-wrap {
-    transform: scale(0.85);
-    transform-origin: 50% 100%;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1360,17 +1330,6 @@ html {
    ================================================================ */
 
 /* ── Panda colour tokens ──────────────────────────────────────── */
-:root {
-  --panda-green:       #2d5a27;
-  --panda-green-light: #3a7a32;
-  --panda-green-dark:  #1a3a17;
-  --panda-green-glow:  rgba(45, 90, 39, 0.22);
-  --panda-black:       #1e2230;
-  --panda-cream:       #fdfdf8;
-  --panda-pink:        #ffb3c1;
-  --panda-blue-suit:   #2f80ed;
-  --panda-radius:      14px;
-}
 
 /* ── Input focus ring — panda green ──────────────────────────── */
 /* Override the default blue focus ring on Input component       */
@@ -1622,9 +1581,6 @@ input:not(:placeholder-shown) ~ label {
 
 /* ── Panda mascot — tighter top margin on register (3 fields) ── */
 /* Already handled by panda-stage min-height, but ensure no overflow */
-.panda-stage {
-  overflow: visible;
-}
 
 /* ── Entrance animation for social grid ─────────────────────── */
 .auth-rise .grid {
@@ -1756,9 +1712,6 @@ input:focus {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-.sm\:max-w-md {
-  animation: none;
-}
 
 /* ── PandaButton — upgraded hover + pressed + loaded state ─────── */
 @keyframes panda-btn-float {
@@ -1769,11 +1722,6 @@ input:focus {
   0%   { opacity: 0; transform: translateY(20px) scale(0.9); }
   60%  { transform: translateY(-4px) scale(1.02); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-.panda-svg-btn {
-  animation: panda-btn-appear 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  animation-delay: 0.35s;
-  opacity: 0;
 }
 .panda-svg-btn:not(:disabled):hover svg {
   animation: panda-btn-float 0.9s ease-in-out infinite;
@@ -1836,9 +1784,6 @@ input:focus {
   border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
   animation: tear-drop 0.6s ease-out forwards;
 }
-.panda--sad .panda-cheek.right::after {
-  left: 9px;
-}
 
 /* ── Auth form panel — staggered field reveal ───────────────────── */
 @keyframes field-slide-in {
@@ -1895,10 +1840,9 @@ input:focus {
   .panda--loading .panda-eye,
   .bamboo-particle,
   .panda-svg-btn,
-  .space-y-4 > *,
-  .rounded-3xl {
+  .space-y-4 > * {
     animation: none !important;
-    opacity: 1 !important;
+    transition: none !important;
   }
 }
 
@@ -2014,8 +1958,8 @@ input:focus {
 
 /* ── Panda mascot idle: subtle breathing (scale y) ───────────── */
 @keyframes panda-breathe {
-  0%, 100% { transform: translateX(-50%) scaleY(1); }
-  45%       { transform: translateX(-50%) scaleY(1.025); }
+  0%, 100% { transform: scaleY(1); }
+  45%       { transform: scaleY(1.025); }
 }
 
 /* ── Panda mascot eyes: extra long gaze, then double blink ──── */
@@ -2026,17 +1970,11 @@ input:focus {
   94%            { transform: scaleY(0.07); }
   97%            { transform: scaleY(1); }
 }
-.panda-eye {
-  animation: panda-blink-pro 5.5s ease-in-out infinite !important;
-}
 
 /* ── Panda nose shimmer ──────────────────────────────────────── */
 @keyframes nose-wiggle {
   0%, 100% { transform: translateX(-50%) scale(1); }
   50%       { transform: translateX(-50%) scale(1.12); }
-}
-.panda-nose {
-  animation: nose-wiggle 2.6s ease-in-out infinite;
 }
 
 /* ── Auth form card: mount with 3D flip-up effect ───────────── */
@@ -2046,9 +1984,6 @@ input:focus {
   100% { opacity: 1; transform: perspective(900px) rotateX(0deg) translateY(0); }
 }
 /* Apply to the card container once only on mount */
-.sm\:max-w-md {
-  animation: card-flip-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
 
 /* ── Heading text — typewriter underline effect ──────────────── */
 @keyframes underline-grow {
@@ -2116,9 +2051,6 @@ h2.auth-rise-2.text-center {
 
 /* ── Password reveal: panda paws smooth out + bounce ─────────── */
 .panda--peek .panda-arm.left,
-.panda--peek .panda-arm.right {
-  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
 
 /* ── Baby pandas grow hearts on happy ───────────────────────── */
 @keyframes baby-heart {
@@ -2139,12 +2071,6 @@ h2.auth-rise-2.text-center {
 }
 
 /* ── Gradient text on the form heading ───────────────────────── */
-h2.auth-rise-2 {
-  background: linear-gradient(135deg, #1a2a18 0%, var(--panda-green) 50%, #4caf50 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
 .dark h2.auth-rise-2 {
   background: linear-gradient(135deg, #a8e6a0 0%, #6ee060 50%, #b0f0a8 100%);
   -webkit-background-clip: text;
@@ -2160,352 +2086,727 @@ h2.auth-rise-2 {
   .panda-stage--loading,
   h2.auth-rise-2::after,
   .auth-social-btn .auth-social-btn__icon,
-  .panda-svg-btn svg {
-    animation: none !important;
-    transition: none !important;
-  }
   h2.auth-rise-2::after { transform: scaleX(1); }
-  h2.auth-rise-2 {
-    -webkit-text-fill-color: unset;
-    background: none;
-    color: inherit;
-  }
+}
+
+
+/* ================================================================
+   NÂNG CẤP PHASE 4 — Premium Animation & Missing Sync
+   ================================================================ */
+
+/* ── Fix: position:relative cho glass shimmer ::before hoạt động ── */
+[class*="sm:max-w-md"],
+
+/* ── Mood particles burst (happy / sad / loading) ────────────── */
+@keyframes mood-particle-burst {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(0.4) rotate(0deg); }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--px, 0px)), calc(-60px + var(--py, 0px))) scale(0.7) rotate(var(--pr, 20deg)); }
+}
+
+.panda-mood-particles {
+  position: absolute;
+  left: 50%; top: 0;
+  width: 0; height: 0;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.mood-particle {
+  position: absolute;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0;
+  animation: mood-particle-burst 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--pi, 0) * 0.12s);
+}
+
+/* Happy: scatter particles wide */
+.panda-mood-particles--happy .mood-particle:nth-child(1) { --px: -50px; --py: -10px; --pr: -25deg; }
+.panda-mood-particles--happy .mood-particle:nth-child(2) { --px:  10px; --py: -20px; --pr:  15deg; animation-delay: 0.08s; }
+.panda-mood-particles--happy .mood-particle:nth-child(3) { --px: -20px; --py: -30px; --pr: -10deg; animation-delay: 0.04s; }
+.panda-mood-particles--happy .mood-particle:nth-child(4) { --px:  45px; --py: -5px;  --pr:  30deg; animation-delay: 0.15s; }
+.panda-mood-particles--happy .mood-particle:nth-child(5) { --px:  60px; --py: -25px; --pr: -20deg; animation-delay: 0.22s; }
+
+/* Sad: drops fall down */
+.panda-mood-particles--sad { top: 60px; }
+.panda-mood-particles--sad .mood-particle {
+  animation-name: mood-particle-burst;
+  --py: 20px;
+}
+.panda-mood-particles--sad .mood-particle:nth-child(1) { --px: -24px; }
+.panda-mood-particles--sad .mood-particle:nth-child(2) { --px:  0px; animation-delay: 0.14s; }
+.panda-mood-particles--sad .mood-particle:nth-child(3) { --px:  24px; animation-delay: 0.06s; }
+
+/* Loading: lightning bolts bounce */
+.panda-mood-particles--loading .mood-particle {
+  animation: mood-particle-burst 0.55s ease-out infinite;
+}
+.panda-mood-particles--loading .mood-particle:nth-child(1) { --px: -36px; --py: -8px; }
+.panda-mood-particles--loading .mood-particle:nth-child(2) { --px:  0px;  --py: -20px; animation-delay: 0.18s; }
+.panda-mood-particles--loading .mood-particle:nth-child(3) { --px:  36px; --py: -8px;  animation-delay: 0.09s; }
+
+/* ── Panda button: wag tail animation on idle ────────────────── */
+@keyframes panda-btn-wag {
+  0%, 100% { transform: rotate(0deg); }
+  25%       { transform: rotate(-8deg); }
+  75%       { transform: rotate(8deg); }
+}
+
+/* ── Input field: glow trail when typing ────────────────────── */
+@keyframes input-glow-trail {
+  0%   { opacity: 0.6; transform: scaleX(0); }
+  50%  { opacity: 1;   transform: scaleX(1); }
+  100% { opacity: 0;   transform: scaleX(1); }
+}
+
+/* ── Variant switch: form fields fade+slide in together ─────── */
+@keyframes variant-switch-in {
+  0%   { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.space-y-4 {
+  animation: variant-switch-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Auth card inner glow — panda-green at edges ────────────── */
+@keyframes card-inner-glow {
+  0%   { box-shadow: inset 0 0 0px rgba(45,90,39,0); }
+  50%  { box-shadow: inset 0 0 24px rgba(45,90,39,0.07); }
+  100% { box-shadow: inset 0 0 0px rgba(45,90,39,0); }
+}
+
+/* ── Policy footer: panda emoji heartbeat ───────────────────── */
+@keyframes panda-heartbeat {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  14%       { transform: translateX(-50%) scale(1.3); }
+  28%       { transform: translateX(-50%) scale(1); }
+  42%       { transform: translateX(-50%) scale(1.2); }
+  56%       { transform: translateX(-50%) scale(1); }
+}
+.auth-policy-panda {
+  display: inline-block;
+  animation: panda-heartbeat 2.4s ease-in-out infinite;
+}
+
+/* ── Social button: pressed ripple glow ─────────────────────── */
+@keyframes social-press-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(45,90,39,0.45); }
+  100% { box-shadow: 0 0 0 12px rgba(45,90,39,0); }
+}
+
+/* ── Input: label slide animation enhanced ───────────────────── */
+@keyframes label-pop-in {
+  0%   { transform: translateY(0) scale(1); }
+  40%  { transform: translateY(-2px) scale(1.02); }
+  100% { transform: translateY(0) scale(1); }
+}
+input:focus ~ label {
+  animation: label-pop-in 0.25s ease-out;
+}
+
+/* ── Panda glasses: lens shimmer on happy ────────────────────── */
+@keyframes glasses-shimmer {
+  0%   { opacity: 0; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.panda--happy .panda-glasses-lens::after {
+  animation: glasses-shimmer 0.6s ease-in-out 2;
+}
+
+/* ── Error shake: input field red flash ─────────────────────── */
+@keyframes input-error-flash {
+  0%, 100% { border-color: inherit; }
+  25%, 75% { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.2); }
+}
+.panda-stage--sad ~ * input {
+  animation: input-error-flash 0.5s ease-out;
+}
+
+/* ── Panda mascot entrance: pop-in with overshoot ───────────── */
+@keyframes mascot-entrance {
+  0%   { opacity: 0; transform: scale(0.5) translateY(20px) rotate(-8deg); }
+  55%  { transform: scale(1.08) translateY(-5px) rotate(3deg); }
+  75%  { transform: scale(0.97) translateY(2px) rotate(-1deg); }
+  100% { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
+}
+
+/* ── Baby panda orbit: appear staggered on load ─────────────── */
+@keyframes baby-orbit-appear {
+  from { opacity: 0; transform: scale(0); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.baby-panda-orbit:nth-child(5) { animation-delay: calc(var(--delay, 0s)), 0.5s; }
+.baby-panda-orbit:nth-child(6) { animation-delay: calc(var(--delay, 0s)), 0.7s; }
+.baby-panda-orbit:nth-child(7) { animation-delay: calc(var(--delay, 0s)), 0.9s; }
+
+/* ── Form heading: gradient text animation ───────────────────── */
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── PandaButton: glow ring pulse on idle ────────────────────── */
+@keyframes panda-btn-glow-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(45,90,39,0.5); }
+  70%  { box-shadow: 0 0 0 10px rgba(45,90,39,0); }
+  100% { box-shadow: 0 0 0 0 rgba(45,90,39,0); }
+}
+.panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading) {
+  animation: panda-btn-appear 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s both,
+             panda-btn-glow-ring 2.8s ease-out 1.2s infinite;
+}
+
+/* ── Toggle link: variant change anim ───────────────────────── */
+@keyframes toggle-text-in {
+  0%   { opacity: 0; transform: translateY(4px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Auth card: subtle float on desktop ─────────────────────── */
+@keyframes card-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-3px); }
+}
+@media (min-width: 1024px) {
+}
+
+/* ── Reduced motion: disable ALL Phase 4 additions ─────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-mood-particles,
+  .mood-particle,
+  .space-y-4,
+  .panda-stage,
+  .auth-policy-panda,
   .sm\:max-w-md {
     animation: none !important;
-    opacity: 1 !important;
+    transition: none !important;
   }
 }
 
 
 /* ================================================================
-   ANIMATION NÂNG CẤP — Phase 2
+   NÂNG CẤP PHASE 5 — Brand side & Final polish
    ================================================================ */
 
-/* ── Panda LOADING state: chạy tại chỗ nhanh hơn + xoay mắt ─── */
-@keyframes panda-run-fast {
-  0%, 100% { transform: rotate(5deg) translateY(0); }
-  25%       { transform: rotate(5deg) translateY(-12px) scaleX(1.04); }
-  50%       { transform: rotate(5deg) translateY(0); }
-  75%       { transform: rotate(5deg) translateY(-10px) scaleX(1.04); }
+/* ── Stat cards on brand side: hover lift ───────────────────── */
+@keyframes stat-count-in {
+  0%   { opacity: 0; transform: translateY(10px) scale(0.85); }
+  60%  { transform: translateY(-3px) scale(1.04); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
-@keyframes panda-loading-eye {
+.auth-stat-card {
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: background 0.2s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: stat-count-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.auth-stat-card:nth-child(1) { animation-delay: 0.5s; }
+.auth-stat-card:nth-child(2) { animation-delay: 0.62s; }
+.auth-stat-card:nth-child(3) { animation-delay: 0.74s; }
+.auth-stat-card:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-3px) scale(1.05);
+}
+
+/* ── Loading modal: panda-themed spinner ────────────────────── */
+@keyframes modal-panda-spin {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-@keyframes panda-sweat-drop {
-  0%   { opacity: 0; transform: translateY(-4px) scale(0.6); }
-  30%  { opacity: 1; transform: translateY(0) scale(1); }
-  80%  { opacity: 0.8; }
-  100% { opacity: 0; transform: translateY(16px) scale(0.7); }
+
+/* ── Divider: panda paw animation on hover ──────────────────── */
+@keyframes divider-paw-bounce {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  40%       { transform: scale(1.4) rotate(-15deg); }
+  65%       { transform: scale(0.9) rotate(10deg); }
 }
-@keyframes panda-loading-bounce {
-  0%, 100% { transform: scaleX(1) scaleY(1); }
-  40%      { transform: scaleX(1.05) scaleY(0.93); }
-  60%      { transform: scaleX(0.95) scaleY(1.06); }
+.auth-divider:hover .auth-divider__text::before {
+  content: "🐾 ";
+  animation: divider-paw-bounce 0.5s ease;
+  display: inline-block;
 }
 
-.panda--loading {
-  animation: panda-run-fast 0.38s ease-in-out infinite !important;
-}
-.panda--loading .panda-wrap {
-  animation: panda-run-fast 0.38s ease-in-out infinite !important;
-}
-.panda--loading .panda-leg.left  { animation: panda-step-a 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-leg.right { animation: panda-step-b 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-foot.left  { animation: panda-step-a 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-foot.right { animation: panda-step-b 0.28s ease-in-out infinite !important; }
-.panda--loading .panda-arm.left { animation: panda-arm-left 0.28s ease-in-out infinite !important; }
-/* Sweat drop rendered via pseudo-element on panda-head during loading */
-.panda--loading .panda-head::after {
-  content: "💧";
-  position: absolute;
-  top: 8px; right: -6px;
-  font-size: 14px;
-  animation: panda-sweat-drop 0.7s ease-in-out infinite;
-  pointer-events: none;
-}
-/* Eyes spin while loading */
-.panda--loading .panda-eye {
-  animation: panda-loading-eye 0.6s linear infinite !important;
-}
-
-/* ── Panda-wrap loading bob applies to the whole stage container ─ */
-.panda-stage:has(.panda--loading) {
-  animation: panda-loading-bounce 0.38s ease-in-out infinite;
-}
-
-/* ── Bamboo particle floaters (appear on form card hover) ──────── */
-@keyframes bamboo-float {
-  0%   { transform: translateY(0) rotate(0deg);   opacity: 0; }
-  12%  { opacity: 0.8; }
-  88%  { opacity: 0.6; }
-  100% { transform: translateY(-48px) rotate(25deg); opacity: 0; }
-}
-.bamboo-particle {
-  position: absolute;
-  width: 6px;
-  height: 20px;
-  background: linear-gradient(180deg, #4caf50 0%, #2d5a27 60%, #1a3a17 100%);
-  border-radius: 3px;
-  pointer-events: none;
-  animation: bamboo-float 2.2s ease-in-out infinite;
-  opacity: 0;
-}
-.bamboo-particle::before {
+/* ── Form card: panda ear decorations on corners ────────────── */
+/* Subtle ear-like rounded bumps at top corners */
+.sm\:max-w-md::after {
   content: "";
   position: absolute;
-  width: 10px; height: 5px;
-  left: -2px; top: 7px;
-  background: rgba(76, 175, 80, 0.5);
-  border-radius: 0 50% 50% 0;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px 8px 0 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.4;
 }
 
-/* ── Input field — animated label float + panda border pulse ───── */
-@keyframes input-panda-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(45,90,39,0.4); }
-  70%  { box-shadow: 0 0 0 6px rgba(45,90,39,0); }
-  100% { box-shadow: 0 0 0 0 rgba(45,90,39,0); }
-}
-input:focus {
-  animation: input-panda-pulse 1.2s ease-out;
+/* ── Scroll hint: floating arrow on very small screens ──────── */
+@keyframes bounce-hint {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50%       { transform: translateY(-5px); opacity: 1; }
 }
 
-/* ── Form card — subtle panda-green shimmer sweep on mount ─────── */
-@keyframes card-mount-sweep {
+/* ── PandaButton label: shimmer text effect ─────────────────── */
+@keyframes label-shimmer {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-.sm\:max-w-md {
-  animation: none;
+
+/* ── Input wrapper: panda track line at bottom ──────────────── */
+@keyframes track-in {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+/* Panda-green underline sweep when focused */
+
+/* ── Auth toggle area: switch transition ripple ─────────────── */
+@keyframes toggle-area-flash {
+  0%   { background: transparent; }
+  30%  { background: rgba(45, 90, 39, 0.05); }
+  100% { background: transparent; }
+}
+.auth-toggle-link:active ~ * {
+  animation: toggle-area-flash 0.4s ease;
 }
 
-/* ── PandaButton — upgraded hover + pressed + loaded state ─────── */
-@keyframes panda-btn-float {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-6px); }
-}
-@keyframes panda-btn-appear {
-  0%   { opacity: 0; transform: translateY(20px) scale(0.9); }
-  60%  { transform: translateY(-4px) scale(1.02); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-.panda-svg-btn {
-  animation: panda-btn-appear 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  animation-delay: 0.35s;
-  opacity: 0;
-}
-.panda-svg-btn:not(:disabled):hover svg {
-  animation: panda-btn-float 0.9s ease-in-out infinite;
-}
-.panda-svg-btn:not(:disabled):hover .panda-svg-label {
-  background: var(--panda-green-light, #3a7a32);
-  box-shadow: 0 3px 0 var(--panda-green-dark, #1a3a17),
-              0 6px 18px rgba(45,90,39,0.35);
-  letter-spacing: 0.06em;
-}
-.panda-svg-btn:not(:disabled):active svg {
-  animation: none;
-  transform: scale(0.93) translateY(4px);
-}
-
-/* ── Star/sparkle burst on happy mood ──────────────────────────── */
-@keyframes star-burst {
-  0%   { transform: scale(0) rotate(0deg);   opacity: 1; }
-  60%  { transform: scale(1.4) rotate(30deg); opacity: 1; }
-  100% { transform: scale(0) rotate(60deg);  opacity: 0; }
-}
-.panda-stage::after {
-  content: "✨";
-  position: absolute;
-  top: 10px; right: 20px;
-  font-size: 22px;
-  pointer-events: none;
-  opacity: 0;
-  transform: scale(0);
-}
-.panda-stage:has(.panda--happy)::after {
-  animation: star-burst 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-.panda-stage::before {
-  content: "🎉";
-  position: absolute;
-  top: 30px; left: 16px;
-  font-size: 18px;
-  pointer-events: none;
-  opacity: 0;
-  transform: scale(0);
-}
-.panda-stage:has(.panda--happy)::before {
-  animation: star-burst 0.8s 0.12s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-/* ── Sad state — tears drip ─────────────────────────────────────── */
-@keyframes tear-drop {
-  0%   { opacity: 0; transform: translateY(0) scale(0.5); }
-  20%  { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(20px) scale(0.8); }
-}
-.panda--sad .panda-cheek.left::after,
-.panda--sad .panda-cheek.right::after {
-  content: "";
-  position: absolute;
-  width: 4px; height: 8px;
-  top: 8px; left: 9px;
-  background: rgba(120, 180, 255, 0.8);
-  border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
-  animation: tear-drop 0.6s ease-out forwards;
-}
-.panda--sad .panda-cheek.right::after {
-  left: 9px;
-}
-
-/* ── Auth form panel — staggered field reveal ───────────────────── */
-@keyframes field-slide-in {
-  0%   { opacity: 0; transform: translateX(-12px); }
+/* ── Page enter: staggered brand + form panel ───────────────── */
+@keyframes panel-slide-in-left {
+  0%   { opacity: 0; transform: translateX(-30px); }
   100% { opacity: 1; transform: translateX(0); }
 }
-.space-y-4 > * {
-  animation: field-slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+@keyframes panel-slide-in-right {
+  0%   { opacity: 0; transform: translateX(30px); }
+  100% { opacity: 1; transform: translateX(0); }
 }
-.space-y-4 > *:nth-child(1) { animation-delay: 0.3s; }
-.space-y-4 > *:nth-child(2) { animation-delay: 0.38s; }
-.space-y-4 > *:nth-child(3) { animation-delay: 0.46s; }
-.space-y-4 > *:nth-child(4) { animation-delay: 0.52s; }
-
-/* ── Baby pandas — speed up when loading ──────────────────────── */
-.panda-stage:has(.panda--loading) .baby-panda-orbit {
-  animation-duration: 3.5s !important;
+/* Brand panel (left) */
+.lg\:w-1\/2 {
+  animation: panel-slide-in-left 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.panda-stage:has(.panda--loading) .baby-panda {
-  animation-duration: 0.22s !important;
-}
-.panda-stage:has(.panda--loading) .baby-panda-leg,
-.panda-stage:has(.panda--loading) .baby-panda-arm {
-  animation-duration: 0.18s !important;
+/* Form panel (right flex-1) */
+.flex-1.flex.flex-col.justify-center {
+  animation: panel-slide-in-right 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* ── Card border — panda-green pulse ring on mount ──────────────── */
-@keyframes card-ring-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(45,90,39,0.3), 0 20px 60px rgba(0,0,0,0.35); }
-  50%  { box-shadow: 0 0 0 8px rgba(45,90,39,0), 0 20px 60px rgba(0,0,0,0.35); }
-  100% { box-shadow: 0 0 0 0 rgba(45,90,39,0), 0 20px 60px rgba(0,0,0,0.35); }
-}
-.rounded-3xl {
-  animation: card-ring-pulse 1.4s ease-out 0.6s 1 both;
+/* ── Panda eye pupils: subtle idle drift ────────────────────── */
+@keyframes pupil-drift {
+  0%,  100% { transform: translate(var(--look-x, 0), var(--look-y, 0)); }
+  30%        { transform: translate(calc(var(--look-x, 0) + 1.5px), calc(var(--look-y, 0) - 1px)); }
+  65%        { transform: translate(calc(var(--look-x, 0) - 1px), calc(var(--look-y, 0) + 1px)); }
 }
 
-/* ── Auth toggle link — bubble pop on switch ─────────────────────── */
-@keyframes toggle-pop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.15); }
-  70%  { transform: scale(0.95); }
-  100% { transform: scale(1); }
-}
-.auth-toggle-link:active {
-  animation: toggle-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* ── Panda stage: subtle shadow pulse ───────────────────────── */
+@keyframes mascot-shadow-breathe {
+  0%, 100% { filter: drop-shadow(0 12px 20px rgba(0,0,0,0.20)); }
+  50%       { filter: drop-shadow(0 18px 28px rgba(0,0,0,0.28)); }
 }
 
-/* ── Reduced motion: disable all new animations ─────────────────── */
+/* ── Final: ensure all animation delays don't cause invisible flashes ── */
+.auth-rise { opacity: 0; }
+.auth-rise.auth-rise-1 { animation-delay: 0.05s; }
+.auth-rise.auth-rise-2 { animation-delay: 0.13s; }
+.auth-rise.auth-rise-3 { animation-delay: 0.21s; }
+.auth-rise.auth-rise-4 { animation-delay: 0.29s; }
+.auth-rise.auth-rise-5 { animation-delay: 0.37s; }
+
+/* ── Reduced motion: all Phase 5 ────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .panda--loading,
-  .panda--loading .panda-leg,
-  .panda--loading .panda-foot,
-  .panda--loading .panda-arm,
-  .panda--loading .panda-eye,
-  .bamboo-particle,
-  .panda-svg-btn,
-  .space-y-4 > *,
-  .rounded-3xl {
-    animation: none !important;
+  .auth-stat-card,
+  .lg\:w-1\/2,
+  .flex-1.flex.flex-col.justify-center,
+  .panda-eye::before,
+  .panda-eye::after,
+  .auth-rise {
     opacity: 1 !important;
+    animation: none !important;
   }
 }
 
 
 /* ================================================================
-   ANIMATION NÂNG CẤP — Phase 3: Premium Panda Experience
+   NÂNG CẤP PHASE 6 — Premium animations & UX polish
    ================================================================ */
 
-/* ── Confetti burst keyframe (PandaButton click) ─────────────── */
-@keyframes confettiBurst {
-  0%   { transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0) scale(1); opacity: 1; }
-  80%  { opacity: 0.8; }
-  100% { transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-55px) scale(0.4); opacity: 0; }
+/* ── Panda wave hand (idle periodic) ────────────────────────── */
+@keyframes panda-wave {
+  0%   { transform: rotate(28deg); }
+  15%  { transform: rotate(-30deg) translateY(-6px); }
+  30%  { transform: rotate(5deg) translateY(-2px); }
+  45%  { transform: rotate(-25deg) translateY(-5px); }
+  60%  { transform: rotate(10deg); }
+  100% { transform: rotate(28deg); }
 }
 
-/* ── Sparkle stars on happy panda ────────────────────────────── */
-@keyframes sparkle-pop {
-  0%   { opacity: 0; transform: scale(0) rotate(-20deg) translateY(0); }
-  35%  { opacity: 1; transform: scale(1.3) rotate(10deg) translateY(-8px); }
-  65%  { opacity: 0.9; transform: scale(1) rotate(-5deg) translateY(-14px); }
-  100% { opacity: 0; transform: scale(0.4) rotate(20deg) translateY(-26px); }
+/* ── Panda tail wag ─────────────────────────────────────────── */
+@keyframes tail-wag {
+  0%, 100% { transform: rotate(-15deg) scale(1); }
+  50%       { transform: rotate(20deg) scale(1.1); }
 }
-
-.panda-sparkle {
+.panda-body::after {
+  content: "";
   position: absolute;
-  font-size: 18px;
+  right: -6px;
+  bottom: 16px;
+  width: 16px;
+  height: 12px;
+  background: radial-gradient(circle at 40% 40%, #eef1f6 0%, #d4d9e3 100%);
+  border-radius: 50%;
+  animation: tail-wag 1.8s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+/* ── Glasses glint on happy ─────────────────────────────────── */
+@keyframes glasses-glint {
+  0%, 90%, 100% { opacity: 0; }
+  92%            { opacity: 0.9; transform: translateX(-4px) scale(1); }
+  96%            { opacity: 0; transform: translateX(10px) scale(1.4); }
+}
+.panda-glasses-lens.right::after {
+  animation-delay: 0.4s;
+}
+
+/* ── Suitcase bounce / wobble on step ───────────────────────── */
+@keyframes suitcase-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25%       { transform: rotate(-6deg) translateY(-2px); }
+  75%       { transform: rotate(5deg) translateY(-1px); }
+}
+
+/* ── Ear pulse on hover card ────────────────────────────────── */
+@keyframes ear-pulse-once {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  30%       { transform: scale(1.25) rotate(-8deg); }
+  60%       { transform: scale(1.1) rotate(5deg); }
+}
+.panda-stage:hover .panda-ear {
+  animation: ear-pulse-once 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── Input field: panda-green focus glow animation ──────────── */
+@keyframes input-focus-glow {
+  0%   { box-shadow: 0 0 0 0px rgba(76, 175, 80, 0); }
+  50%  { box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.18); }
+  100% { box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12); }
+}
+
+/* ── Input floating label: panda pawprint appears on focus ──── */
+@keyframes label-slide-up {
+  from { transform: translateY(0) scale(1);    opacity: 0.7; }
+  to   { transform: translateY(-2px) scale(0.85); opacity: 1; }
+}
+
+/* ── Submit button: panda run on hover ──────────────────────── */
+@keyframes panda-svg-run-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%       { transform: translateY(-4px) rotate(-2deg); }
+  75%       { transform: translateY(-4px) rotate(2deg); }
+}
+.panda-svg-btn:not(:disabled):hover .panda-svg-body {
+  animation: panda-svg-run-bob 0.35s ease-in-out infinite !important;
+}
+
+/* ── PandaButton: green glow halo on hover ───────────────────── */
+@keyframes btn-halo {
+  0%   { opacity: 0; transform: translateX(-50%) scaleX(0.6); }
+  50%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) scaleX(1.3); }
+}
+.panda-svg-btn::before {
+  content: "";
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  width: 100px;
+  height: 14px;
+  background: radial-gradient(ellipse, rgba(76,175,80,0.5) 0%, transparent 70%);
+  border-radius: 50%;
   pointer-events: none;
   opacity: 0;
-  z-index: 10;
-  line-height: 1;
+  transition: opacity 0.2s;
 }
-/* Position the 3 sparkles at different spots */
-.panda-sparkle:nth-child(1) { left: -20px; top: 10px; }
-.panda-sparkle:nth-child(2) { right: -18px; top: 20px; }
-.panda-sparkle:nth-child(3) { left: 50%; top: -14px; transform: translateX(-50%); font-size: 14px; }
-
-/* Trigger sparkles when parent stage has happy class */
-.panda-stage--happy .panda-sparkle:nth-child(1) {
-  animation: sparkle-pop 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-.panda-stage--happy .panda-sparkle:nth-child(2) {
-  animation: sparkle-pop 0.75s 0.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-.panda-stage--happy .panda-sparkle:nth-child(3) {
-  animation: sparkle-pop 0.75s 0.05s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+.panda-svg-btn:hover::before {
+  animation: btn-halo 1.2s ease-out infinite;
 }
 
-/* ── Panda sad tears — enhanced drop animation ───────────────── */
-@keyframes tear-stream {
-  0%   { opacity: 0; transform: translateY(-2px) scaleY(0.4); }
-  15%  { opacity: 1; transform: translateY(0) scaleY(1); }
-  100% { opacity: 0; transform: translateY(24px) scaleY(1.2); }
+/* ── Mood particle: bamboo leaf on idle ─────────────────────── */
+@keyframes bamboo-drift {
+  0%   { opacity: 0; transform: translate(0,0) rotate(0deg) scale(0.8); }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.7; }
+  100% { opacity: 0; transform: translate(var(--bx,20px), var(--by,-40px)) rotate(var(--br,45deg)) scale(1.1); }
 }
-.panda-stage--sad .panda-cheek.left::after,
-.panda-stage--sad .panda-cheek.right::after {
-  animation-name: tear-stream !important;
-  animation-duration: 0.7s !important;
-  animation-iteration-count: 2 !important;
+.panda-stage--idle .panda-sparkle {
+  animation: bamboo-drift 3.5s ease-out infinite;
+}
+.panda-stage--idle .panda-sparkle:nth-child(1) { --bx: -18px; --by: -35px; --br: -30deg; animation-delay: 0s; }
+.panda-stage--idle .panda-sparkle:nth-child(2) { --bx: 22px;  --by: -28px; --br: 50deg;  animation-delay: 1.2s; }
+.panda-stage--idle .panda-sparkle:nth-child(3) { --bx: -5px;  --by: -42px; --br: 10deg;  animation-delay: 2.4s; }
+
+/* ── Loading spinner: panda roll animation ───────────────────── */
+@keyframes panda-roll-360 {
+  from { transform: rotate(0deg) scale(0.9); }
+  to   { transform: rotate(360deg) scale(0.9); }
+}
+.panda-stage--loading .panda-wrap {
+  animation: panda-roll-360 1s linear infinite;
+}
+.panda-stage--loading .panda {
+  animation: none !important;
 }
 
-/* ── Loading state: screen shake pulse on the stage ──────────── */
-@keyframes stage-loading-pulse {
-  0%, 100% { filter: brightness(1); }
-  50%       { filter: brightness(1.07) saturate(1.1); }
+/* ── Happy dance: panda stage bounce on happy ───────────────── */
+@keyframes mascot-happy-bounce {
+  0%   { transform: translateY(0) scale(1) rotate(0deg); }
+  20%  { transform: translateY(-14px) scale(1.05) rotate(-5deg); }
+  40%  { transform: translateY(-4px) scale(0.97) rotate(3deg); }
+  60%  { transform: translateY(-10px) scale(1.03) rotate(-3deg); }
+  80%  { transform: translateY(-2px) scale(0.99) rotate(1deg); }
+  100% { transform: translateY(0) scale(1) rotate(0deg); }
 }
-.panda-stage--loading {
-  animation: stage-loading-pulse 0.55s ease-in-out infinite;
-}
-
-/* ── Baby pandas slow down on happy (celebrating!) ───────────── */
-.panda-stage--happy .baby-panda-orbit {
-  animation-duration: 14s !important;
-}
-.panda-stage--happy .baby-panda {
-  animation-duration: 0.8s !important;
-}
-/* Baby pandas scatter/freeze on sad */
-.panda-stage--sad .baby-panda-orbit {
-  animation-play-state: paused !important;
+.panda-stage--happy .panda-wrap {
+  animation: mascot-happy-bounce 0.7s cubic-bezier(0.34,1.56,0.64,1);
 }
 
-/* ── Card glass shimmer on hover ─────────────────────────────── */
-@keyframes glass-shimmer {
+/* ── Sad animation: panda droops + shakes ───────────────────── */
+@keyframes mascot-sad-shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  15%       { transform: translateX(-6px) rotate(-3deg); }
+  35%       { transform: translateX(5px)  rotate(2deg); }
+  55%       { transform: translateX(-4px) rotate(-2deg); }
+  75%       { transform: translateX(3px)  rotate(1deg); }
+}
+.panda-stage--sad .panda-wrap {
+  animation: mascot-sad-shake 0.6s ease-in-out;
+}
+
+/* ── Toggle variant: form content flip animation ─────────────── */
+@keyframes form-flip-in {
+  0%   { opacity: 0; transform: rotateY(-12deg) translateX(-8px) scale(0.97); }
+  100% { opacity: 1; transform: rotateY(0deg)   translateX(0)    scale(1); }
+}
+.auth-rise-4 {
+  perspective: 800px;
+}
+
+/* ── Auth card: panda paw corner decoration ──────────────────── */
+
+/* ── Background: animated bamboo grove particles (page-wide) ── */
+@keyframes bamboo-float-up {
+  0%   { transform: translateY(0) rotate(0deg);  opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(-100vh) rotate(20deg); opacity: 0; }
+}
+.bg-bamboo-particle {
+  position: fixed;
+  bottom: -30px;
+  width: 4px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(76,175,80,0.5), rgba(45,90,39,0.2));
+  pointer-events: none;
+  z-index: 1;
+  animation: bamboo-float-up linear infinite;
+}
+
+/* ── Chip badges: stagger-in animation ─────────────────────── */
+@keyframes chip-pop {
+  0%   { opacity: 0; transform: scale(0.6) translateY(8px); }
+  65%  { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.auth-rise-4 > div > span,
+
+/* ── Social button: icon spin on click ──────────────────────── */
+@keyframes icon-click-spin {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.25); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+.auth-social-btn:active .auth-social-btn__icon {
+  animation: icon-click-spin 0.4s ease !important;
+}
+
+/* ── Policy panda: sway & peek ───────────────────────────────── */
+@keyframes policy-panda-bounce {
+  0%, 100% { transform: rotate(-8deg) scale(1); }
+  50%       { transform: rotate(12deg) scale(1.2); }
+}
+
+/* ── Forgot password link: panda paw trail ───────────────────── */
+@keyframes paw-trail {
+  0%   { letter-spacing: 0; }
+  50%  { letter-spacing: 0.04em; }
+  100% { letter-spacing: 0; }
+}
+
+/* ── Form card inner glow ring: nâng cấp ───────────────────── */
+@keyframes card-aura-pulse {
+  0%, 100% { box-shadow: 0 0 0 0px rgba(76,175,80,0), 0 25px 50px rgba(0,0,0,0.35); }
+  50%       { box-shadow: 0 0 0 6px rgba(76,175,80,0.08), 0 30px 60px rgba(0,0,0,0.4); }
+}
+.sm\:max-w-md.rounded-3xl {
+  animation: card-ring-pulse 1.4s ease-out 0.6s 1 both,
+             card-aura-pulse 4s ease-in-out 2s infinite,
+             card-float 6s ease-in-out 3s infinite !important;
+}
+
+/* ── Panda mascot: nose twitch micro-animation ───────────────── */
+@keyframes nose-twitch {
+  0%, 94%, 100% { transform: translateX(-50%) scaleX(1); }
+  96%            { transform: translateX(-50%) scaleX(1.3) scaleY(0.85); }
+  98%            { transform: translateX(-50%) scaleX(0.9) scaleY(1.1); }
+}
+
+/* ── Eyes: idle look-around (when not tracking email) ────────── */
+@keyframes idle-look {
+  0%, 35%, 100% { --look-x: 0px; }
+  40%, 55%      { --look-x: 3px; }
+  60%, 75%      { --look-x: -2px; }
+  80%            { --look-x: 0px; }
+}
+
+/* ── Panda tuft: hair breeze ─────────────────────────────────── */
+@keyframes hair-breeze {
+  0%, 100% { transform: rotate(0deg) skewX(0deg); }
+  30%       { transform: rotate(-5deg) skewX(3deg); }
+  70%       { transform: rotate(3deg) skewX(-2deg); }
+}
+.panda-tuft.l { animation-delay: 0.2s; }
+.panda-tuft.r { animation-delay: 0.5s; }
+
+/* ── Form section heading: typewriter cursor blink ───────────── */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Register form: name field slide down ────────────────────── */
+@keyframes register-field-in {
+  0%   { opacity: 0; transform: translateY(-10px) scaleY(0.85); max-height: 0; }
+  100% { opacity: 1; transform: translateY(0) scaleY(1); max-height: 100px; }
+}
+/* .variant-register-name-field applied dynamically via class */
+
+/* ── Reduced motion: disable ALL Phase 6 additions ──────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-arm.left,
+  .panda-body::after,
+  .panda-glasses-lens::after,
+  .panda-suitcase,
+  .panda-stage:hover .panda-ear,
+  .panda-stage--loading .panda-wrap,
+  .panda-stage--happy .panda-wrap,
+  .panda-stage--sad .panda-wrap,
+  .panda-tuft,
+  .panda-nose,
+  .auth-policy-panda,
+  .panda-svg-btn::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── Idle mood particles: bamboo leaves drift upward periodically ── */
+.panda-mood-particles--idle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.panda-mood-particles--idle .mood-particle {
+  position: absolute;
+  animation: bamboo-drift 4s ease-out infinite;
+  font-size: 13px;
+}
+.panda-mood-particles--idle .mood-particle:nth-child(1) { left: -28px; top: 20px; --bx: -18px; --by: -40px; --br: -30deg; animation-delay: 0s; }
+.panda-mood-particles--idle .mood-particle:nth-child(2) { left:  18px; top: 10px; --bx:  22px; --by: -35px; --br:  50deg; animation-delay: 1.6s; }
+.panda-mood-particles--idle .mood-particle:nth-child(3) { left:  -5px; top: 30px; --bx:  -8px; --by: -45px; --br:  10deg; animation-delay: 3.1s; }
+
+/* ── Panda-svg-btn: loading state: gentle pulse glow ─────────── */
+.panda-svg-btn--loading {
+  animation: panda-btn-appear 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.35s both !important;
+  cursor: wait;
+}
+.panda-svg-btn--loading svg {
+  opacity: 0.7;
+  animation: panda-sway 1.5s ease-in-out infinite;
+}
+
+/* ── chip-pop keyframe (also defined in Phase 6 above, safe to have here for scoped component use) */
+
+/* ── Social button: gradient border glow on hover ─────────────── */
+
+/* ── Reduced motion for new additions ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-mood-particles--idle .mood-particle,
+  .panda-svg-btn--loading svg {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+
+/* ================================================================
+   NÂNG CẤP PHASE 7 — Premium animations & missing theme sync
+   ================================================================ */
+
+/* ── Panda body: breathing (subtle inhale/exhale) ────────────── */
+
+/* ── Panda tail: wag behind body ─────────────────────────────── */
+
+/* ── Panda cheeks: rosy pulse on happy ───────────────────────── */
+@keyframes cheek-blush {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%       { opacity: 0.8; transform: scale(1.12); }
+}
+.panda-cheek.left  { animation-delay: 0s; }
+.panda-cheek.right { animation-delay: 0.3s; }
+
+/* ── Eye blink: double-blink pattern ─────────────────────────── */
+@keyframes panda-blink-v2 {
+  0%, 89%, 94%, 97%, 100% { transform: scaleY(1); }
+  91%                      { transform: scaleY(0.07); }
+  95.5%                    { transform: scaleY(0.07); }
+}
+.panda-eye.right { animation-delay: 0.06s; }
+
+/* ── Glasses: lens shimmer on idle ───────────────────────────── */
+
+/* ── Panda ears: idle perk-up ─────────────────────────────────── */
+@keyframes ear-perk {
+  0%, 80%, 100% { transform: scale(1) rotate(0deg); }
+  85%            { transform: scale(1.14) rotate(-8deg); }
+  90%            { transform: scale(1.1) rotate(6deg); }
+}
+.panda-ear.right { animation-delay: 0.25s; }
+
+/* ── Panda hover: whole mascot lift ─────────────────────────── */
+@keyframes panda-hover-lift {
+  0%   { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-6px) scale(1.02); }
+}
+.panda-stage:hover .panda {
+  animation: panda-hover-lift 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards,
+             panda-sway 4.2s ease-in-out 0.3s infinite;
+}
+
+/* ── Form card: glass shimmer sweep on load ───────────────────── */
+@keyframes card-glass-sweep {
   0%   { background-position: -200% center; opacity: 0; }
   50%  { opacity: 1; }
   100% { background-position: 200% center; opacity: 0; }
 }
-.sm\:max-w-md::before {
+.sm\:max-w-md.rounded-3xl::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -2513,355 +2814,447 @@ input:focus {
   background: linear-gradient(
     105deg,
     transparent 30%,
-    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255,255,255,0.18) 50%,
     transparent 70%
   );
   background-size: 200% 100%;
   pointer-events: none;
+  animation: card-glass-sweep 2s ease-out 0.8s 1 both;
   z-index: 0;
-  opacity: 0;
-}
-.sm\:max-w-md:hover::before {
-  animation: glass-shimmer 1.1s ease forwards;
 }
 
-/* ── Input typing indicator — cute green dot pulse ───────────── */
-@keyframes typing-dot {
-  0%, 100% { transform: scale(0.7); opacity: 0.4; }
-  50%       { transform: scale(1); opacity: 1; }
+/* ── Input field: focus state with panda-green glow ─────────── */
+@keyframes input-panda-focus-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(76,175,80,0.5); }
+  60%  { box-shadow: 0 0 0 5px rgba(76,175,80,0.12); }
+  100% { box-shadow: 0 0 0 3px rgba(76,175,80,0.1); }
 }
 
-/* ── Panda mascot idle: subtle breathing (scale y) ───────────── */
-@keyframes panda-breathe {
-  0%, 100% { transform: translateX(-50%) scaleY(1); }
-  45%       { transform: translateX(-50%) scaleY(1.025); }
+/* ── Floating paw prints: appear near form card on hover ─────── */
+@keyframes paw-float-up {
+  0%   { opacity: 0; transform: translateY(0) rotate(var(--pr,0deg)) scale(0.6); }
+  25%  { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(-55px) rotate(var(--pr,0deg)) scale(1); }
+}
+.sm\:max-w-md:hover .sm\:max-w-md::before {
+  animation: paw-float-up 1.5s ease-out infinite;
 }
 
-/* ── Panda mascot eyes: extra long gaze, then double blink ──── */
-@keyframes panda-blink-pro {
-  0%, 85%, 100% { transform: scaleY(1); }
-  88%            { transform: scaleY(0.07); }
-  91%            { transform: scaleY(1); }
-  94%            { transform: scaleY(0.07); }
-  97%            { transform: scaleY(1); }
+/* ── Divider: panda paw icon pulse ───────────────────────────── */
+@keyframes divider-paw-spin {
+  0%   { transform: translateX(-50%) rotate(0deg) scale(1); }
+  50%  { transform: translateX(-50%) rotate(180deg) scale(1.2); }
+  100% { transform: translateX(-50%) rotate(360deg) scale(1); }
 }
-.panda-eye {
-  animation: panda-blink-pro 5.5s ease-in-out infinite !important;
+.auth-divider:hover .auth-divider__text {
+  animation: divider-paw-spin 0.7s ease;
 }
 
-/* ── Panda nose shimmer ──────────────────────────────────────── */
-@keyframes nose-wiggle {
-  0%, 100% { transform: translateX(-50%) scale(1); }
-  50%       { transform: translateX(-50%) scale(1.12); }
-}
-.panda-nose {
-  animation: nose-wiggle 2.6s ease-in-out infinite;
-}
-
-/* ── Auth form card: mount with 3D flip-up effect ───────────── */
-@keyframes card-flip-up {
-  0%   { opacity: 0; transform: perspective(900px) rotateX(12deg) translateY(20px); }
-  60%  { transform: perspective(900px) rotateX(-2deg) translateY(-3px); }
-  100% { opacity: 1; transform: perspective(900px) rotateX(0deg) translateY(0); }
-}
-/* Apply to the card container once only on mount */
-.sm\:max-w-md {
-  animation: card-flip-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+/* ── Social buttons: panda wave on hover ─────────────────────── */
+@keyframes social-btn-wave {
+  0%   { transform: translateY(-2px) scale(1.03) rotate(0deg); }
+  30%  { transform: translateY(-4px) scale(1.04) rotate(-2deg); }
+  60%  { transform: translateY(-2px) scale(1.03) rotate(2deg); }
+  100% { transform: translateY(-2px) scale(1.03) rotate(0deg); }
 }
 
-/* ── Heading text — typewriter underline effect ──────────────── */
-@keyframes underline-grow {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
-}
-h2.auth-rise-2 {
-  position: relative;
-}
-h2.auth-rise-2::after {
+/* ── Toggle link: bouncy underline grow ─────────────────────── */
+.auth-toggle-link::after {
   content: "";
   position: absolute;
-  left: 0; bottom: -4px;
-  width: 48px; height: 3px;
-  background: linear-gradient(90deg, var(--panda-green), #4caf50);
+  left: 0; bottom: -2px;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, #4caf50, #2d5a27);
   border-radius: 2px;
-  transform-origin: left;
   transform: scaleX(0);
-  animation: underline-grow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+  transform-origin: left;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.auth-toggle-link:hover::after {
+  transform: scaleX(1);
 }
 
-/* Center variant (mobile) */
-h2.auth-rise-2.text-center::after {
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
+/* ── Password field: lock icon bounce on focus ───────────────── */
+@keyframes lock-bounce {
+  0%   { transform: translateY(0) rotate(0deg); }
+  25%  { transform: translateY(-4px) rotate(-8deg); }
+  50%  { transform: translateY(0) rotate(6deg); }
+  75%  { transform: translateY(-2px) rotate(-4deg); }
+  100% { transform: translateY(0) rotate(0deg); }
 }
-h2.auth-rise-2.text-center {
-  overflow: visible;
-}
-
-/* ── Panda button: idle float animation on the SVG ──────────── */
-@keyframes panda-idle-float {
-  0%, 100% { transform: translateY(0) rotate(-1deg); }
-  50%       { transform: translateY(-5px) rotate(1deg); }
-}
-.panda-svg-btn:not(:hover):not(:disabled) svg {
-  animation: panda-idle-float 3s ease-in-out infinite;
-}
-/* Pause idle float on hover (replaced by panda-btn-float) */
-.panda-svg-btn:hover svg {
-  animation: panda-btn-float 0.9s ease-in-out infinite !important;
+input[type="password"]:focus ~ * .lock-icon,
+input[type="password"]:focus + .lock-icon {
+  animation: lock-bounce 0.5s ease;
 }
 
-/* ── Social button: icon bounce on hover ─────────────────────── */
-@keyframes icon-bounce {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  40%       { transform: scale(1.3) rotate(-12deg); }
-  65%       { transform: scale(0.9) rotate(8deg); }
+/* ── Submit button: bounce appear ────────────────────────────── */
+
+/* ── Hero heading: gradient shimmer (additional) ─────────────── */
+@keyframes hero-text-float {
+  0%, 100% { letter-spacing: -0.02em; }
+  50%       { letter-spacing: -0.015em; }
 }
-.auth-social-btn:hover .auth-social-btn__icon {
-  animation: icon-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+h1.auth-rise-2 {
+  animation: hero-text-float 5s ease-in-out infinite 1s;
 }
 
-/* ── Floating panda emoji watermark on brand side ────────────── */
-@keyframes float-sway {
-  0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50%       { transform: translateY(-12px) rotate(3deg); }
+/* ── Background paw print trail ──────────────────────────────── */
+@keyframes paw-drift {
+  0%   { opacity: 0; transform: translateY(0) rotate(var(--rot,15deg)) scale(0.7); }
+  15%  { opacity: 0.18; }
+  85%  { opacity: 0.12; }
+  100% { opacity: 0; transform: translateY(-90px) rotate(calc(var(--rot,15deg) + 20deg)) scale(1); }
 }
-
-/* ── "Đăng nhập" / "Đăng ký" transition — text swap shimmer ─── */
-@keyframes text-swap {
-  0%   { opacity: 0; transform: translateY(6px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Password reveal: panda paws smooth out + bounce ─────────── */
-.panda--peek .panda-arm.left,
-.panda--peek .panda-arm.right {
-  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
-
-/* ── Baby pandas grow hearts on happy ───────────────────────── */
-@keyframes baby-heart {
-  0%   { opacity: 0; transform: scale(0) translateY(0); }
-  50%  { opacity: 1; transform: scale(1.2) translateY(-6px); }
-  100% { opacity: 0; transform: scale(0.5) translateY(-14px); }
-}
-.panda-stage--happy .baby-panda::after {
-  content: "♥";
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #ff8ca2;
-  font-size: 10px;
-  animation: baby-heart 0.7s ease-out forwards;
+.bg-paw-print {
+  position: fixed;
   pointer-events: none;
+  z-index: 2;
+  font-size: var(--sz, 16px);
+  animation: paw-drift var(--dur, 10s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
 }
 
-/* ── Gradient text on the form heading ───────────────────────── */
-h2.auth-rise-2 {
-  background: linear-gradient(135deg, #1a2a18 0%, var(--panda-green) 50%, #4caf50 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* ── Chip badges: magnetic hover on brand side ───────────────── */
+@keyframes chip-magnetic {
+  0%   { transform: scale(1) translateY(0); }
+  50%  { transform: scale(1.08) translateY(-3px); }
+  100% { transform: scale(1) translateY(0); }
 }
-.dark h2.auth-rise-2 {
-  background: linear-gradient(135deg, #a8e6a0 0%, #6ee060 50%, #b0f0a8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+span[class*="rounded-full"]:hover {
+  animation: chip-magnetic 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  cursor: default;
 }
 
-/* ── Reduced motion: disable ALL Phase 3 additions ───────────── */
+/* ── Panda loading: rolling dots below ───────────────────────── */
+@keyframes loading-dot-bounce {
+  0%, 80%, 100% { transform: scale(0.6) translateY(0); opacity: 0.4; }
+  40%            { transform: scale(1) translateY(-6px); opacity: 1; }
+}
+.panda-loading-dots {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  margin-top: 4px;
+}
+.panda-loading-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #4caf50;
+  animation: loading-dot-bounce 1.1s ease-in-out infinite;
+}
+.panda-loading-dot:nth-child(2) { animation-delay: 0.16s; background: #2d5a27; }
+.panda-loading-dot:nth-child(3) { animation-delay: 0.32s; background: #a8e6a0; }
+
+/* ── Panda tooltip: slide-in from top ────────────────────────── */
+@keyframes tooltip-pop {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(0.85); }
+  65%  { transform: translateX(-50%) translateY(1px) scale(1.03); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+.panda-tooltip[style*="opacity: 1"] {
+  animation: tooltip-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+/* ── Input label: float up with color change ─────────────────── */
+@keyframes label-float-color {
+  0%   { color: inherit; }
+  100% { color: #4caf50; }
+}
+input:focus ~ label,
+
+/* ── Form container: subtle rotate-in on mount ───────────────── */
+@keyframes form-panel-in {
+  0%   { opacity: 0; transform: perspective(800px) rotateY(6deg) translateX(20px); }
+  100% { opacity: 1; transform: perspective(800px) rotateY(0deg) translateX(0); }
+}
+
+/* ── Panda stage: subtle tilt when hovered ───────────────────── */
+@keyframes stage-tilt {
+  0%   { transform: rotate(0deg); }
+  30%  { transform: rotate(-1.5deg); }
+  70%  { transform: rotate(1.5deg); }
+  100% { transform: rotate(0deg); }
+}
+.panda-stage:hover {
+  cursor: pointer;
+}
+.panda-stage:hover .panda-wrap {
+  animation: stage-tilt 0.6s ease, panda-walk-bob 0.7s ease-in-out 0.6s infinite;
+}
+
+/* ── Variant toggle: slide direction hint ────────────────────── */
+@keyframes toggle-hint-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.3); }
+  50%       { box-shadow: 0 0 0 4px rgba(76,175,80,0.08); }
+}
+
+/* ── Card paw badge: spin on card hover ─────────────────────── */
+@keyframes paw-badge-spin {
+  0%   { transform: rotate(-20deg) scale(0.8); opacity: 0; }
+  50%  { transform: rotate(10deg) scale(1.15); opacity: 0.5; }
+  100% { transform: rotate(-10deg) scale(1); opacity: 0.35; }
+}
+
+/* ── Reduced motion: disable ALL Phase 7 additions ──────────── */
 @media (prefers-reduced-motion: reduce) {
-  .panda-sparkle,
   .panda-body,
-  .panda-nose,
-  .panda-stage--loading,
-  h2.auth-rise-2::after,
-  .auth-social-btn .auth-social-btn__icon,
-  .panda-svg-btn svg {
+  .panda-body::after,
+  .panda-cheek,
+  .panda-eye,
+  .panda-ear,
+  .panda-glasses-lens::after,
+  .bg-paw-print,
+  .panda-loading-dot,
+  .auth-toggle-link,
+  h1.auth-rise-2 {
     animation: none !important;
     transition: none !important;
   }
-  h2.auth-rise-2::after { transform: scaleX(1); }
-  h2.auth-rise-2 {
-    -webkit-text-fill-color: unset;
-    background: none;
-    color: inherit;
-  }
-  .sm\:max-w-md {
+}
+
+/* ── PandaButton SVG: tail wag ─────────────────────────────── */
+@keyframes svg-tail-wag {
+  0%, 100% { transform: rotate(-15deg); transform-origin: 72px 142px; }
+  50%       { transform: rotate(15deg); transform-origin: 72px 142px; }
+}
+.panda-svg-tail {
+  transform-origin: 72px 142px;
+  animation: svg-tail-wag 1.2s ease-in-out infinite;
+  opacity: 0.9;
+}
+.panda-svg-btn:hover .panda-svg-tail {
+  animation: svg-tail-wag 0.5s ease-in-out infinite !important;
+}
+
+/* ── PandaButton: submit state: panda jumps ─────────────────── */
+@keyframes panda-submit-jump {
+  0%   { transform: translateY(0) scale(1); }
+  35%  { transform: translateY(-16px) scale(1.06); }
+  60%  { transform: translateY(-4px) scale(0.98); }
+  80%  { transform: translateY(-8px) scale(1.02); }
+  100% { transform: translateY(0) scale(1); }
+}
+.panda-btn-submitting .panda-svg-btn svg {
+  animation: panda-submit-jump 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── Reduced motion for Phase 7 SVG additions ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-svg-tail {
     animation: none !important;
-    opacity: 1 !important;
+    transition: none !important;
   }
 }
+
 
 /* ================================================================
-   NÂNG CẤP UI/UX — Đồng bộ chủ đề Panda toàn trang login
+   NÂNG CẤP V6 — Animation xịn + Đồng bộ chủ đề Panda toàn trang login
    ================================================================ */
 
-/* ── Panda colour tokens ──────────────────────────────────────── */
-:root {
-  --panda-green:       #2d5a27;
-  --panda-green-light: #3a7a32;
-  --panda-green-dark:  #1a3a17;
-  --panda-green-glow:  rgba(45, 90, 39, 0.22);
-  --panda-black:       #1e2230;
-  --panda-cream:       #fdfdf8;
-  --panda-pink:        #ffb3c1;
-  --panda-blue-suit:   #2f80ed;
-  --panda-radius:      14px;
+/* ── Form card: panda-green glow ring khi hover ───────────────── */
+.sm\:max-w-md:hover::after {
+  opacity: 1;
 }
 
-/* ── Input focus ring — panda green ──────────────────────────── */
-/* Override the default blue focus ring on Input component       */
-input:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="text"]:focus {
-  outline: none !important;
-  box-shadow:
-    0 0 0 2px var(--panda-green-glow),
-    0 0 0 3.5px var(--panda-green) !important;
-  border-color: var(--panda-green) !important;
+/* ── Card: panda green shimmer border animation ───────────────── */
+@keyframes panda-card-border-glow {
+  0%, 100% { box-shadow:
+    0 25px 60px rgba(0,0,0,0.35),
+    0 0 0 1px rgba(45,90,39,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+  50% { box-shadow:
+    0 25px 60px rgba(0,0,0,0.35),
+    0 0 0 2px rgba(76,175,80,0.35),
+    0 0 30px rgba(76,175,80,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+  }
 }
 
-/* Floating label colour when focused */
-input:focus ~ label,
-input:not(:placeholder-shown) ~ label {
-  color: var(--panda-green) !important;
+/* ── Welcome heading: animated gradient text ──────────────────── */
+@keyframes panda-heading-gradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+/* Applied via JS class or directly via cascade to h2 in form panel */
+.panda-mascot-wrapper + div h2,
+.auth-rise-2.panda-heading {
+  background: linear-gradient(135deg, #1a3a17 0%, #2d5a27 30%, #4caf50 55%, #2d5a27 80%, #1a3a17 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: panda-heading-gradient 5s ease infinite;
 }
 
-/* ── Auth divider (replaces the old inline flex version) ─────── */
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
+/* ── Input: panda-theme border + float label colour ──────────── */
+/* Overrides default Input component to match panda green theme   */
+input:not([type="checkbox"]):not([type="radio"]) {
+  border-radius: 10px !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
 }
-.auth-divider__line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(45, 90, 39, 0.25) 30%,
-    rgba(45, 90, 39, 0.25) 70%,
-    transparent
-  );
-}
-.dark .auth-divider__line {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(200, 210, 195, 0.18) 30%,
-    rgba(200, 210, 195, 0.18) 70%,
-    transparent
-  );
-}
-.auth-divider__text {
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-  color: #6b7280;
-  letter-spacing: 0.02em;
-}
-.dark .auth-divider__text {
-  color: #9ca3af;
+input:not([type="checkbox"]):not([type="radio"]):hover:not(:focus):not(:disabled) {
+  border-color: rgba(45,90,39,0.4) !important;
+  background: rgba(45,90,39,0.02) !important;
 }
 
-/* ── Social button — panda-themed ───────────────────────────── */
-.auth-social-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 9px 14px;
-  border-radius: var(--panda-radius);
-  border: 1.5px solid rgba(45, 90, 39, 0.18);
-  background: #fff;
-  color: #374151;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  overflow: hidden;
-  transition:
-    background 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1);
-  /* Subtle bamboo-shadow */
-  box-shadow:
-    0 1px 3px rgba(0,0,0,0.07),
-    inset 0 1px 0 rgba(255,255,255,0.9);
+/* Input fill on valid state */
+@keyframes input-valid-flash {
+  0%   { box-shadow: 0 0 0 3px rgba(76,175,80,0.4); }
+  100% { box-shadow: 0 0 0 3px rgba(76,175,80,0); }
 }
-.dark .auth-social-btn {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.12);
-  color: #e5e7eb;
-  box-shadow:
-    0 1px 3px rgba(0,0,0,0.3),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+input:not([type="checkbox"]):not([type="radio"]):valid:not(:placeholder-shown) {
+  border-color: rgba(45,90,39,0.35) !important;
 }
 
-/* Paw print watermark (hidden by default) */
-.auth-social-btn__paw {
+/* ── Input error: red shake ───────────────────────────────────── */
+@keyframes input-error-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+input.error,
+input[aria-invalid="true"] {
+  animation: input-error-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important;
+}
+
+/* ── Form card shake on auth error ───────────────────────────── */
+@keyframes panda-form-shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  15%       { transform: translateX(-8px) rotate(-0.5deg); }
+  30%       { transform: translateX(8px)  rotate(0.5deg); }
+  45%       { transform: translateX(-5px) rotate(-0.3deg); }
+  60%       { transform: translateX(5px)  rotate(0.3deg); }
+  75%       { transform: translateX(-3px); }
+  90%       { transform: translateX(3px); }
+}
+.panda-form-shake {
+  animation: panda-form-shake 0.55s cubic-bezier(0.36,0.07,0.19,0.97) both !important;
+}
+
+/* ── Panda: peek paws overlay ────────────────────────────────── */
+/* Big emoji paws that slide in from the bottom to cover the eyes */
+.panda-peek-paw {
   position: absolute;
-  right: 10px;
-  bottom: -4px;
-  font-size: 18px;
+  font-size: 32px;
+  bottom: 52px;
+  pointer-events: none;
+  z-index: 12;
   opacity: 0;
-  transform: scale(0.5) rotate(-20deg);
-  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.25));
+}
+.panda-peek-paw.left {
+  left: calc(50% - 58px);
+  transform: translateY(20px) rotate(-20deg);
+}
+.panda-peek-paw.right {
+  left: calc(50% + 18px);
+  transform: translateY(20px) rotate(20deg);
+}
+/* When peek is active → paws animate in */
+.panda-stage--peek .panda-peek-paw {
+  opacity: 1;
+}
+.panda-stage--peek .panda-peek-paw.left {
+  transform: translateY(-12px) rotate(-10deg);
+  animation: peek-paw-left 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+.panda-stage--peek .panda-peek-paw.right {
+  transform: translateY(-12px) rotate(10deg);
+  animation: peek-paw-right 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes peek-paw-left {
+  0%   { transform: translateY(28px) rotate(-30deg); opacity: 0; }
+  60%  { transform: translateY(-16px) rotate(-6deg); opacity: 1; }
+  100% { transform: translateY(-10px) rotate(-10deg); opacity: 1; }
+}
+@keyframes peek-paw-right {
+  0%   { transform: translateY(28px) rotate(30deg); opacity: 0; }
+  60%  { transform: translateY(-16px) rotate(6deg); opacity: 1; }
+  100% { transform: translateY(-10px) rotate(10deg); opacity: 1; }
+}
+
+/* ── Peek speech bubble ───────────────────────────────────────── */
+.panda-peek-bubble {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.7) translateY(6px);
+  background: linear-gradient(135deg, #2d5a27, #4caf50);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 99px;
   pointer-events: none;
-  user-select: none;
-  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  z-index: 25;
 }
-
-.auth-social-btn:hover {
-  background: #f0faf0;
-  border-color: var(--panda-green);
-  box-shadow:
-    0 3px 10px var(--panda-green-glow),
-    0 1px 3px rgba(0,0,0,0.06),
-    inset 0 1px 0 rgba(255,255,255,0.9);
-  transform: translateY(-2px);
-}
-.dark .auth-social-btn:hover {
-  background: rgba(45, 90, 39, 0.15);
-  border-color: rgba(58, 122, 50, 0.5);
-}
-
-.auth-social-btn:hover .auth-social-btn__paw {
-  opacity: 0.55;
-  transform: scale(1) rotate(0deg);
-}
-
-.auth-social-btn:active {
-  transform: translateY(0) scale(0.97);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.auth-social-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.auth-social-btn__icon {
-  display: flex;
-  align-items: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-.auth-social-btn__label {
-  font-size: 13px;
-}
-
-/* Shimmer sweep on social button hover */
-.auth-social-btn::before {
+.panda-peek-bubble::after {
   content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #4caf50;
+  border-bottom: none;
+}
+.panda-stage--peek .panda-peek-bubble {
+  opacity: 1;
+  transform: translateX(-50%) scale(1) translateY(0);
+}
+
+/* ── Panda typing: head bob ──────────────────────────────────── */
+@keyframes panda-type-bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  25%       { transform: translateY(-5px) rotate(1.5deg); }
+  75%       { transform: translateY(-2px) rotate(-0.5deg); }
+}
+.panda-stage--typing .panda {
+  animation: panda-type-bob 0.35s ease-in-out infinite !important;
+}
+.panda-stage--typing .panda-head {
+  transition: transform 0.1s ease;
+}
+
+/* ── Typing indicator dots (beside/below panda) ──────────────── */
+.panda-typing-indicator {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.panda-typing-indicator span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4caf50;
+}
+.panda-typing-indicator span:nth-child(1) { animation: typing-dot 0.9s ease-in-out infinite 0s; }
+.panda-typing-indicator span:nth-child(2) { animation: typing-dot 0.9s ease-in-out infinite 0.2s; }
+.panda-typing-indicator span:nth-child(3) { animation: typing-dot 0.9s ease-in-out infinite 0.4s; }
+.panda-stage--typing .panda-typing-indicator {
+  opacity: 1;
+}
+
+/* ── AuthSocialButton: ripple effect at click point ──────────── */
+.auth-social-btn__shimmer {
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -2872,120 +3265,1944 @@ input:not(:placeholder-shown) ~ label {
   );
   transform: translateX(-120%);
   pointer-events: none;
+  transition: none;
 }
-.auth-social-btn:hover::before {
+.auth-social-btn:hover .auth-social-btn__shimmer {
   animation: auth-shimmer 0.65s ease forwards;
 }
-
-/* ── Forgot password link ────────────────────────────────────── */
-.auth-forgot-link {
-  font-size: 13px;
-  color: var(--panda-green);
-  font-weight: 500;
-  text-decoration: none;
-  position: relative;
-  transition: color 0.15s ease;
+.auth-social-btn__ripple {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  border-radius: 50%;
+  background: rgba(76,175,80,0.3);
+  pointer-events: none;
+  animation: social-ripple 0.55s ease-out forwards;
+  z-index: 5;
 }
-.auth-forgot-link::after {
+@keyframes social-ripple {
+  0%   { transform: scale(0); opacity: 0.8; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+
+/* ── Social button: panda green accent on hover ──────────────── */
+
+/* ── Welcome back heading: gradient text ─────────────────────── */
+/* Target the h2 in the form card */
+.sm\:max-w-md h2 {
+  background: linear-gradient(135deg, #1a3a17 0%, #2d5a27 35%, #4caf50 60%, #2d5a27 80%, #1a3a17 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: panda-heading-gradient 6s ease infinite;
+}
+.dark .sm\:max-w-md h2 {
+  background: linear-gradient(135deg, #6ee060 0%, #a8e6a0 35%, #ffffff 60%, #a8e6a0 80%, #6ee060 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Panda mascot wrapper: entrance bounce ───────────────────── */
+.panda-mascot-wrapper {
+  animation: mascot-entrance 0.75s cubic-bezier(0.34,1.56,0.64,1) both !important;
+  animation-delay: 0.1s !important;
+}
+
+/* ── Panda stage: hover → friendly wiggle ────────────────────── */
+@keyframes panda-friendly-wiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  20%       { transform: rotate(-3deg) scale(1.02); }
+  40%       { transform: rotate(3deg) scale(1.02); }
+  60%       { transform: rotate(-2deg) scale(1.01); }
+  80%       { transform: rotate(2deg) scale(1.01); }
+}
+.panda-stage:not(.panda-stage--peek):not(.panda-stage--loading):hover .panda-wrap {
+  animation: panda-friendly-wiggle 0.7s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
+
+/* ── PandaButton: rainbow shimmer on hover ───────────────────── */
+@keyframes panda-btn-rainbow {
+  0%   { filter: hue-rotate(0deg); }
+  50%  { filter: hue-rotate(30deg); }
+  100% { filter: hue-rotate(0deg); }
+}
+
+/* ── PandaButton label: gradient pulse ───────────────────────── */
+@keyframes label-pulse-glow {
+  0%, 100% { box-shadow: 0 2px 0 #1a3a17, 0 0 0 rgba(76,175,80,0); }
+  50%       { box-shadow: 0 2px 0 #1a3a17, 0 0 16px rgba(76,175,80,0.45); }
+}
+.panda-svg-btn:hover .panda-svg-label {
+  animation: label-pulse-glow 1s ease-in-out infinite !important;
+}
+
+/* ── Background: extra floating panda emojis (subtle) ────────── */
+/* The page.tsx already handles this via inline style;
+   these selectors reinforce the ambient bamboo / paw trail.      */
+
+/* ── Policy links: panda green underline on hover ────────────── */
+.auth-policy-link {
+  position: relative;
+  color: var(--panda-green);
+  text-decoration: none !important;
+  transition: color 0.2s ease;
+}
+.auth-policy-link::after {
   content: "";
   position: absolute;
   left: 0; bottom: -1px;
-  width: 0; height: 1.5px;
-  background: var(--panda-green);
+  width: 0; height: 1px;
+  background: currentColor;
   transition: width 0.22s ease;
 }
-.auth-forgot-link:hover {
-  color: var(--panda-green-light);
+.auth-policy-link:hover::after { width: 100%; }
+.auth-policy-link:hover { color: var(--panda-green-light); }
+
+/* ── Policy panda emoji: spin on hover ───────────────────────── */
+@keyframes panda-emoji-spin {
+  0%   { transform: rotate(0deg) scale(1); }
+  30%  { transform: rotate(-15deg) scale(1.2); }
+  60%  { transform: rotate(15deg) scale(1.1); }
+  100% { transform: rotate(0deg) scale(1); }
 }
-.auth-forgot-link:hover::after {
-  width: 100%;
-}
-.dark .auth-forgot-link {
-  color: #6ee060;
-}
-.dark .auth-forgot-link::after {
-  background: #6ee060;
+.auth-policy-panda:hover {
+  animation: panda-emoji-spin 0.6s cubic-bezier(0.34,1.56,0.64,1);
 }
 
-/* ── Toggle link (Tạo tài khoản / Đăng nhập) ────────────────── */
-.auth-toggle-link {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--panda-green);
-  background: none;
+/* ── Toggle link: slide underline + scale ────────────────────── */
+
+/* ── Panda mood: happy — card gets green glow ────────────────── */
+@keyframes happy-card-glow {
+  0%   { box-shadow: 0 25px 60px rgba(0,0,0,0.3), 0 0 0 3px rgba(76,175,80,0.5), 0 0 40px rgba(76,175,80,0.2); }
+  50%  { box-shadow: 0 25px 60px rgba(0,0,0,0.3), 0 0 0 3px rgba(76,175,80,0.7), 0 0 60px rgba(76,175,80,0.35); }
+  100% { box-shadow: 0 25px 60px rgba(0,0,0,0.3), 0 0 0 3px rgba(76,175,80,0.5), 0 0 40px rgba(76,175,80,0.2); }
+}
+
+/* ── Panda mood: sad — card gets red shake glow ──────────────── */
+@keyframes sad-card-pulse {
+  0%, 100% { box-shadow: 0 25px 60px rgba(0,0,0,0.3), 0 0 0 2px rgba(239,68,68,0.4); }
+  50%       { box-shadow: 0 25px 60px rgba(0,0,0,0.3), 0 0 0 3px rgba(239,68,68,0.65), 0 0 30px rgba(239,68,68,0.15); }
+}
+
+/* ── Floating panda name badge: animated entrance ────────────── */
+@keyframes badge-pop-in {
+  0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+  70%  { transform: scale(1.1) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* ── Star background particles: randomised twinkle ──────────── */
+@keyframes twinkle-star {
+  0%, 100% { opacity: 0.15; transform: scale(0.8); }
+  50%       { opacity: 0.6; transform: scale(1.1); }
+}
+
+/* ── Login page overall: entrance sequence ───────────────────── */
+@keyframes page-reveal {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* ── Reduced motion: disable all V6 additions ───────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-stage--typing .panda,
+  .panda-typing-indicator span,
+  .panda-peek-paw,
+  .panda-peek-bubble,
+  .auth-social-btn__ripple,
+  .panda-form-shake,
+  .sm\:max-w-md h2,
+  .panda-mascot-wrapper,
+  .panda-svg-label {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+
+/* ================================================================
+   NÂNG CẤP PHASE 8 — Animation xịn & đồng bộ chủ đề hoàn chỉnh
+   ================================================================ */
+
+/* ── panda-wrap modifier classes (sync với PandaMascot.tsx) ─── */
+/* Happy: wrap bounce dance */
+.panda-wrap--happy {
+  animation: mascot-happy-bounce 0.7s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
+/* Sad: wrap shake */
+.panda-wrap--sad {
+  animation: mascot-sad-shake 0.6s ease-in-out !important;
+}
+/* Loading: roll spin */
+.panda-wrap--loading {
+  animation: panda-roll-360 1s linear infinite !important;
+}
+/* Peek: arms fly up → handled by existing .panda--peek */
+.panda-wrap--peek .panda { }
+/* Typing: bob head */
+.panda-wrap--typing .panda {
+  animation: panda-type-bob 0.35s ease-in-out infinite !important;
+}
+
+/* ── Card happy glow — triggered by .panda-card--happy ───────── */
+.panda-card--happy .sm\:max-w-md,
+.panda-card--happy ~ * .sm\:max-w-md,
+.panda-card--happy {
+  animation: panda-form-happy-glow 1.4s ease-out both !important;
+}
+@keyframes panda-form-happy-glow {
+  0%   { box-shadow: 0 25px 60px rgba(0,0,0,0.35), 0 0 0 3px rgba(76,175,80,0.6), 0 0 50px rgba(76,175,80,0.25); }
+  60%  { box-shadow: 0 25px 60px rgba(0,0,0,0.35), 0 0 0 4px rgba(76,175,80,0.8), 0 0 70px rgba(76,175,80,0.4); }
+  100% { box-shadow: 0 25px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(45,90,39,0.15), inset 0 1px 0 rgba(255,255,255,0.6); }
+}
+
+/* ── Card sad red flash — triggered by .panda-card--sad ─────── */
+.panda-card--sad {
+  animation: panda-form-sad-flash 0.6s ease-out both !important;
+}
+@keyframes panda-form-sad-flash {
+  0%   { box-shadow: 0 25px 60px rgba(0,0,0,0.35), 0 0 0 3px rgba(239,68,68,0.6), 0 0 30px rgba(239,68,68,0.2); }
+  50%  { box-shadow: 0 25px 60px rgba(0,0,0,0.35), 0 0 0 4px rgba(239,68,68,0.8), 0 0 50px rgba(239,68,68,0.35); }
+  100% { box-shadow: 0 25px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(45,90,39,0.15), inset 0 1px 0 rgba(255,255,255,0.6); }
+}
+
+/* ── Cursor sparkle trail on inputs ──────────────────────────── */
+@keyframes cursor-sparkle {
+  0%   { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(0.2) rotate(90deg) translateY(-14px); }
+}
+
+/* ── Input: panda-ear border-radius corners ──────────────────── */
+input:not([type="checkbox"]):not([type="radio"]):focus {
+  border-radius: 10px 10px 4px 4px !important;
+}
+
+/* ── Submit ripple: green burst from center ──────────────────── */
+@keyframes submit-burst {
+  0%   { transform: translateX(-50%) scale(0); opacity: 0.7; }
+  100% { transform: translateX(-50%) scale(4); opacity: 0; }
+}
+.panda-btn-submitting .panda-svg-btn::after {
+  content: "";
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin-left: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(76,175,80,0.6) 0%, transparent 70%);
+  animation: submit-burst 0.55s ease-out forwards;
+  pointer-events: none;
+}
+
+/* ── Panda button: bamboo leaves fall on hover ───────────────── */
+@keyframes leaf-fall {
+  0%   { opacity: 0; transform: translate(0,0) rotate(0deg) scale(0.8); }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.7; }
+  100% { opacity: 0; transform: translate(var(--lx,10px), 30px) rotate(var(--lr,30deg)) scale(0.6); }
+}
+.panda-svg-btn:hover::after {
+  content: "🍃";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  font-size: 12px;
+  pointer-events: none;
+  animation: leaf-fall 0.8s ease-out infinite;
+  --lx: -20px;
+  --lr: -25deg;
+  z-index: 15;
+}
+
+/* ── Social button ripple: panda-green centered radial ───────── */
+
+/* ── Password peek paws: emoji layer floats in ───────────────── */
+/* Already has CSS, but ensure panda-wrap--peek arms stay up */
+.panda-wrap--peek .panda-arm.left,
+.panda-wrap--peek .panda-arm.right {
+  z-index: 7;
+  animation: none !important;
+}
+.panda-wrap--peek .panda-arm.left {
+  transform: translate(33px, -78px) rotate(10deg) !important;
+}
+
+/* ── Form variant switch: flip animation ─────────────────────── */
+@keyframes form-variant-flip {
+  0%   { opacity: 0; transform: perspective(700px) rotateX(-8deg) translateY(-6px) scale(0.98); }
+  60%  { transform: perspective(700px) rotateX(1deg) translateY(1px) scale(1.005); }
+  100% { opacity: 1; transform: perspective(700px) rotateX(0deg) translateY(0) scale(1); }
+}
+
+/* ── Form fields: stagger re-entrance after variant switch ───── */
+
+/* ── Panda glasses: lens flare on login focus ────────────────── */
+@keyframes lens-flare-burst {
+  0%   { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+  40%  { opacity: 1; transform: scale(1.3) rotate(5deg); }
+  100% { opacity: 0; transform: scale(0.3) rotate(20deg) translateX(8px); }
+}
+.panda-stage--happy .panda-glasses-lens::after {
+  animation: lens-flare-burst 0.6s ease-out 2 !important;
+}
+
+/* ── Baby pandas: hearts burst on happy ─────────────────────── */
+
+/* ── Background paw prints: new pulse variant ────────────────── */
+@keyframes paw-pulse-fade {
+  0%   { opacity: 0; transform: translateY(0) scale(0.6) rotate(var(--rot,15deg)); }
+  20%  { opacity: 0.22; transform: translateY(-10px) scale(1) rotate(var(--rot,15deg)); }
+  80%  { opacity: 0.12; }
+  100% { opacity: 0; transform: translateY(-80px) scale(0.8) rotate(calc(var(--rot,15deg) + 25deg)); }
+}
+
+/* ── Auth card: 3D tilt on mouse (CSS approximation via :hover) ── */
+@keyframes card-idle-tilt {
+  0%, 100% { transform: perspective(900px) rotateX(0deg) rotateY(0deg); }
+  25%       { transform: perspective(900px) rotateX(0.5deg) rotateY(-0.5deg); }
+  75%       { transform: perspective(900px) rotateX(-0.5deg) rotateY(0.5deg); }
+}
+
+/* ── Panda nose: sniff animation ─────────────────────────────── */
+@keyframes panda-sniff {
+  0%, 85%, 100% { transform: translateX(-50%) scale(1); }
+  88%            { transform: translateX(-50%) scale(1.25) translateY(-1px); }
+  91%            { transform: translateX(-50%) scale(0.9) translateY(1px); }
+  94%            { transform: translateX(-50%) scale(1.1); }
+  97%            { transform: translateX(-50%) scale(1); }
+}
+
+/* ── Auth heading subtitle: shimmer on load ──────────────────── */
+@keyframes subtitle-shimmer {
+  0%   { opacity: 0; transform: translateX(-8px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.auth-rise-3 p,
+p.auth-rise-3 {
+  animation: subtitle-shimmer 0.5s ease 0.25s both;
+}
+
+/* ── Stat cards: number count-up visual ─────────────────────── */
+@keyframes number-pop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.18) rotate(-2deg); }
+  60%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+.auth-stat-card:hover > div:first-child {
+  animation: number-pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ── PandaButton loading: running dots trail ─────────────────── */
+.panda-svg-btn--loading .panda-svg-label {
+  animation: none !important;
+}
+
+/* ── Logo ring: chromatic pulse ──────────────────────────────── */
+@keyframes logo-ring-chroma {
+  0%   { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 0 0 rgba(76,175,80,0); }
+  50%  { border-color: rgba(76,175,80,0.8);  box-shadow: 0 0 12px 3px rgba(76,175,80,0.3); }
+  100% { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 0 0 rgba(76,175,80,0); }
+}
+
+/* ── Chip badges: magnetic hover ─────────────────────────────── */
+
+/* ── Social button dark mode: panda green accent ─────────────── */
+
+/* ── Typewriter cursor on form heading ───────────────────────── */
+.sm\:max-w-md h2::before {
+  content: "|";
+  position: absolute;
+  right: -3px;
+  top: 0;
+  color: #4caf50;
+  font-weight: 300;
+  opacity: 0;
+  animation: cursor-blink 1s ease-in-out 0s 3;
+}
+
+/* ── Panda mascot: random head tilt ─────────────────────────── */
+@keyframes head-tilt-look {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  65%            { transform: rotate(-6deg); }
+  72%            { transform: rotate(4deg); }
+  80%            { transform: rotate(-3deg); }
+  88%            { transform: rotate(2deg); }
+}
+
+/* ── Divider text: paw print float on hover ──────────────────── */
+
+/* ── Panel slide entrance: staggered (brand left, form right) ── */
+/* These are already in Phase 5; ensure specificity */
+
+/* ── Baby pandas: stagger appearance delay fix ───────────────── */
+.baby-panda-orbit:nth-child(5) { animation-delay: var(--delay), 0.45s !important; }
+.baby-panda-orbit:nth-child(6) { animation-delay: var(--delay), 0.65s !important; }
+.baby-panda-orbit:nth-child(7) { animation-delay: var(--delay), 0.85s !important; }
+
+/* ── Reduced motion: all Phase 8 ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-wrap--happy,
+  .panda-wrap--sad,
+  .panda-wrap--loading,
+  .panda-wrap--typing .panda,
+  .panda-wrap--peek .panda-arm,
+  .panda-card--happy,
+  .panda-card--sad,
+  .panda-btn-submitting .panda-svg-btn::after,
+  .panda-svg-btn:hover::after,
+  .panda-stage--happy .baby-panda::after,
+  .bg-paw-print,
+  .auth-logo-ring,
+  .panda-nose,
+  .sm\:max-w-md h2::before,
+  .panda-head,
+  .auth-stat-card:hover > div:first-child,
+  .panda-wrap--peek .panda-arm.left  { transform: translate(33px, -78px) rotate(10deg) !important; }
+  .panda-wrap--peek .panda-arm.right { transform: translate(-33px, -78px) rotate(-10deg) !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NÂNG CẤP V9 — Password Eye Toggle + Strength Bar + Premium FX
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Password wrapper: relative container for eye button ──────── */
+.auth-password-wrapper {
+  position: relative;
+}
+
+/* ── Eye toggle button ────────────────────────────────────────── */
+.auth-eye-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  /* Push up a bit because label floats above the input */
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   border: none;
-  padding: 0;
+  background: transparent;
   cursor: pointer;
-  text-decoration: underline;
-  text-decoration-color: rgba(45, 90, 39, 0.35);
-  text-underline-offset: 2px;
-  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  color: #9ca3af;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  z-index: 10;
 }
-.auth-toggle-link:hover {
-  color: var(--panda-green-light);
-  text-decoration-color: var(--panda-green-light);
+.auth-eye-toggle:hover {
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+  transform: translateY(-50%) scale(1.15);
+  margin-top: 10px;
 }
-.dark .auth-toggle-link {
-  color: #6ee060;
-  text-decoration-color: rgba(110, 224, 96, 0.35);
+.auth-eye-toggle:active {
+  transform: translateY(-50%) scale(0.92);
+  margin-top: 10px;
 }
-.dark .auth-toggle-link:hover {
-  color: #90ef7a;
+.dark .auth-eye-toggle { color: #6b7280; }
+.dark .auth-eye-toggle:hover { color: #86efac; background: rgba(134,239,172,0.12); }
+
+/* Eye icon: spin swap animation */
+.auth-eye-icon {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+  transform-origin: center;
 }
+.auth-eye-icon--open {
+  animation: eye-pop-open 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes eye-pop-open {
+  0%   { transform: scale(0.5) rotate(-15deg); opacity: 0.4; }
+  60%  { transform: scale(1.25) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes eye-pop-close {
+  0%   { transform: scale(1.1) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* ── Password strength bar ────────────────────────────────────── */
+.auth-strength-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 0 2px;
+}
+.auth-strength-bar-track {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  height: 4px;
+}
+.auth-strength-bar-seg {
+  flex: 1;
+  height: 100%;
+  border-radius: 99px;
+  background: #e5e7eb;
+  transform-origin: left center;
+  transition: background 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.dark .auth-strength-bar-seg { background: #374151; }
+.auth-strength-label {
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: color 0.3s ease, opacity 0.25s ease;
+  min-width: 72px;
+  text-align: right;
+  animation: label-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Success flash on card (green shimmer sweep) ──────────────── */
+@keyframes auth-success-sweep {
+  0%   { background-position: -200% center; opacity: 0.7; }
+  100% { background-position: 300% center; opacity: 0; }
+}
+.auth-success-flash {
+  position: relative;
+  overflow: hidden;
+}
+.auth-success-flash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(76, 175, 80, 0.22) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: auth-success-sweep 0.9s ease forwards;
+  z-index: 50;
+}
+
+/* ── Input: panda green focus ring with ripple ────────────────── */
+@keyframes input-focus-ring-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(76,175,80, 0.45), 0 1px 3px rgba(0,0,0,0.08); }
+  60%  { box-shadow: 0 0 0 5px rgba(76,175,80, 0.0), 0 1px 3px rgba(0,0,0,0.08); }
+  100% { box-shadow: 0 0 0 3px rgba(76,175,80, 0.18), 0 1px 3px rgba(0,0,0,0.08); }
+}
+input:focus,
+textarea:focus {
+  animation: input-focus-ring-pulse 0.45s ease forwards !important;
+  border-color: #4caf50 !important;
+  outline: none !important;
+}
+
+/* ── Password field reveal: text shimmer effect ───────────────── */
+@keyframes pw-reveal-shimmer {
+  0%   { background-position: -100%; }
+  100% { background-position: 200%; }
+}
+input[type="text"]#password {
+  background: linear-gradient(
+    90deg,
+    inherit 0%,
+    rgba(76,175,80,0.08) 40%,
+    inherit 60%
+  ) no-repeat;
+  background-size: 200% 100%;
+  animation: pw-reveal-shimmer 0.55s ease forwards;
+}
+
+/* ── Variant switch: pill indicator ──────────────────────────────
+   Two animated dots above the form area that swap color on toggle */
+@keyframes variant-dot-in {
+  0%   { transform: scale(0) translateY(4px); opacity: 0; }
+  70%  { transform: scale(1.2) translateY(-1px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ── Panda mascot: extra bounce on eye toggle ─────────────────── */
+@keyframes panda-eye-toggle-bounce {
+  0%   { transform: translateY(0) rotate(-2.5deg); }
+  30%  { transform: translateY(-12px) rotate(3deg); }
+  55%  { transform: translateY(-5px) rotate(-1.5deg); }
+  75%  { transform: translateY(-8px) rotate(2deg); }
+  100% { transform: translateY(0) rotate(-2.5deg); }
+}
+
+/* ── Floating bamboo particles: extra z-index fix ─────────────── */
+
+/* ── Form toggle link: underline draw effect ──────────────────── */
+.dark .auth-toggle-link::after {
+  background: #86efac;
+}
+
+/* ── Auth headings: gradient text ─────────────────────────────── */
+
+/* ── Social buttons: staggered entrance ──────────────────────── */
+@keyframes social-btn-enter {
+  0%   { opacity: 0; transform: translateY(10px) scale(0.96); }
+  70%  { transform: translateY(-2px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.mt-4.grid .auth-social-btn:nth-child(1) {
+  animation: social-btn-enter 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.32s both;
+}
+.mt-4.grid .auth-social-btn:nth-child(2) {
+  animation: social-btn-enter 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.42s both;
+}
+
+/* ── Policy footer: bamboo accent ─────────────────────────────── */
+
+/* ── Reduced motion: V9 additions ─────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .auth-eye-icon,
+  .auth-eye-icon--open,
+  .auth-strength-bar-seg,
+  .auth-strength-label,
+  .auth-success-flash::after,
+  .auth-toggle-link::after,
+  input:focus,
+  input[type="text"]#password,
+  .mt-4.grid .auth-social-btn {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   🐼 V9 PREMIUM ANIMATION PACK — nâng cấp UI/UX login
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 1. CARD ENTRANCE: 3D perspective flip-in ─────────────────── */
+@keyframes card-flip-enter {
+  0%   { opacity: 0; transform: perspective(800px) rotateX(-18deg) translateY(28px) scale(0.96); }
+  60%  { opacity: 1; transform: perspective(800px) rotateX(3deg) translateY(-4px) scale(1.005); }
+  80%  { transform: perspective(800px) rotateX(-1.5deg) translateY(1px) scale(0.999); }
+  100% { opacity: 1; transform: perspective(800px) rotateX(0deg) translateY(0) scale(1); }
+}
+
+/* ── 2. GLASSMORPHISM UPGRADE: animated shimmer border on card ── */
+@keyframes card-border-shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.dark .sm\:max-w-md::before {
+  background: linear-gradient(
+    135deg,
+    rgba(134,239,172,0.35) 0%,
+    rgba(255,255,255,0.08) 25%,
+    rgba(74,222,128,0.25) 50%,
+    rgba(255,255,255,0.06) 75%,
+    rgba(134,239,172,0.3) 100%
+  );
+  background-size: 300% 300%;
+}
+
+/* ── 3. PANDA CURSOR TRAIL: paw prints follow mouse ──────────── */
+@keyframes paw-trail-fade {
+  0%   { opacity: 0.7; transform: scale(1) rotate(var(--paw-rot, 0deg)); }
+  40%  { opacity: 0.5; transform: scale(0.9) rotate(var(--paw-rot, 0deg)); }
+  100% { opacity: 0;   transform: scale(0.4) rotate(var(--paw-rot, 0deg)) translateY(-8px); }
+}
+.panda-cursor-paw {
+  position: fixed;
+  pointer-events: none;
+  font-size: 14px;
+  z-index: 9999;
+  animation: paw-trail-fade 0.7s ease forwards;
+  user-select: none;
+}
+
+/* ── 4. INPUT FIELDS: floating label + panda green glow ──────── */
+@keyframes input-panda-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(76,175,80,0.5), 0 1px 3px rgba(0,0,0,0.1); }
+  50%  { box-shadow: 0 0 0 4px rgba(76,175,80,0.15), 0 2px 8px rgba(76,175,80,0.12); }
+  100% { box-shadow: 0 0 0 3px rgba(76,175,80,0.2), 0 1px 4px rgba(0,0,0,0.08); }
+}
+
+/* ── 5. BUTTON PRESS: spring squash & stretch ─────────────────── */
+@keyframes panda-btn-squash {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(0.94, 0.96) translateY(2px); }
+  60%  { transform: scale(1.04, 1.02) translateY(-1px); }
+  80%  { transform: scale(0.98, 1.01); }
+  100% { transform: scale(1); }
+}
+.panda-svg-btn:active:not(:disabled) {
+  animation: panda-btn-squash 0.35s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
+
+/* ── 6. FORM FIELDS: staggered slide-in from bottom ──────────── */
+@keyframes field-enter {
+  0%   { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.auth-rise-4 form .space-y-4 > * {
+  animation: field-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.auth-rise-4 form .space-y-4 > *:nth-child(1) { animation-delay: 0.35s; }
+.auth-rise-4 form .space-y-4 > *:nth-child(2) { animation-delay: 0.42s; }
+.auth-rise-4 form .space-y-4 > *:nth-child(3) { animation-delay: 0.49s; }
+.auth-rise-4 form .space-y-4 > *:nth-child(4) { animation-delay: 0.56s; }
+
+/* ── 7. SOCIAL BUTTONS: holographic hover gradient ────────────── */
+@keyframes holographic-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.auth-social-btn:hover:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    rgba(76,175,80,0.12) 0%,
+    rgba(134,239,172,0.1) 33%,
+    rgba(255,255,255,0.08) 66%,
+    rgba(74,222,128,0.1) 100%
+  ) !important;
+  background-size: 200% 200% !important;
+  animation: holographic-shift 2s ease infinite !important;
+}
+
+/* ── 8. PANDA MASCOT: subtle heartbeat on idle ────────────────── */
+.panda-stage--idle .panda-body {
+  animation: panda-heartbeat 3.5s ease-in-out infinite 2s;
+}
+
+/* ── 9. PAGE BACKGROUND: animated gradient mesh ──────────────── */
+@keyframes bg-mesh-shift {
+  0%   { background-position: 0% 0%,   100% 100%, 50% 50%; }
+  33%  { background-position: 30% 10%,  70% 90%,  60% 40%; }
+  66%  { background-position: 60% 5%,   40% 95%,  30% 70%; }
+  100% { background-position: 0% 0%,   100% 100%, 50% 50%; }
+}
+
+/* ── 10. LOADING STATE: panda bouncing dots ───────────────────── */
+@keyframes panda-dot-wave {
+  0%, 80%, 100% { transform: scale(0.6) translateY(0); opacity: 0.5; }
+  40%            { transform: scale(1) translateY(-6px); opacity: 1; }
+}
+.panda-loading-dot:nth-child(1) { animation: panda-dot-wave 1.2s ease-in-out infinite 0s !important; }
+.panda-loading-dot:nth-child(2) { animation: panda-dot-wave 1.2s ease-in-out infinite 0.16s !important; }
+.panda-loading-dot:nth-child(3) { animation: panda-dot-wave 1.2s ease-in-out infinite 0.32s !important; }
+
+/* ── 11. H2 TITLE: animated gradient text ───────────────────── */
+@keyframes title-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── 12. PANDA PEEK: extra dramatic cover animation ──────────── */
+@keyframes peek-paw-cover {
+  0%   { transform: translateY(60px) rotate(-15deg) scale(0.7); opacity: 0; }
+  60%  { transform: translateY(-8px) rotate(3deg) scale(1.1); opacity: 1; }
+  80%  { transform: translateY(2px) rotate(-1deg) scale(1.02); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+}
+
+/* ── 13. SUCCESS FLASH: confetti burst from panda mascot ─────── */
+@keyframes mascot-happy-jump {
+  0%   { transform: translateY(0) scale(1); }
+  30%  { transform: translateY(-18px) scale(1.05, 0.95); }
+  55%  { transform: translateY(-28px) scale(0.96, 1.04); }
+  75%  { transform: translateY(-10px) scale(1.02, 0.98); }
+  90%  { transform: translateY(-4px) scale(0.99, 1.01); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* ── 14. ERROR SHAKE: more dramatic ──────────────────────────── */
+@keyframes panda-form-shake-v2 {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  10%       { transform: translateX(-7px) rotate(-0.5deg); }
+  25%       { transform: translateX(7px) rotate(0.5deg); }
+  40%       { transform: translateX(-5px) rotate(-0.3deg); }
+  55%       { transform: translateX(5px) rotate(0.3deg); }
+  70%       { transform: translateX(-3px); }
+  85%       { transform: translateX(3px); }
+}
+
+/* ── 15. DIVIDER: animated bamboo separator ──────────────────── */
+@keyframes divider-grow {
+  0%   { width: 0; opacity: 0; }
+  100% { width: 100%; opacity: 1; }
+}
+
+/* ── 16. TOGGLE LINK: panda bounce on hover ──────────────────── */
+@keyframes toggle-link-bounce {
+  0%, 100% { transform: translateY(0); }
+  30%       { transform: translateY(-3px); }
+  60%       { transform: translateY(1px); }
+}
+
+/* ── 17. PANDA EYE TOGGLE: blink animation ───────────────────── */
+@keyframes eye-toggle-blink {
+  0%, 100% { transform: scaleY(1); }
+  50%       { transform: scaleY(0.1); }
+}
+.auth-eye-toggle:hover .auth-eye-icon {
+  animation: eye-toggle-blink 0.3s ease;
+}
+
+/* ── 18. STAT CARDS: shimmer on hover ────────────────────────── */
+@keyframes stat-shine {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+.auth-stat-card:hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background-size: 200% 100%;
+  animation: stat-shine 0.6s ease;
+  pointer-events: none;
+}
+
+/* ── 19. BAMBOO PARTICLES: enhanced 3D perspective ───────────── */
+@keyframes bamboo-sway-3d {
+  0%   { transform: translateY(0) rotateX(0deg) scaleX(1); }
+  25%  { transform: translateY(-4px) rotateX(2deg) scaleX(0.97); }
+  50%  { transform: translateY(-8px) rotateX(0deg) scaleX(1.02); }
+  75%  { transform: translateY(-3px) rotateX(-1deg) scaleX(0.98); }
+  100% { transform: translateY(0) rotateX(0deg) scaleX(1); }
+}
+
+/* ── 20. FORM CARD: subtle parallax tilt on mouse move ─────────
+   JS được inject từ AuthForm để thêm class panda-card--tilt ──── */
+@keyframes card-tilt-reset {
+  to { transform: perspective(800px) rotateX(0deg) rotateY(0deg); }
+}
+
+/* ── 21. PAW PRINT TRAIL on background ───────────────────────── */
+@keyframes paw-bg-drift {
+  0%   { transform: translateY(0) rotate(var(--rot)) scale(var(--sz)); opacity: 0; }
+  10%  { opacity: 0.6; }
+  80%  { opacity: 0.4; }
+  100% { transform: translateY(-90vh) rotate(calc(var(--rot) + 15deg)) scale(calc(var(--sz) * 0.5)); opacity: 0; }
+}
+
+/* ── 22. VARIANT SWITCH: page-turn effect ────────────────────── */
+@keyframes form-page-turn-out {
+  0%   { opacity: 1; transform: perspective(600px) rotateY(0deg) scale(1); }
+  100% { opacity: 0; transform: perspective(600px) rotateY(-20deg) scale(0.96) translateX(-10px); }
+}
+@keyframes form-page-turn-in {
+  0%   { opacity: 0; transform: perspective(600px) rotateY(20deg) scale(0.96) translateX(10px); }
+  100% { opacity: 1; transform: perspective(600px) rotateY(0deg) scale(1); }
+}
+
+/* ── 23. PANDA BUTTON: loading state animation upgrade ─────────── */
+@keyframes panda-btn-loading-wobble {
+  0%, 100% { transform: rotate(-3deg) scale(1); }
+  25%       { transform: rotate(3deg) scale(1.02); }
+  50%       { transform: rotate(-2deg) scale(0.98); }
+  75%       { transform: rotate(2deg) scale(1.01); }
+}
+
+/* ── 24. INPUT FOCUS: bamboo leaf particle burst ─────────────── */
+@keyframes leaf-burst {
+  0%   { opacity: 1; transform: translate(0,0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translate(var(--lx,0px), var(--ly,-20px)) rotate(var(--lr,30deg)) scale(0.5); }
+}
+.input-leaf-particle {
+  position: absolute;
+  font-size: 10px;
+  pointer-events: none;
+  z-index: 50;
+  animation: leaf-burst 0.6s ease forwards;
+}
+
+/* ── 25. PANDA MASCOT: rainbow shimmer on happy mood ─────────── */
+@keyframes panda-body-rainbow {
+  0%   { filter: drop-shadow(0 12px 20px rgba(76,175,80,0.35)); }
+  33%  { filter: drop-shadow(0 12px 20px rgba(255,183,77,0.4)); }
+  66%  { filter: drop-shadow(0 12px 20px rgba(33,150,243,0.35)); }
+  100% { filter: drop-shadow(0 12px 20px rgba(76,175,80,0.35)); }
+}
+.panda-stage--happy .panda {
+  animation: panda-body-rainbow 1s ease infinite, panda-sway 4.2s ease-in-out infinite !important;
+}
+
+/* ── 26. AUTH SOCIAL BUTTON: ripple upgrade ──────────────────── */
+@keyframes social-ripple-expand {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.6; }
+  100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+}
+
+/* ── 27. PANDA TOOLTIP: animated entrance ────────────────────── */
+.panda-tooltip {
+  transition: opacity 0.25s ease !important;
+}
+.panda-stage--happy .panda-tooltip,
+.panda-stage--sad .panda-tooltip {
+  animation: tooltip-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
+
+/* ── 28. CARD: inner glow ring on focus-within ───────────────── */
+.sm\:max-w-md:focus-within {
+  box-shadow:
+    0 25px 50px -10px rgba(0,0,0,0.4),
+    0 0 0 2px rgba(76,175,80,0.25),
+    0 0 24px rgba(76,175,80,0.1) !important;
+  transition: box-shadow 0.3s ease !important;
+}
+
+/* ── 29. BACKGROUND EMOJI DECORATIONS: depth layers ─────────── */
+@keyframes float-depth {
+  0%   { transform: translateY(0) translateZ(0) scale(1); }
+  33%  { transform: translateY(-12px) translateZ(10px) scale(1.05); }
+  66%  { transform: translateY(-6px) translateZ(5px) scale(0.97); }
+  100% { transform: translateY(0) translateZ(0) scale(1); }
+}
+
+/* ── 30. FORGOT PASSWORD: underline animate ──────────────────── */
+@keyframes forgot-underline-draw {
+  0%   { width: 0; }
+  100% { width: 100%; }
+}
+
+/* ── REDUCED MOTION: disable V9 premium animations ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sm\:max-w-md,
+  .panda-cursor-paw,
+  .input-leaf-particle,
+  .auth-social-btn__ripple,
+  .sm\:max-w-md h2,
+  .panda-stage--happy .panda,
+  .panda-svg-btn--loading svg,
+  .auth-stat-card:hover::after,
+  .sm\:max-w-md::before { display: none; }
+}
+
+
+/* ================================================================
+   NÂNG CẤP V10 — Ultra Premium Animation Pack
+   Panda Login Experience — Final Polish
+   ================================================================ */
+
+/* ── 1. MORPHING BLOB BACKGROUND behind the card ─────────────── */
+@keyframes blob-morph {
+  0%   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translateX(-50%) scale(1) rotate(0deg); }
+  25%  { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: translateX(-50%) scale(1.06) rotate(4deg); }
+  50%  { border-radius: 50% 60% 30% 70% / 40% 40% 60% 50%; transform: translateX(-50%) scale(0.97) rotate(-3deg); }
+  75%  { border-radius: 70% 30% 50% 50% / 70% 50% 40% 40%; transform: translateX(-50%) scale(1.04) rotate(2deg); }
+  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translateX(-50%) scale(1) rotate(0deg); }
+}
+
+
+/* ── 2. NEON GLOW RING trên card khi focus-within ──────────────── */
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(76, 175, 80, 0.25),
+      0 0 8px rgba(76, 175, 80, 0.15),
+      0 25px 50px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(76, 175, 80, 0.5),
+      0 0 20px rgba(76, 175, 80, 0.25),
+      0 0 40px rgba(76, 175, 80, 0.12),
+      0 25px 50px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ── 3. PANDA BLINK + wink (left eye closes alone) ─────────────── */
+@keyframes panda-wink {
+  0%, 70%, 100% { transform: scaleY(1); }
+  72%            { transform: scaleY(0.08); }
+  74%            { transform: scaleY(1); }
+}
+.panda-eye.left {
+  animation: panda-blink-v2 5.5s ease-in-out infinite,
+             panda-wink 9s ease-in-out 4s infinite !important;
+}
+
+/* ── 4. PANDA BOUNCE SPRING khi mount ────────────────────────── */
+@keyframes panda-spring-in {
+  0%   { transform: scale(0) translateY(30px) rotate(-8deg); opacity: 0; }
+  40%  { transform: scale(1.12) translateY(-10px) rotate(4deg); opacity: 1; }
+  60%  { transform: scale(0.94) translateY(5px) rotate(-2deg); }
+  75%  { transform: scale(1.04) translateY(-3px) rotate(1deg); }
+  88%  { transform: scale(0.98) translateY(1px); }
+  100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; }
+}
+
+/* ── 5. CARD INNER SHIMMER BORDER — gradient spinning border ─────── */
+@keyframes border-spin {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 300% 300%; }
+}
+
+/* ── 6. PASSWORD EYE TOGGLE: panda reaction ripple ────────────── */
+@keyframes eye-toggle-ripple {
+  0%   { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+.auth-eye-toggle:active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(76, 175, 80, 0.35);
+  animation: eye-toggle-ripple 0.35s ease-out forwards;
+  pointer-events: none;
+}
+
+/* ── 7. FORM VARIANT SWITCH: accordion field reveal ─────────────── */
+@keyframes field-accordion-open {
+  0%   { max-height: 0; opacity: 0; transform: scaleY(0.85) translateY(-8px); }
+  60%  { transform: scaleY(1.03) translateY(2px); }
+  100% { max-height: 100px; opacity: 1; transform: scaleY(1) translateY(0); }
+}
+@keyframes field-accordion-close {
+  0%   { max-height: 100px; opacity: 1; transform: scaleY(1); }
+  100% { max-height: 0; opacity: 0; transform: scaleY(0.85) translateY(-8px); }
+}
+
+/* ── 8. STRENGTH BAR SEGMENTS: wave fill animation ───────────── */
+@keyframes strength-seg-fill {
+  0%   { transform: scaleX(0) translateZ(0); }
+  60%  { transform: scaleX(1.05) translateZ(0); }
+  100% { transform: scaleX(1) translateZ(0); }
+}
+.auth-strength-bar-seg[style*="scaleX(1)"] {
+  animation: strength-seg-fill 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+}
+
+/* ── 9. TOGGLE LINK: particle burst when clicked ────────────────── */
+@keyframes toggle-particle {
+  0%   { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: translate(var(--tx, 0px), var(--ty, -20px)) scale(0.4) rotate(var(--tr, 30deg)); }
+}
+.auth-toggle-link::before {
+  content: "🐼";
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  font-size: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) scale(0);
+}
+.auth-toggle-link:active::before {
+  animation: toggle-particle 0.5s ease-out forwards;
+  --tx: -14px;
+  --ty: -18px;
+  --tr: -20deg;
+}
+
+/* ── 10. BABY PANDAS: glow trail as they orbit ────────────────── */
+@keyframes baby-orbit-glow {
+  0%, 100% { filter: drop-shadow(0 2px 4px rgba(76, 175, 80, 0.2)); }
+  50%       { filter: drop-shadow(0 4px 8px rgba(76, 175, 80, 0.45)); }
+}
+
+/* ── 11. PANDA GLASSES: steam/fog effect on sad ──────────────── */
+@keyframes glasses-fog {
+  0%   { opacity: 0; }
+  50%  { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+.panda--sad .panda-glasses-lens {
+  animation: glasses-fog 0.8s ease-in-out 2 !important;
+  background: rgba(200, 220, 255, 0.5) !important;
+}
+
+/* ── 12. STAT CARD NUMBERS: count-up wiggle ─────────────────── */
+@keyframes stat-wiggle-in {
+  0%   { transform: scale(0.7) rotate(-5deg); opacity: 0; }
+  50%  { transform: scale(1.1) rotate(3deg); opacity: 1; }
+  75%  { transform: scale(0.96) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.auth-stat-card:nth-child(1) .text-2xl { animation: stat-wiggle-in 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.6s both; }
+.auth-stat-card:nth-child(2) .text-2xl { animation: stat-wiggle-in 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.72s both; }
+.auth-stat-card:nth-child(3) .text-2xl { animation: stat-wiggle-in 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.84s both; }
+
+/* ── 13. SOCIAL BUTTON: 3D press depth ─────────────────────── */
+@keyframes social-press-3d {
+  0%   { transform: translateY(-2px) scale(1.03); box-shadow: 0 6px 18px rgba(76,175,80,0.18); }
+  50%  { transform: translateY(1px) scale(0.98); box-shadow: 0 2px 6px rgba(76,175,80,0.12); }
+  100% { transform: translateY(-2px) scale(1.03); box-shadow: 0 6px 18px rgba(76,175,80,0.18); }
+}
+
+/* ── 14. PANDA SUITCASE: spark trail on walk ─────────────────── */
+@keyframes spark-trail {
+  0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-8px, 4px) scale(0.3); }
+}
+
+/* ── 15. CARD: rainbow aurora on happy mood ──────────────────── */
+@keyframes card-aurora-happy {
+  0%   { background: radial-gradient(ellipse at 20% 80%, rgba(76,175,80,0.15), transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(134,239,172,0.12), transparent 50%); }
+  33%  { background: radial-gradient(ellipse at 50% 10%, rgba(255,183,77,0.1), transparent 50%), radial-gradient(ellipse at 30% 90%, rgba(76,175,80,0.15), transparent 50%); }
+  66%  { background: radial-gradient(ellipse at 80% 50%, rgba(33,150,243,0.08), transparent 50%), radial-gradient(ellipse at 20% 40%, rgba(76,175,80,0.12), transparent 50%); }
+  100% { background: radial-gradient(ellipse at 20% 80%, rgba(76,175,80,0.15), transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(134,239,172,0.12), transparent 50%); }
+}
+
+/* ── 16. FORM HEADING SUBTITLE: typewriter effect ───────────── */
+@keyframes typewriter-cursor-blink {
+  0%, 50% { border-right-color: #4caf50; }
+  51%, 100% { border-right-color: transparent; }
+}
+.auth-rise-3 p:not(:empty) {
+  animation: subtitle-shimmer 0.5s ease 0.25s both;
+  display: inline-block;
+}
+
+/* ── 17. DIVIDER: animated panda paw icon bounce ────────────── */
+@keyframes divider-center-bounce {
+  0%, 100% { transform: translateX(-50%) scale(1) rotate(0deg); }
+  30%       { transform: translateX(-50%) scale(1.3) rotate(-12deg); }
+  60%       { transform: translateX(-50%) scale(0.9) rotate(8deg); }
+}
+
+/* ── 18. LOADING PANDA: speed lines behind it ───────────────── */
+@keyframes speed-line {
+  0%   { transform: scaleX(0) translateX(0); opacity: 0; }
+  50%  { opacity: 0.5; }
+  100% { transform: scaleX(1) translateX(-60px); opacity: 0; }
+}
+.panda-stage--loading::before {
+  content: "";
+  position: absolute;
+  width: 80px;
+  height: 3px;
+  right: 50%;
+  top: 50%;
+  margin-right: -60px;
+  background: linear-gradient(90deg, transparent, rgba(76,175,80,0.6));
+  border-radius: 2px;
+  transform-origin: right center;
+  animation: speed-line 0.3s ease infinite;
+  pointer-events: none;
+}
+.panda-stage--loading::after {
+  content: "";
+  position: absolute;
+  width: 50px;
+  height: 2px;
+  right: 50%;
+  top: calc(50% + 8px);
+  margin-right: -50px;
+  background: linear-gradient(90deg, transparent, rgba(134,239,172,0.4));
+  border-radius: 2px;
+  transform-origin: right center;
+  animation: speed-line 0.3s ease 0.08s infinite;
+  pointer-events: none;
+}
+
+/* ── 19. PANDA HEAD TILT: random idle curiosity ────────────── */
+@keyframes head-curiosity {
+  0%, 60%, 100% { transform: rotate(0deg) translateX(-50%); }
+  62%            { transform: rotate(-8deg) translateX(-50%); }
+  67%            { transform: rotate(-6deg) translateX(-50%); }
+  72%            { transform: rotate(5deg) translateX(-50%); }
+  77%            { transform: rotate(3deg) translateX(-50%); }
+  82%            { transform: rotate(-2deg) translateX(-50%); }
+}
+
+/* ── 20. PANDA ARM WAVE: more natural movement ──────────────── */
+@keyframes arm-wave-natural {
+  0%   { transform: rotate(28deg); }
+  10%  { transform: rotate(-35deg) translateY(-8px); }
+  22%  { transform: rotate(5deg) translateY(-3px); }
+  35%  { transform: rotate(-28deg) translateY(-7px); }
+  50%  { transform: rotate(15deg); }
+  65%  { transform: rotate(-10deg) translateY(-3px); }
+  80%  { transform: rotate(20deg); }
+  100% { transform: rotate(28deg); }
+}
+
+/* ── 21. FORM FIELDS: linger glow after typing ───────────────── */
+@keyframes input-linger-glow {
+  0%   { box-shadow: 0 0 0 3px rgba(76,175,80,0.2), 0 1px 4px rgba(0,0,0,0.08); }
+  100% { box-shadow: 0 0 0 0px rgba(76,175,80,0), 0 1px 3px rgba(0,0,0,0.06); }
+}
+input:not(:focus):not(:placeholder-shown):valid {
+  animation: input-linger-glow 2s ease-out 0.5s forwards;
+}
+
+/* ── 22. PANDA EYE PATCH: subtle shimmer ────────────────────── */
+@keyframes patch-shimmer {
+  0%, 85%, 100% { filter: brightness(1); }
+  90%            { filter: brightness(1.3); }
+  92%            { filter: brightness(0.9); }
+  95%            { filter: brightness(1.1); }
+}
+.panda-patch.right { animation-delay: 0.4s; }
+
+/* ── 23. KEYBOARD FOCUS: accessibility panda-green ring ─────── */
+.auth-social-btn:focus-visible,
+.auth-eye-toggle:focus-visible,
+.auth-toggle-link:focus-visible,
+.auth-forgot-link:focus-visible {
+  outline: 2.5px solid #4caf50;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ── 24. BAMBOO PARTICLES: depth fade at bottom ─────────────── */
+@keyframes bamboo-rise-3d {
+  0%   { transform: translateY(0) scale(1) rotate(0deg); opacity: 0; }
+  8%   { opacity: var(--opacity, 0.4); }
+  88%  { opacity: calc(var(--opacity, 0.4) * 0.6); }
+  100% { transform: translateY(-100px) scale(0.8) rotate(15deg); opacity: 0; }
+}
+
+/* ── 25. PANDA TOOLTIP: breathing pulse when visible ────────── */
+@keyframes tooltip-breathe {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50%       { transform: translateX(-50%) scale(1.04); }
+}
+
+/* ── 26. AUTH CARD: floating island effect ───────────────────── */
+@keyframes card-island-float {
+}
+@media (min-width: 1024px) {
+}
+
+/* ── 27. PANDA CHEEKS: pulse more intensely on happy ────────── */
+.panda--happy .panda-cheek {
+  animation: none !important;
+  background: radial-gradient(circle, rgba(255, 100, 130, 0.95) 0%, rgba(255, 100, 130, 0) 70%) !important;
+  transform: scale(1.25);
+  transition: all 0.3s ease;
+}
+
+/* ── 28. POLICY FOOTER: bamboo leaf trail ────────────────────── */
+@keyframes policy-float {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50%       { transform: translateY(-4px) rotate(5deg); }
+}
+
+/* ── 29. MOBILE: swipe hint animation ───────────────────────── */
+@keyframes swipe-hint {
+  0%   { opacity: 0; transform: translateX(0); }
+  20%  { opacity: 0.6; }
+  80%  { opacity: 0.4; }
+  100% { opacity: 0; transform: translateX(10px); }
+}
+
+/* ── 30. STRENGTH BAR: panda emoji label pop ────────────────── */
+@keyframes strength-label-pop {
+  0%   { transform: scale(0.7) translateX(4px); opacity: 0; }
+  60%  { transform: scale(1.1) translateX(-1px); }
+  100% { transform: scale(1) translateX(0); opacity: 1; }
+}
+
+/* ── 31. PANDA SUITCASE: color cycle ────────────────────────── */
+@keyframes suitcase-color-cycle {
+  0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+  33%       { filter: hue-rotate(15deg) brightness(1.08); }
+  66%       { filter: hue-rotate(-10deg) brightness(0.95); }
+}
+
+/* ── 32. PAGE LOAD SEQUENCE: coordinated entrance ────────────── */
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.relative.h-screen {
+  animation: page-fade-in 0.4s ease both;
+}
+
+/* ── 33. PANDA BUTTON SVG: idle breathe ──────────────────────── */
+@keyframes svg-panda-breathe {
+  0%, 100% { transform: scaleY(1); transform-origin: 50% 100%; }
+  50%       { transform: scaleY(1.02); transform-origin: 50% 100%; }
+}
+.panda-svg-btn:not(:hover):not(:disabled):not(.panda-svg-btn--loading) .panda-svg-body {
+  animation: svg-panda-breathe 3s ease-in-out infinite !important;
+}
+
+/* ── 34. FORGOT PASSWORD: panda paw next to link ────────────── */
+.auth-forgot-link::before {
+  content: "";
+  display: inline;
+}
+.auth-forgot-link:hover::before {
+  content: "🐾 ";
+  font-size: 10px;
+  animation: strength-label-pop 0.2s ease both;
+}
+
+/* ── 35. DARK MODE EXTRAS: neon green glow ────────────────────── */
+@media (prefers-color-scheme: dark) {
+}
+
+/* ── REDUCED MOTION: disable ALL V10 additions ──────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-mascot-wrapper,
+  .panda-eye.left,
+  .panda-head,
+  .panda-arm.left,
+  .baby-panda,
+  .panda--sad .panda-glasses-lens,
+  .panda-stage--loading::before,
+  .panda-stage--loading::after,
+  .panda-patch,
+  .sm\:max-w-md::after,
+  .sm\:max-w-md::before,
+  .bamboo-particle,
+  .auth-strength-label,
+  .panda-suitcase-body,
+  .auth-policy-panda,
+  .panda-svg-btn .panda-svg-body {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+
+/* ================================================================
+   NÂNG CẤP V11 — Ultra Premium Final: Animation & Theme Sync
+   Panda Login — Hoàn thiện 100% chủ đề + animation xịn nhất
+   ================================================================ */
+
+/* ── V11 TOKEN ADDITIONS ─────────────────────────────────────── */
+
+/* ── 1. INPUT: INK-DROP FILL ANIMATION ───────────────────────── */
+/* Khi focus, một "giọt mực" panda-green tràn từ dưới lên       */
+@keyframes ink-drop-fill {
+  0%   { background-size: 100% 0%;   background-position: bottom; opacity: 0.06; }
+  100% { background-size: 100% 100%; background-position: bottom; opacity: 0.04; }
+}
+
+/* ── 2. INPUT: ANIMATED PLACEHOLDER FADE ────────────────────── */
+@keyframes placeholder-wave {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 0.65; }
+}
+input::placeholder {
+  animation: placeholder-wave 3s ease-in-out infinite;
+}
+
+/* ── 3. CARD: LIQUID GLASS MORPHISM SHIMMER ──────────────────── */
+/* Extra shimmer layer that pulses softly behind the glass card  */
+@keyframes liquid-glass-pulse {
+  0%   { opacity: 0.5; transform: translateX(-50%) rotate(0deg) scale(1); }
+  50%  { opacity: 0.8; transform: translateX(-50%) rotate(3deg) scale(1.04); }
+  100% { opacity: 0.5; transform: translateX(-50%) rotate(0deg) scale(1); }
+}
+
+/* ── 4. PANDA HEAD: THINKING SMOKE PUFFS ────────────────────── */
+@keyframes think-puff {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+  30%  { opacity: 0.6; }
+  100% { opacity: 0; transform: translate(-50%, -22px) scale(1.4); }
+}
+.panda-stage--loading .panda-head::before {
+  content: "💭";
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  font-size: 18px;
+  pointer-events: none;
+  animation: think-puff 1.1s ease-in-out infinite;
+  transform-origin: center bottom;
+  z-index: 20;
+}
+
+/* ── 5. FORM CARD: CHROMATIC ABERRATION ON HAPPY ────────────── */
+@keyframes chroma-happy {
+  0%   { text-shadow: none; }
+  20%  { text-shadow: 2px 0 rgba(255,80,80,0.25), -2px 0 rgba(80,80,255,0.25); }
+  40%  { text-shadow: -1px 0 rgba(80,255,80,0.3), 1px 0 rgba(255,255,80,0.2); }
+  100% { text-shadow: none; }
+}
+.panda-card--happy .sm\:max-w-md h2 {
+  animation: chroma-happy 0.6s ease-out;
+}
+
+/* ── 6. PANDA MASCOT: SHADOW DEPTH PULSE ────────────────────── */
+@keyframes mascot-depth-pulse {
+}
+
+/* ── 7. SOCIAL BUTTONS: GRADIENT ICON BADGE ─────────────────── */
+/* Màu nền icon Google/GitHub đồng bộ chủ đề khi hover          */
+
+/* ── 8. VARIANT TOGGLE: SLIDE DIRECTION ARROWS ───────────────── */
+@keyframes arrow-hint-right {
+  0%   { opacity: 0; transform: translateX(-4px); }
+  50%  { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(4px); }
+}
+.auth-toggle-link:hover::before {
+  content: "→ ";
+  font-size: 11px;
+  animation: arrow-hint-right 0.5s ease 2;
+}
+
+/* ── 9. PANDA BELLY: BREATHING RIPPLE ───────────────────────── */
+@keyframes belly-ripple {
+  0%, 100% { transform: translateX(-50%) scaleX(1) scaleY(1); opacity: 0.7; }
+  50%       { transform: translateX(-50%) scaleX(1.06) scaleY(1.04); opacity: 0.85; }
+}
+
+/* ── 10. LOADING DOTS: PANDA FACE SEQUENCE ───────────────────── */
+/* Dots flash 🐼 pattern: green → dark green → light green       */
+.panda-loading-dot:nth-child(1) {
+  background: #4caf50 !important;
+}
+.panda-loading-dot:nth-child(2) {
+  background: #2d5a27 !important;
+}
+.panda-loading-dot:nth-child(3) {
+  background: #a8e6a0 !important;
+}
+
+/* ── 11. EYE TOGGLE: MAGNETIC PULL EFFECT ───────────────────── */
+/* Nút mắt hút về phía cursor (CSS approximation)               */
+@keyframes eye-btn-magnetic {
+  0%   { transform: translateY(-50%) scale(1) rotate(0deg); }
+  30%  { transform: translateY(-50%) scale(1.18) rotate(-8deg); }
+  60%  { transform: translateY(-50%) scale(1.12) rotate(5deg); }
+  100% { transform: translateY(-50%) scale(1.15) rotate(0deg); }
+}
+
+/* ── 12. FORM: SECTION DIVIDERS GROW FROM CENTER ─────────────── */
+/* Divider lines already animate; add a center paw pip           */
+.auth-divider__text::after {
+  content: " 🐾";
+  display: inline;
+  font-size: 10px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.auth-divider:hover .auth-divider__text::after {
+  opacity: 0.65;
+}
+
+/* ── 13. PANDA GLASSES: HOLOGRAPHIC LENS GLINT ──────────────── */
+@keyframes holo-lens {
+  0%   { background: rgba(120,180,255,0.22); }
+  33%  { background: rgba(120,255,180,0.25); }
+  66%  { background: rgba(255,180,120,0.18); }
+  100% { background: rgba(120,180,255,0.22); }
+}
+.panda-glasses-lens.right {
+  animation-delay: 1.5s;
+}
+
+/* ── 14. CARD: PARTICLE STARFIELD BACKGROUND ─────────────────── */
+@keyframes star-twinkle-v11 {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50%       { opacity: 0.7; transform: scale(1); }
+}
+
+/* ── 15. INPUT ERROR: BLOOD PRESSURE RED FLOOD ──────────────── */
+@keyframes error-flood {
+  0%   { box-shadow: 0 0 0 0 rgba(239,68,68,0); border-color: inherit; }
+  30%  { box-shadow: 0 0 0 4px rgba(239,68,68,0.25); border-color: #ef4444; }
+  60%  { box-shadow: 0 0 0 2px rgba(239,68,68,0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); border-color: #ef4444; }
+}
+input.error,
+input[aria-invalid="true"],
+input[aria-invalid="true"]:focus {
+  animation: error-flood 0.6s ease-out both !important;
+  border-color: #ef4444 !important;
+}
+
+/* ── 16. PANDA MASCOT: HAPPY RAINBOW AURA ───────────────────── */
+@keyframes happy-aura-v11 {
+  0%   { filter: drop-shadow(0 0 8px rgba(76,175,80,0.5))  drop-shadow(0 14px 22px rgba(0,0,0,0.22)); }
+  25%  { filter: drop-shadow(0 0 12px rgba(255,183,77,0.4)) drop-shadow(0 14px 22px rgba(0,0,0,0.22)); }
+  50%  { filter: drop-shadow(0 0 10px rgba(33,150,243,0.4)) drop-shadow(0 14px 22px rgba(0,0,0,0.22)); }
+  75%  { filter: drop-shadow(0 0 12px rgba(255,100,130,0.4)) drop-shadow(0 14px 22px rgba(0,0,0,0.22)); }
+  100% { filter: drop-shadow(0 0 8px rgba(76,175,80,0.5))  drop-shadow(0 14px 22px rgba(0,0,0,0.22)); }
+}
+
+/* ── 17. SOCIAL BUTTON: PLATFORM COLOR BADGE ────────────────── */
+/* GitHub button gets a dark tint, Google gets colorful          */
+.auth-social-btn[data-provider="github"]:hover {
+  background: rgba(36,41,47,0.06) !important;
+  border-color: rgba(36,41,47,0.3) !important;
+}
+.auth-social-btn[data-provider="google"]:hover {
+  background: linear-gradient(135deg,
+    rgba(234,67,53,0.04) 0%,
+    rgba(251,188,5,0.04) 33%,
+    rgba(52,168,83,0.06) 66%,
+    rgba(66,133,244,0.04) 100%) !important;
+}
+
+/* ── 18. FORM H2: EMOJI WINK ON HOVER ───────────────────────── */
+@keyframes panda-wink-emoji {
+  0%   { content: "🐼"; }
+  50%  { content: "😉"; }
+  100% { content: "🐼"; }
+}
+
+/* ── 19. PANDA STAGE: SPOTLIGHT GLOW ────────────────────────── */
+@keyframes spotlight-sweep {
+  0%   { background: radial-gradient(ellipse 60% 60% at 30% 60%, rgba(76,175,80,0.06) 0%, transparent 70%); }
+  50%  { background: radial-gradient(ellipse 60% 60% at 70% 40%, rgba(76,175,80,0.09) 0%, transparent 70%); }
+  100% { background: radial-gradient(ellipse 60% 60% at 30% 60%, rgba(76,175,80,0.06) 0%, transparent 70%); }
+}
+
+/* ── 20. STRENGTH BAR: GRADIENT SEGMENTS ────────────────────── */
+/* Each filled segment transitions through traffic-light colors  */
+
+/* ── 21. PANDA PEEK BUBBLE: PULSING GLOW ────────────────────── */
+@keyframes peek-bubble-glow {
+  0%, 100% { box-shadow: 0 3px 10px rgba(45,90,39,0.25); }
+  50%       { box-shadow: 0 3px 18px rgba(76,175,80,0.45), 0 0 8px rgba(76,175,80,0.2); }
+}
+
+/* ── 22. BRAND PANEL LOGO: RING CHROMA UPGRADE ───────────────── */
+@keyframes logo-chroma-v11 {
+  0%   { border-color: rgba(255,255,255,0.55); box-shadow: 0 0 0 0 rgba(76,175,80,0); }
+  33%  { border-color: rgba(134,239,172,0.8);  box-shadow: 0 0 14px 3px rgba(76,175,80,0.35); }
+  66%  { border-color: rgba(255,255,255,0.7);  box-shadow: 0 0 8px 1px rgba(134,239,172,0.25); }
+  100% { border-color: rgba(255,255,255,0.55); box-shadow: 0 0 0 0 rgba(76,175,80,0); }
+}
+
+/* ── 23. PANDA TAIL: ENHANCED WAG BEHIND BODY ───────────────── */
+@keyframes tail-wag-v11 {
+  0%, 100% { transform: translateX(-50%) rotate(-20deg) scale(1); }
+  25%       { transform: translateX(-50%) rotate(15deg) scale(1.08); }
+  50%       { transform: translateX(-50%) rotate(-10deg) scale(0.96); }
+  75%       { transform: translateX(-50%) rotate(20deg) scale(1.05); }
+}
+
+/* ── 24. CHIP BADGES: SPRING HOVER MICRO-INTERACTION ────────── */
+@keyframes chip-spring {
+  0%   { transform: scale(1) translateY(0) rotate(0deg); }
+  25%  { transform: scale(1.12) translateY(-4px) rotate(-2deg); }
+  50%  { transform: scale(1.08) translateY(-2px) rotate(2deg); }
+  75%  { transform: scale(1.05) translateY(-1px) rotate(-1deg); }
+  100% { transform: scale(1.08) translateY(-3px) rotate(0deg); }
+}
+
+/* ── 25. PANDA BUTTON: NEON GLOW PULSE ON IDLE ───────────────── */
+@keyframes panda-btn-neon-idle {
+}
+.panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading):not(:hover) {
+  animation:
+    panda-btn-appear 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.35s both,
+    panda-btn-neon-idle 3s ease-in-out 1s infinite !important;
+}
+
+/* ── 26. SUCCESS CARD FLASH: AURORA WAVE ────────────────────── */
+@keyframes aurora-wave-happy {
+  0%   { background-position: 0% 50%; opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { background-position: 200% 50%; opacity: 0; }
+}
+.auth-success-flash::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(76,175,80,0.15) 0%,
+    rgba(134,239,172,0.2) 25%,
+    rgba(255,255,255,0.1) 50%,
+    rgba(76,175,80,0.12) 75%,
+    rgba(45,90,39,0.15) 100%
+  );
+  background-size: 200% 200%;
+  pointer-events: none;
+  z-index: 49;
+  animation: aurora-wave-happy 1.2s ease-out forwards;
+}
+
+/* ── 27. FORGOT PASSWORD: PAW PRINT TRAIL HOVER ─────────────── */
+@keyframes forgot-paw-trail {
+  0%   { letter-spacing: 0em; }
+  50%  { letter-spacing: 0.05em; }
+  100% { letter-spacing: 0em; }
+}
+
+/* ── 28. PANDA MASCOT WRAPPER: SPOTLIGHT ENTRANCE ───────────── */
+@keyframes mascot-wrapper-glow {
+  0%   { filter: drop-shadow(0 0 0px rgba(76,175,80,0)); }
+  40%  { filter: drop-shadow(0 0 20px rgba(76,175,80,0.35)); }
+  100% { filter: drop-shadow(0 0 0px rgba(76,175,80,0)); }
+}
+
+/* ── 29. BOTTOM POLICY AREA: STAGGER FADE-IN ────────────────── */
+@keyframes policy-area-in {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.auth-rise-3 ~ * .mt-6,
+.mt-6.text-center.text-xs {
+  animation: policy-area-in 0.5s ease 0.6s both;
+}
+
+/* ── 30. BABY PANDAS: TRAIL SPARKLE ─────────────────────────── */
+@keyframes baby-trail-sparkle {
+  0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+  30%  { opacity: 0.8; transform: scale(1) rotate(20deg); }
+  100% { opacity: 0; transform: scale(0.3) rotate(60deg) translateY(-12px); }
+}
+.baby-panda-orbit::after {
+  content: "✨";
+  position: absolute;
+  font-size: 8px;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: baby-trail-sparkle 2s ease-in-out infinite;
+  animation-delay: calc(var(--delay, 0s) * -1);
+}
+
+/* ── 31. PANDA BUTTON HOVER: LEAF RAIN ──────────────────────── */
+@keyframes leaf-rain-v11 {
+  0%   { opacity: 0; transform: translate(0, -10px) rotate(0deg) scale(0.8); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--lx,8px), 28px) rotate(var(--lr,40deg)) scale(0.5); }
+}
+
+/* ── 32. DARK MODE: ENHANCED NEON GREEN ──────────────────────── */
+.dark .sm\:max-w-md:focus-within {
+  box-shadow:
+    0 0 0 2px rgba(134,239,172,0.5),
+    0 0 35px rgba(134,239,172,0.2),
+    0 0 60px rgba(74,222,128,0.1),
+    0 30px 60px rgba(0,0,0,0.55) !important;
+}
+
+/* ── REDUCED MOTION: ALL V11 ADDITIONS ──────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-stage--loading .panda-head::before,
+  .panda-belly,
+  .panda-glasses-lens,
+  .panda-body::after,
+  .auth-strength-bar-seg,
+  .panda-stage--peek .panda-peek-bubble,
+  .auth-logo-ring,
+  .panda-mascot-wrapper,
+  .panda-svg-btn:not(:disabled):not(.panda-svg-btn--loading):not(:hover),
+  .auth-success-flash::before,
+  .baby-panda-orbit::after,
+  .panda-svg-btn:hover::after,
+  .auth-rise-3 ~ * .mt-6 {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+
+/* ================================================================
+   ANIMATION NÂNG CẤP — Phase 2
+   ================================================================ */
+
+/* ── Panda LOADING state: chạy tại chỗ nhanh hơn + xoay mắt ─── */
+
+.panda--loading .panda-leg.left  { animation: panda-step-a 0.28s ease-in-out infinite !important; }
+.panda--loading .panda-leg.right { animation: panda-step-b 0.28s ease-in-out infinite !important; }
+.panda--loading .panda-foot.left  { animation: panda-step-a 0.28s ease-in-out infinite !important; }
+.panda--loading .panda-foot.right { animation: panda-step-b 0.28s ease-in-out infinite !important; }
+.panda--loading .panda-arm.left { animation: panda-arm-left 0.28s ease-in-out infinite !important; }
+/* Sweat drop rendered via pseudo-element on panda-head during loading */
+/* Eyes spin while loading */
+
+/* ── Panda-wrap loading bob applies to the whole stage container ─ */
+
+/* ── Bamboo particle floaters (appear on form card hover) ──────── */
+
+/* ── Input field — animated label float + panda border pulse ───── */
+
+/* ── Form card — subtle panda-green shimmer sweep on mount ─────── */
+
+/* ── PandaButton — upgraded hover + pressed + loaded state ─────── */
+
+/* ── Star/sparkle burst on happy mood ──────────────────────────── */
+
+/* ── Sad state — tears drip ─────────────────────────────────────── */
+.panda--sad .panda-cheek.left::after,
+
+/* ── Auth form panel — staggered field reveal ───────────────────── */
+.space-y-4 > *:nth-child(1) { animation-delay: 0.3s; }
+.space-y-4 > *:nth-child(2) { animation-delay: 0.38s; }
+.space-y-4 > *:nth-child(3) { animation-delay: 0.46s; }
+.space-y-4 > *:nth-child(4) { animation-delay: 0.52s; }
+
+/* ── Baby pandas — speed up when loading ──────────────────────── */
+.panda-stage:has(.panda--loading) .baby-panda-leg,
+
+/* ── Card border — panda-green pulse ring on mount ──────────────── */
+
+/* ── Auth toggle link — bubble pop on switch ─────────────────────── */
+
+/* ── Reduced motion: disable all new animations ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda--loading,
+  .panda--loading .panda-leg,
+  .panda--loading .panda-foot,
+  .panda--loading .panda-arm,
+  .panda--loading .panda-eye,
+  .bamboo-particle,
+  .panda-svg-btn,
+  .space-y-4 > * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+
+/* ================================================================
+   ANIMATION NÂNG CẤP — Phase 3: Premium Panda Experience
+   ================================================================ */
+
+/* ── Confetti burst keyframe (PandaButton click) ─────────────── */
+
+/* ── Sparkle stars on happy panda ────────────────────────────── */
+
+/* Position the 3 sparkles at different spots */
+.panda-sparkle:nth-child(1) { left: -20px; top: 10px; }
+.panda-sparkle:nth-child(2) { right: -18px; top: 20px; }
+.panda-sparkle:nth-child(3) { left: 50%; top: -14px; transform: translateX(-50%); font-size: 14px; }
+
+/* Trigger sparkles when parent stage has happy class */
+
+/* ── Panda sad tears — enhanced drop animation ───────────────── */
+.panda-stage--sad .panda-cheek.left::after,
+
+/* ── Loading state: screen shake pulse on the stage ──────────── */
+
+/* ── Baby pandas slow down on happy (celebrating!) ───────────── */
+/* Baby pandas scatter/freeze on sad */
+
+/* ── Card glass shimmer on hover ─────────────────────────────── */
+
+/* ── Input typing indicator — cute green dot pulse ───────────── */
+
+/* ── Panda mascot idle: subtle breathing (scale y) ───────────── */
+
+/* ── Panda mascot eyes: extra long gaze, then double blink ──── */
+
+/* ── Panda nose shimmer ──────────────────────────────────────── */
+
+/* ── Auth form card: mount with 3D flip-up effect ───────────── */
+/* Apply to the card container once only on mount */
+
+/* ── Heading text — typewriter underline effect ──────────────── */
+
+/* Center variant (mobile) */
+
+/* ── Panda button: idle float animation on the SVG ──────────── */
+/* Pause idle float on hover (replaced by panda-btn-float) */
+
+/* ── Social button: icon bounce on hover ─────────────────────── */
+
+/* ── Floating panda emoji watermark on brand side ────────────── */
+
+/* ── "Đăng nhập" / "Đăng ký" transition — text swap shimmer ─── */
+
+/* ── Password reveal: panda paws smooth out + bounce ─────────── */
+.panda--peek .panda-arm.left,
+
+/* ── Baby pandas grow hearts on happy ───────────────────────── */
+
+/* ── Gradient text on the form heading ───────────────────────── */
+
+/* ── Reduced motion: disable ALL Phase 3 additions ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-sparkle,
+  .panda-body,
+  .panda-nose,
+  .panda-stage--loading,
+  h2.auth-rise-2::after,
+  .auth-social-btn .auth-social-btn__icon,
+  h2.auth-rise-2::after { transform: scaleX(1); }
+}
+
+
+/* ================================================================
+   ANIMATION NÂNG CẤP — Phase 2
+   ================================================================ */
+
+/* ── Panda LOADING state: chạy tại chỗ nhanh hơn + xoay mắt ─── */
+
+.panda--loading .panda-leg.left  { animation: panda-step-a 0.28s ease-in-out infinite !important; }
+.panda--loading .panda-leg.right { animation: panda-step-b 0.28s ease-in-out infinite !important; }
+.panda--loading .panda-foot.left  { animation: panda-step-a 0.28s ease-in-out infinite !important; }
+.panda--loading .panda-foot.right { animation: panda-step-b 0.28s ease-in-out infinite !important; }
+.panda--loading .panda-arm.left { animation: panda-arm-left 0.28s ease-in-out infinite !important; }
+/* Sweat drop rendered via pseudo-element on panda-head during loading */
+/* Eyes spin while loading */
+
+/* ── Panda-wrap loading bob applies to the whole stage container ─ */
+
+/* ── Bamboo particle floaters (appear on form card hover) ──────── */
+
+/* ── Input field — animated label float + panda border pulse ───── */
+
+/* ── Form card — subtle panda-green shimmer sweep on mount ─────── */
+
+/* ── PandaButton — upgraded hover + pressed + loaded state ─────── */
+
+/* ── Star/sparkle burst on happy mood ──────────────────────────── */
+
+/* ── Sad state — tears drip ─────────────────────────────────────── */
+.panda--sad .panda-cheek.left::after,
+
+/* ── Auth form panel — staggered field reveal ───────────────────── */
+.space-y-4 > *:nth-child(1) { animation-delay: 0.3s; }
+.space-y-4 > *:nth-child(2) { animation-delay: 0.38s; }
+.space-y-4 > *:nth-child(3) { animation-delay: 0.46s; }
+.space-y-4 > *:nth-child(4) { animation-delay: 0.52s; }
+
+/* ── Baby pandas — speed up when loading ──────────────────────── */
+.panda-stage:has(.panda--loading) .baby-panda-leg,
+
+/* ── Card border — panda-green pulse ring on mount ──────────────── */
+
+/* ── Auth toggle link — bubble pop on switch ─────────────────────── */
+
+/* ── Reduced motion: disable all new animations ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda--loading,
+  .panda--loading .panda-leg,
+  .panda--loading .panda-foot,
+  .panda--loading .panda-arm,
+  .panda--loading .panda-eye,
+  .bamboo-particle,
+  .panda-svg-btn,
+  .space-y-4 > * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+
+/* ================================================================
+   ANIMATION NÂNG CẤP — Phase 3: Premium Panda Experience
+   ================================================================ */
+
+/* ── Confetti burst keyframe (PandaButton click) ─────────────── */
+
+/* ── Sparkle stars on happy panda ────────────────────────────── */
+
+/* Position the 3 sparkles at different spots */
+.panda-sparkle:nth-child(1) { left: -20px; top: 10px; }
+.panda-sparkle:nth-child(2) { right: -18px; top: 20px; }
+.panda-sparkle:nth-child(3) { left: 50%; top: -14px; transform: translateX(-50%); font-size: 14px; }
+
+/* Trigger sparkles when parent stage has happy class */
+
+/* ── Panda sad tears — enhanced drop animation ───────────────── */
+.panda-stage--sad .panda-cheek.left::after,
+
+/* ── Loading state: screen shake pulse on the stage ──────────── */
+
+/* ── Baby pandas slow down on happy (celebrating!) ───────────── */
+/* Baby pandas scatter/freeze on sad */
+
+/* ── Card glass shimmer on hover ─────────────────────────────── */
+
+/* ── Input typing indicator — cute green dot pulse ───────────── */
+
+/* ── Panda mascot idle: subtle breathing (scale y) ───────────── */
+
+/* ── Panda mascot eyes: extra long gaze, then double blink ──── */
+
+/* ── Panda nose shimmer ──────────────────────────────────────── */
+
+/* ── Auth form card: mount with 3D flip-up effect ───────────── */
+/* Apply to the card container once only on mount */
+
+/* ── Heading text — typewriter underline effect ──────────────── */
+
+/* Center variant (mobile) */
+
+/* ── Panda button: idle float animation on the SVG ──────────── */
+/* Pause idle float on hover (replaced by panda-btn-float) */
+
+/* ── Social button: icon bounce on hover ─────────────────────── */
+
+/* ── Floating panda emoji watermark on brand side ────────────── */
+
+/* ── "Đăng nhập" / "Đăng ký" transition — text swap shimmer ─── */
+
+/* ── Password reveal: panda paws smooth out + bounce ─────────── */
+.panda--peek .panda-arm.left,
+
+/* ── Baby pandas grow hearts on happy ───────────────────────── */
+
+/* ── Gradient text on the form heading ───────────────────────── */
+
+/* ── Reduced motion: disable ALL Phase 3 additions ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  .panda-sparkle,
+  .panda-body,
+  .panda-nose,
+  .panda-stage--loading,
+  h2.auth-rise-2::after,
+  .auth-social-btn .auth-social-btn__icon,
+  h2.auth-rise-2::after { transform: scaleX(1); }
+}
+
+/* ================================================================
+   NÂNG CẤP UI/UX — Đồng bộ chủ đề Panda toàn trang login
+   ================================================================ */
+
+/* ── Panda colour tokens ──────────────────────────────────────── */
+
+/* ── Input focus ring — panda green ──────────────────────────── */
+/* Override the default blue focus ring on Input component       */
+input:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+
+/* Floating label colour when focused */
+input:focus ~ label,
+
+/* ── Auth divider (replaces the old inline flex version) ─────── */
+
+/* ── Social button — panda-themed ───────────────────────────── */
+
+/* Paw print watermark (hidden by default) */
+
+
+
+
+
+
+/* Shimmer sweep on social button hover */
+
+/* ── Forgot password link ────────────────────────────────────── */
+
+/* ── Toggle link (Tạo tài khoản / Đăng nhập) ────────────────── */
 
 /* ── Policy links — panda green ─────────────────────────────── */
 .auth-policy-link,
-[class*="text-ink-soft"] button[class*="underline"] {
-  color: var(--panda-green) !important;
-  text-decoration-color: rgba(45, 90, 39, 0.3) !important;
-  transition: color 0.15s ease !important;
-}
 .auth-policy-link:hover,
-[class*="text-ink-soft"] button[class*="underline"]:hover {
-  color: var(--panda-green-light) !important;
-}
-.dark [class*="text-ink-soft"] button[class*="underline"] {
-  color: #6ee060 !important;
-}
 
 /* ── Glass card hover — subtle panda-green ring glow ─────────── */
 /* Targets the form card on the right panel */
-.sm\:max-w-md {
-  transition: box-shadow 0.3s ease;
-}
-.sm\:max-w-md:hover {
-  box-shadow:
-    0 24px 64px rgba(0,0,0,0.45),
-    0 0 0 1px rgba(45, 90, 39, 0.25),
-    inset 0 1px 0 rgba(255,255,255,0.55);
-}
 
 /* ── Panda mascot — tighter top margin on register (3 fields) ── */
 /* Already handled by panda-stage min-height, but ensure no overflow */
-.panda-stage {
-  overflow: visible;
-}
 
 /* ── Entrance animation for social grid ─────────────────────── */
-.auth-rise .grid {
-  /* inherit parent auth-rise timing */
-}
 
 /* ── Bamboo-green chip tags on brand side ─────────────────────── */
 /* Already in page.tsx via Tailwind; add a subtle panda-themed glow on hover */
-.auth-rise-4 span[class*="rounded-full"] {
-  transition: background 0.18s ease, box-shadow 0.18s ease;
-}
-.auth-rise-4 span[class*="rounded-full"]:hover {
-  background: rgba(255,255,255,0.25);
-  box-shadow: 0 0 12px rgba(255,255,255,0.2);
-}
 
 /* ── Toast customisation — panda green success ───────────────── */
 /* react-hot-toast uses inline styles, but the icon class is overrideable */
-[data-hot-toast] [class*="success"] {
-  color: var(--panda-green) !important;
-}
 
 /* ── Reduced motion additions ────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {

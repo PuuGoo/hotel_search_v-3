@@ -11,8 +11,9 @@ interface InputProps {
   register: UseFormRegister<FieldValues>;
   errors: FieldErrors;
   disabled?: boolean;
-  onFocus?: () => void;
+  onFocus?: (e?: any) => void;
   onBlur?: () => void;
+  onChange?: (e?: any) => void;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -25,6 +26,7 @@ const Input: React.FC<InputProps> = ({
   disabled,
   onFocus,
   onBlur,
+  onChange,
 }) => {
   // react-hook-form's register() supplies its own onBlur; compose it so callers
   // can still react to focus/blur (e.g. the password field asks the mascot to
@@ -46,6 +48,10 @@ const Input: React.FC<InputProps> = ({
           autoComplete={id}
           disabled={disabled}
           {...field}
+          onChange={(e) => {
+            field.onChange(e);
+            onChange?.(e);
+          }}
           onFocus={onFocus}
           onBlur={(e) => {
             field.onBlur(e);
