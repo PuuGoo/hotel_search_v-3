@@ -346,7 +346,7 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
                 resume_ws = resume_wb.active
                 restored = 0
                 for r in range(2, resume_ws.max_row + 1):
-                    resume_status = str((resume_ws.cell(row=r, column=status_col).value or "").strip())
+                    resume_status = str(resume_ws.cell(row=r, column=status_col).value or "").strip()
                     if resume_status and r <= sheet.max_row:
                         # Copy all result columns from resume file to current workbook
                         for col in range(url_col, status_col + 1):
@@ -361,14 +361,14 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
     row_data = []  # For duplicate detection
     for row in range(2, sheet.max_row + 1):
         hotel_name = str(sheet.cell(row=row, column=name_idx).value or "").strip()
-        hotel_address = str((sheet.cell(row=row, column=addr_idx).value or "").strip())
+        hotel_address = str(sheet.cell(row=row, column=addr_idx).value or "").strip()
         if not hotel_name or not hotel_address:
             continue
         if resume:
             # Skip if already completed (from progress file OR Excel)
             if row in completed_rows:
                 continue
-            existing_url = str((sheet.cell(row=row, column=url_col).value or "").strip())
+            existing_url = str(sheet.cell(row=row, column=url_col).value or "").strip()
             if existing_url:
                 continue
         valid_rows.append(row)
@@ -425,8 +425,8 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
             tasks = []
             for i, row in enumerate(batch):
                 no_val = sheet.cell(row=row, column=1).value
-                hotel_name = str((sheet.cell(row=row, column=name_idx).value or "").strip())
-                hotel_address = str((sheet.cell(row=row, column=addr_idx).value or "").strip())
+                hotel_name = str(sheet.cell(row=row, column=name_idx).value or "").strip()
+                hotel_address = str(sheet.cell(row=row, column=addr_idx).value or "").strip()
                 tasks.append(worker_task(browser, row, no_val, hotel_name, hotel_address, i + 1, json_mode=json_mode, perf_tracker=perf, error_logger=error_logger, no_cache=no_cache))
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -633,8 +633,8 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
     
     if email and (not email_on_error or total_errors > 0):
         # Calculate stats for email
-        matched = sum(1 for r in range(2, total_valid + 2) if str((sheet.cell(row=r, column=status_col).value or "").strip()) == "matched")
-        no_result = sum(1 for r in range(2, total_valid + 2) if str((sheet.cell(row=r, column=status_col).value or "").strip()) == "no-valid-result")
+        matched = sum(1 for r in range(2, total_valid + 2) if str(sheet.cell(row=r, column=status_col).value or "").strip() == "matched")
+        no_result = sum(1 for r in range(2, total_valid + 2) if str(sheet.cell(row=r, column=status_col).value or "").strip() == "no-valid-result")
         scores = [int(sheet.cell(row=r, column=score_col).value or 0) for r in range(2, total_valid + 2) if sheet.cell(row=r, column=score_col).value]
         avg_score = sum(scores) // len(scores) if scores else 0
         processing_time = perf_summary.get('total_time', 0)
@@ -727,7 +727,7 @@ def _create_clean_output(workbook, data_sheet, clean_path, url_col, engine_col, 
     # Data rows
     row_idx = 2
     for row in range(2, data_sheet.max_row + 1):
-        status = str((data_sheet.cell(row=row, column=status_col).value or "").strip())
+        status = str(data_sheet.cell(row=row, column=status_col).value or "").strip()
         if not status:
             continue
 
@@ -792,9 +792,9 @@ def _create_clean_output(workbook, data_sheet, clean_path, url_col, engine_col, 
     summary_font = Font(bold=True, size=11)
 
     # Calculate summary stats
-    matched_count = sum(1 for r in range(2, data_sheet.max_row + 1) if str((data_sheet.cell(row=r, column=status_col).value or "").strip()) == "matched")
-    no_result_count = sum(1 for r in range(2, data_sheet.max_row + 1) if str((data_sheet.cell(row=r, column=status_col).value or "").strip()) == "no-valid-result")
-    error_count = sum(1 for r in range(2, data_sheet.max_row + 1) if str((data_sheet.cell(row=r, column=status_col).value or "").strip()) == "error")
+    matched_count = sum(1 for r in range(2, data_sheet.max_row + 1) if str(data_sheet.cell(row=r, column=status_col).value or "").strip() == "matched")
+    no_result_count = sum(1 for r in range(2, data_sheet.max_row + 1) if str(data_sheet.cell(row=r, column=status_col).value or "").strip() == "no-valid-result")
+    error_count = sum(1 for r in range(2, data_sheet.max_row + 1) if str(data_sheet.cell(row=r, column=status_col).value or "").strip() == "error")
     total_imgs = sum(int(data_sheet.cell(row=r, column=img_col).value or 0) for r in range(2, data_sheet.max_row + 1))
     scores = [int(data_sheet.cell(row=r, column=score_col).value or 0) for r in range(2, data_sheet.max_row + 1) if data_sheet.cell(row=r, column=score_col).value]
     avg_score = sum(scores) // len(scores) if scores else 0
@@ -891,7 +891,7 @@ def _create_compact_output(workbook, data_sheet, output_path, url_col, engine_co
     # Data rows - only include rows that have been processed (have a status)
     row_idx = 2
     for row in range(2, data_sheet.max_row + 1):
-        status = str((data_sheet.cell(row=row, column=status_col).value or "").strip())
+        status = str(data_sheet.cell(row=row, column=status_col).value or "").strip()
         if not status:
             continue  # Skip unprocessed rows
 
@@ -945,9 +945,9 @@ def _add_summary_sheet(workbook, data_sheet, total_rows, url_col, engine_col, sc
     engines = {}
 
     for row in range(2, data_sheet.max_row + 1):
-        status = str((data_sheet.cell(row=row, column=status_col).value or "").strip())
+        status = str(data_sheet.cell(row=row, column=status_col).value or "").strip()
         score = data_sheet.cell(row=row, column=score_col).value or 0
-        engine = str((data_sheet.cell(row=row, column=engine_col).value or "").strip())
+        engine = str(data_sheet.cell(row=row, column=engine_col).value or "").strip()
 
         if status == "matched":
             matched += 1
@@ -1080,7 +1080,7 @@ def _add_summary_sheet(workbook, data_sheet, total_rows, url_col, engine_col, sc
 
         bottom_scores = []
         for r in range(2, data_sheet.max_row + 1):
-            status = str((data_sheet.cell(row=r, column=status_col).value or "").strip())
+            status = str(data_sheet.cell(row=r, column=status_col).value or "").strip()
             if status == "matched":
                 score = data_sheet.cell(row=r, column=score_col).value
                 name = data_sheet.cell(row=r, column=1).value
@@ -1273,7 +1273,7 @@ def _add_notes_sheet(workbook, data_sheet, total_rows, url_col, score_col, statu
     # Collect flagged items
     flagged_count = 0
     for r in range(2, data_sheet.max_row + 1):
-        status = str((data_sheet.cell(row=r, column=status_col).value or "").strip())
+        status = str(data_sheet.cell(row=r, column=status_col).value or "").strip()
         score = data_sheet.cell(row=r, column=score_col).value
         name = data_sheet.cell(row=r, column=1).value
         
@@ -1356,7 +1356,7 @@ def _add_auto_filter_sheets(workbook, data_sheet, total_rows, url_col, score_col
         data_bg = PatternFill(start_color=bg_color, end_color=bg_color, fill_type="solid")
         
         for r in range(2, data_sheet.max_row + 1):
-            status = str((data_sheet.cell(row=r, column=status_col).value or "").strip())
+            status = str(data_sheet.cell(row=r, column=status_col).value or "").strip()
             if status == status_filter:
                 for col in range(1, data_sheet.max_column + 1):
                     cell = new_sheet.cell(row=row_idx, column=col)
@@ -1489,7 +1489,7 @@ def _add_validation_report(workbook, data_sheet, total_rows, name_col, addr_col,
         addr = data_sheet.cell(row=r, column=addr_col).value
         url = data_sheet.cell(row=r, column=url_col).value
         score = data_sheet.cell(row=r, column=score_col).value
-        status = str((data_sheet.cell(row=r, column=status_col).value or "").strip())
+        status = str(data_sheet.cell(row=r, column=status_col).value or "").strip()
         
         if name is not None:
             total_names += 1
