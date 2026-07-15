@@ -124,6 +124,25 @@ def emit_progress(data: dict, json_mode: bool):
             log(f"Done! Output: {data.get('output', '')}")
 
 
+def coerce_score(value, default: int = 0) -> int:
+    """Convert score-like values to int safely."""
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    try:
+        text = str(value).strip()
+        if not text:
+            return default
+        return int(float(text))
+    except (TypeError, ValueError):
+        return default
+
+
 def save_workbook(workbook, output_path: str):
     """Save workbook safely (write to temp then rename)."""
     import time
@@ -446,6 +465,7 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
                     continue
 
                 row, no_val, hotel_name, hotel_address, url, engine, score, img_count, status = result
+                score_val = coerce_score(score)
 
                 # Update worker stats
                 worker_id = (batch.index(row) % workers) + 1 if row in batch else 0
@@ -455,7 +475,7 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
                         worker_stats[worker_id]["errors"] += 1
                 sheet.cell(row=row, column=url_col, value=url)
                 sheet.cell(row=row, column=engine_col, value=engine)
-                sheet.cell(row=row, column=score_col, value=score)
+                sheet.cell(row=row, column=score_col, value=score_val)
                 sheet.cell(row=row, column=img_col, value=img_count)
                 sheet.cell(row=row, column=status_col, value=status)
 
@@ -482,9 +502,9 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
                     for col in range(1, status_col + 1):
                         sheet.cell(row=row, column=col).fill = warning_fill
                         
-                elif score and int(score) < 50:
+                elif score_val < 50 and score_val > 0:
                     # Flag low score matches
-                    comment = Comment(f"Low confidence match (score: {score}). Verify manually.", "Hotel URL Finder")
+                    comment = Comment(f"Low confidence match (score: {score_val}). Verify manually.", "Hotel URL Finder")
                     sheet.cell(row=row, column=score_col).comment = comment
 
                 # Track progress
@@ -494,10 +514,10 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
                 # Generate suggestions for low scores
                 suggestions = []
                 explanation = ""
-                if score and int(score) > 0:
-                    explanation = get_match_explanation(int(score), img_count or 0)
-                    if int(score) < 70:
-                        suggestions = get_improvement_tips(hotel_name, hotel_address, int(score))
+                if score_val > 0:
+                    explanation = get_match_explanation(score_val, img_count or 0)
+                    if score_val < 70:
+                        suggestions = get_improvement_tips(hotel_name, hotel_address, score_val)
                 
                 emit_progress({
                     "type": "row",
@@ -509,7 +529,7 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
                     "hotel_address": hotel_address,
                     "status": status,
                     "url": url,
-                    "score": score,
+                    "score": score_val,
                     "img_count": img_count,
                     "explanation": explanation,
                     "suggestions": suggestions,
@@ -1649,10 +1669,19 @@ def main():
     logger = setup_logging(args.log_file, args.log_level)
     logger.info(f"Starting export with template: {args.template}")
 
-    output = asyncio.run(process_excel(args.input, output_path, args.json, args.save_every,
-                                       resume=bool(args.resume), workers=args.workers,
-                                       progress_file=args.progress, clean_output=args.clean_output,
-                                       compact_output=args.compact_output, no_cache=args.no_cache))
+    try:
+        output = asyncio.run(process_excel(args.input, output_path, args.json, args.save_every,
+                                           resume=bool(args.resume), workers=args.workers,
+                                           progress_file=args.progress, clean_output=args.clean_output,
+                                           compact_output=args.compact_output, no_cache=args.no_cache))
+    except Exception as e:
+        error_msg = f"Export failed: {e}"
+        logger.error(error_msg)
+        if args.json:
+            print(json.dumps({"type": "error", "message": error_msg}, ensure_ascii=False), flush=True)
+        else:
+            print(f"ERROR: {error_msg}", file=sys.stderr)
+        sys.exit(1)
     if not args.json:
         print(output)
 
