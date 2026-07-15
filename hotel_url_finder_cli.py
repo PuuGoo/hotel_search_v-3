@@ -341,7 +341,7 @@ async def process_excel(input_path: str, output_path: str | None = None, json_mo
     valid_rows = []
     row_data = []  # For duplicate detection
     for row in range(2, sheet.max_row + 1):
-        hotel_name = str((sheet.cell(row=row, column=name_idx).value or "").strip())
+        hotel_name = str(sheet.cell(row=row, column=name_idx).value or "").strip()
         hotel_address = str((sheet.cell(row=row, column=addr_idx).value or "").strip())
         if not hotel_name or not hotel_address:
             continue
